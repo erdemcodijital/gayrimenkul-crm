@@ -26,6 +26,9 @@ export default function AgentDashboard() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'leads' | 'settings'>('leads');
+  const [themeColor, setThemeColor] = useState('#111827');
+  const [savingTheme, setSavingTheme] = useState(false);
 
   useEffect(() => {
     // Check if already authenticated
@@ -69,12 +72,33 @@ export default function AgentDashboard() {
 
       setAgent(agentData);
       setIsAuthenticated(true);
+      setThemeColor(agentData.theme_color || '#111827');
       localStorage.setItem(`agent_pin_${domain}`, pin);
       await loadLeads(agentData.id);
     } catch (err) {
       setError('Bir hata oluştu');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveThemeColor = async () => {
+    if (!agent) return;
+    
+    setSavingTheme(true);
+    try {
+      const { error } = await supabase
+        .from('agents')
+        .update({ theme_color: themeColor })
+        .eq('id', agent.id);
+
+      if (error) throw error;
+      
+      alert('Tema rengi kaydedildi! Landing sayfanızı yenilediğinizde göreceksiniz.');
+    } catch (err) {
+      alert('Tema rengi kaydedilemedi');
+    } finally {
+      setSavingTheme(false);
     }
   };
 
@@ -204,8 +228,36 @@ export default function AgentDashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        {/* Tabs */}
+        <div className="mb-6 border-b border-gray-200">
+          <nav className="flex space-x-8">
+            <button
+              onClick={() => setActiveTab('leads')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'leads'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Leadlerim
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'settings'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Ayarlar
+            </button>
+          </nav>
+        </div>
+
+        {activeTab === 'leads' && (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="text-xs text-gray-600 mb-1">Toplam Lead</div>
             <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
@@ -294,6 +346,90 @@ export default function AgentDashboard() {
             </div>
           )}
         </div>
+          </>
+        )}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-6">Site Ayarları</h2>
+            
+            {/* Theme Color */}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tema Rengi
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Landing sayfanızın ana rengini belirleyin
+                </p>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="color"
+                    value={themeColor}
+                    onChange={(e) => setThemeColor(e.target.value)}
+                    className="h-12 w-20 rounded border border-gray-300 cursor-pointer"
+                  />
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={themeColor}
+                      onChange={(e) => setThemeColor(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                      placeholder="#111827"
+                    />
+                  </div>
+                  <button
+                    onClick={saveThemeColor}
+                    disabled={savingTheme}
+                    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition disabled:opacity-50"
+                  >
+                    {savingTheme ? 'Kaydediliyor...' : 'Kaydet'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-600 mb-2">Önizleme:</p>
+                <div className="flex items-center space-x-3">
+                  <div
+                    className="w-16 h-16 rounded-lg"
+                    style={{ backgroundColor: themeColor }}
+                  ></div>
+                  <div>
+                    <p className="text-sm text-gray-700">Landing sayfanızda butonlar ve vurgulamalar bu renkte görünecek</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Agent Info */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-900 mb-4">Site Bilgileriniz</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">İsim:</span>
+                    <span className="font-medium text-gray-900">{agent?.name}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Domain:</span>
+                    <span className="font-medium text-gray-900">{agent?.domain}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Site URL:</span>
+                    <a 
+                      href={`/d/${agent?.domain}`}
+                      target="_blank"
+                      className="font-medium text-blue-600 hover:underline"
+                    >
+                      Siteyi Görüntüle →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
