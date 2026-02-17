@@ -14,11 +14,11 @@ interface PageProps {
 async function getAgent(domain: string): Promise<Agent | null> {
   console.log('🔍 Aranan domain:', domain);
   
+  // is_active kontrolünü KALDIRDIK - sayfada kontrol edeceğiz
   const { data, error } = await supabase
     .from('agents')
     .select('*')
     .eq('domain', domain)
-    .eq('is_active', true)
     .single();
 
   console.log('📊 Supabase yanıtı:', { data, error });
