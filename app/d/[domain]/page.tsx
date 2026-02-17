@@ -1,10 +1,6 @@
-'use client';
-
-import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import LeadForm from './LeadForm';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 
