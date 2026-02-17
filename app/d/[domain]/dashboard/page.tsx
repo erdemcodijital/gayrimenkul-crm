@@ -259,6 +259,16 @@ export default function AgentDashboard() {
               Leadlerim
             </button>
             <button
+              onClick={() => setActiveTab('portfolio')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'portfolio'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Portföy ({properties.length})
+            </button>
+            <button
               onClick={() => setActiveTab('settings')}
               className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
                 activeTab === 'settings'
