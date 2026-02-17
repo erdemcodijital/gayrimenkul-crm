@@ -54,6 +54,33 @@ export default async function AgentPage({ params }: PageProps) {
     notFound();
   }
 
+  // Aktif mi kontrolü
+  if (!agent.is_active) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Hesap Devre Dışı</h1>
+          <p className="text-gray-600 mb-6">
+            Bu danışman hesabı şu anda devre dışı bırakılmış durumda.
+          </p>
+          <div className="space-y-2 text-sm text-gray-500">
+            <p><strong>Danışman:</strong> {agent.name}</p>
+          </div>
+          <div className="mt-8 pt-6 border-t border-gray-200">
+            <p className="text-xs text-gray-500">
+              Hesabınızı aktifleştirmek için yönetici ile iletişime geçin.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Lisans kontrolü
   if (agent.license_status !== 'active') {
     return (
