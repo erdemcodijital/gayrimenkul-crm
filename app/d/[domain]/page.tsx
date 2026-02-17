@@ -116,15 +116,25 @@ export default async function AgentPage({ params }: PageProps) {
 
   const whatsappNumber = agent.whatsapp_number || agent.phone || '';
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Merhaba ${agent.name}, gayrimenkul danışmanlığı hakkında bilgi almak istiyorum.`)}`;
+  
+  // Tema rengi
+  const themeColor = agent.theme_color || '#111827';
 
   return (
     <div className="min-h-screen bg-white antialiased">
+      {/* Custom Theme Color CSS */}
+      <style jsx>{`
+        .theme-bg { background-color: ${themeColor} !important; }
+        .theme-text { color: ${themeColor} !important; }
+        .theme-border { border-color: ${themeColor} !important; }
+        .theme-bg:hover { background-color: ${themeColor}dd !important; }
+      `}</style>
       {/* Navigation - Clean & Minimal */}
       <nav className="border-b border-gray-200 bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gray-900 rounded-md flex items-center justify-center">
+              <div className="w-8 h-8 theme-bg rounded-md flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
@@ -138,7 +148,7 @@ export default async function AgentPage({ params }: PageProps) {
               <a href={`tel:${agent.phone}`} className="hidden sm:inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition">
                 {agent.phone}
               </a>
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-md transition">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-4 py-2 theme-bg text-white text-sm font-medium rounded-md transition">
                 İletişim
               </a>
             </div>
@@ -169,7 +179,7 @@ export default async function AgentPage({ params }: PageProps) {
                 href={whatsappLink} 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-all duration-200 shadow-lg shadow-gray-900/10 hover:shadow-xl hover:shadow-gray-900/20"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 theme-bg text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Ücretsiz Görüşme
                 <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,7 +259,7 @@ export default async function AgentPage({ params }: PageProps) {
               href={whatsappLink} 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="inline-flex items-center justify-center px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition"
+              className="inline-flex items-center justify-center px-8 py-4 theme-bg text-white font-medium rounded-lg transition"
             >
               WhatsApp
               <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -272,7 +282,7 @@ export default async function AgentPage({ params }: PageProps) {
           <div className="grid md:grid-cols-3 gap-8 mb-8">
             <div>
               <div className="flex items-center space-x-2 mb-3">
-                <div className="w-8 h-8 bg-gray-900 rounded-md flex items-center justify-center">
+                <div className="w-8 h-8 theme-bg rounded-md flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                   </svg>
