@@ -53,6 +53,20 @@ export default function AgentDashboard() {
         return;
       }
 
+      // Lisans kontrolü
+      if (agentData.license_status !== 'active') {
+        setError('Lisansınız aktif değil. Lütfen yönetici ile iletişime geçin.');
+        localStorage.removeItem(`agent_pin_${domain}`);
+        return;
+      }
+
+      // Aktif mi kontrolü
+      if (!agentData.is_active) {
+        setError('Hesabınız devre dışı. Lütfen yönetici ile iletişime geçin.');
+        localStorage.removeItem(`agent_pin_${domain}`);
+        return;
+      }
+
       setAgent(agentData);
       setIsAuthenticated(true);
       localStorage.setItem(`agent_pin_${domain}`, pin);
