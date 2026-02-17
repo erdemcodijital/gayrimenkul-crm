@@ -6,6 +6,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    typedRoutes: false,
+  },
+  swcMinify: true,
 }
 
 module.exports = nextConfig
