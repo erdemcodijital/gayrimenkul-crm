@@ -26,7 +26,9 @@ export default function AgentDashboard() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'settings'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'settings'>('leads');
+  const [properties, setProperties] = useState<any[]>([]);
+  const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
 
@@ -75,6 +77,7 @@ export default function AgentDashboard() {
       setThemeColor(agentData.theme_color || '#111827');
       localStorage.setItem(`agent_pin_${domain}`, pin);
       await loadLeads(agentData.id);
+      await loadProperties(agentData.id);
     } catch (err) {
       setError('Bir hata oluştu');
     } finally {
@@ -113,6 +116,20 @@ export default function AgentDashboard() {
     setLeads([]);
     setPinCode('');
     localStorage.removeItem(`agent_pin_${domain}`);
+  };
+
+  const loadProperties = async (agentId: string) => {
+    try {
+      const { data } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('agent_id', agentId)
+        .order('created_at', { ascending: false });
+
+      setProperties(data || []);
+    } catch (error) {
+      console.error('Property yükleme hatası:', error);
+    }
   };
 
   const loadLeads = async (agentId: string) => {
