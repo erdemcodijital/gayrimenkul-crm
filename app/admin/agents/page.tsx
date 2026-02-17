@@ -39,11 +39,11 @@ export default function AgentsPage() {
     try {
       const { data: agentsData } = await supabase
         .from('agents')
-        .select('id, is_active');
+        .select('*');
       
       const { data: leadsData } = await supabase
         .from('leads')
-        .select('id');
+        .select('*');
 
       setStats({
         uptime: 99.9,
