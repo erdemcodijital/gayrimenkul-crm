@@ -48,7 +48,7 @@ export default function AgentsPage() {
       setStats({
         uptime: 99.9,
         totalAgents: agentsData?.length || 0,
-        activeAgents: agentsData?.filter(a => a.is_active).length || 0,
+        activeAgents: agentsData?.filter((a: any) => a.is_active).length || 0,
         totalLeads: leadsData?.length || 0,
         serverStatus: 'online'
       });
