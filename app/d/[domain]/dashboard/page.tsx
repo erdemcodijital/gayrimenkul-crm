@@ -376,6 +376,74 @@ export default function AgentDashboard() {
           </>
         )}
 
+        {/* Portfolio Tab */}
+        {activeTab === 'portfolio' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900">Portföyüm</h2>
+              <button
+                onClick={() => setShowAddProperty(true)}
+                className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition"
+              >
+                + Yeni İlan Ekle
+              </button>
+            </div>
+
+            {properties.length === 0 ? (
+              <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Henüz İlan Yok</h3>
+                <p className="text-gray-600 mb-4">İlk ilanınızı ekleyerek portföyünüzü oluşturun</p>
+                <button
+                  onClick={() => setShowAddProperty(true)}
+                  className="px-6 py-3 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition"
+                >
+                  İlan Ekle
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {properties.map((property: any) => (
+                  <div key={property.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
+                    <div className="h-48 bg-gray-200 flex items-center justify-center">
+                      <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      </svg>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">{property.title}</h3>
+                      <div className="space-y-1 text-sm text-gray-600 mb-3">
+                        {property.price && (
+                          <div className="text-lg font-bold text-gray-900">
+                            {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(property.price)}
+                          </div>
+                        )}
+                        {property.room_count && <div>🛏️ {property.room_count}</div>}
+                        {property.square_meters && <div>📐 {property.square_meters} m²</div>}
+                        {property.location && <div>📍 {property.location}</div>}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
+                          property.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                        }`}>
+                          {property.status === 'active' ? 'Aktif' : 'Pasif'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(property.created_at).toLocaleDateString('tr-TR')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="bg-white border border-gray-200 rounded-lg p-6">
