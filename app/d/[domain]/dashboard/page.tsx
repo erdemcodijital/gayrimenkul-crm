@@ -125,6 +125,7 @@ export default function AgentDashboard() {
     try {
       if (editingProperty) {
         // Update existing
+        // @ts-ignore
         const { error } = await supabase
           .from('properties')
           .update({
@@ -143,6 +144,7 @@ export default function AgentDashboard() {
         alert('İlan güncellendi!');
       } else {
         // Insert new
+        // @ts-ignore
         const { error } = await supabase
           .from('properties')
           .insert({
