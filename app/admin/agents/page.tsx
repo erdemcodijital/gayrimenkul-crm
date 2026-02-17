@@ -514,6 +514,7 @@ function EditAgentModal({ agent, onClose, onSuccess }: { agent: Agent; onClose: 
     city: agent.city || '',
     domain: agent.domain || '',
     whatsapp_number: agent.whatsapp_number || '',
+    pin_code: agent.pin_code || '',
     is_active: agent.is_active,
     license_status: agent.license_status || 'inactive',
   });
@@ -639,6 +640,19 @@ function EditAgentModal({ agent, onClose, onSuccess }: { agent: Agent; onClose: 
                 className="input"
                 placeholder="İstanbul"
               />
+            </div>
+
+            <div>
+              <label className="label">PIN Kodu (4 haneli)</label>
+              <input
+                type="text"
+                value={formData.pin_code}
+                onChange={(e) => setFormData({ ...formData, pin_code: e.target.value.replace(/\D/g, '').slice(0, 4) })}
+                className="input font-mono text-lg tracking-widest"
+                placeholder="1234"
+                maxLength={4}
+              />
+              <p className="text-xs text-gray-500 mt-1">Danışmanın dashboard girişi için kullanılır</p>
             </div>
 
             <div>
