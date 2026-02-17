@@ -42,6 +42,7 @@ export default function AgentDashboard() {
     city: '',
   });
   const [savingProperty, setSavingProperty] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<any>(null);
 
   useEffect(() => {
     // Check if already authenticated
@@ -122,25 +123,47 @@ export default function AgentDashboard() {
     
     setSavingProperty(true);
     try {
-      const { error } = await supabase
-        .from('properties')
-        .insert({
-          agent_id: agent.id,
-          title: propertyForm.title,
-          description: propertyForm.description,
-          price: propertyForm.price ? parseFloat(propertyForm.price) : null,
-          property_type: propertyForm.property_type,
-          room_count: propertyForm.room_count,
-          square_meters: propertyForm.square_meters ? parseInt(propertyForm.square_meters) : null,
-          location: propertyForm.location,
-          city: propertyForm.city,
-          status: 'active',
-        });
+      if (editingProperty) {
+        // Update existing
+        const { error } = await supabase
+          .from('properties')
+          .update({
+            title: propertyForm.title,
+            description: propertyForm.description,
+            price: propertyForm.price ? parseFloat(propertyForm.price) : null,
+            property_type: propertyForm.property_type,
+            room_count: propertyForm.room_count,
+            square_meters: propertyForm.square_meters ? parseInt(propertyForm.square_meters) : null,
+            location: propertyForm.location,
+            city: propertyForm.city,
+          })
+          .eq('id', editingProperty.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        alert('İlan güncellendi!');
+      } else {
+        // Insert new
+        const { error } = await supabase
+          .from('properties')
+          .insert({
+            agent_id: agent.id,
+            title: propertyForm.title,
+            description: propertyForm.description,
+            price: propertyForm.price ? parseFloat(propertyForm.price) : null,
+            property_type: propertyForm.property_type,
+            room_count: propertyForm.room_count,
+            square_meters: propertyForm.square_meters ? parseInt(propertyForm.square_meters) : null,
+            location: propertyForm.location,
+            city: propertyForm.city,
+            status: 'active',
+          });
+
+        if (error) throw error;
+        alert('İlan başarıyla eklendi!');
+      }
       
-      alert('İlan başarıyla eklendi!');
       setShowAddProperty(false);
+      setEditingProperty(null);
       setPropertyForm({
         title: '',
         description: '',
@@ -153,10 +176,43 @@ export default function AgentDashboard() {
       });
       await loadProperties(agent.id);
     } catch (err) {
-      alert('İlan eklenemedi');
+      alert('İşlem başarısız');
     } finally {
       setSavingProperty(false);
     }
+  };
+
+  const deleteProperty = async (id: string) => {
+    if (!confirm('Bu ilanı silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      alert('İlan silindi!');
+      if (agent) await loadProperties(agent.id);
+    } catch (err) {
+      alert('İlan silinemedi');
+    }
+  };
+
+  const editProperty = (property: any) => {
+    setEditingProperty(property);
+    setPropertyForm({
+      title: property.title || '',
+      description: property.description || '',
+      price: property.price?.toString() || '',
+      property_type: property.property_type || 'Satılık',
+      room_count: property.room_count || '',
+      square_meters: property.square_meters?.toString() || '',
+      location: property.location || '',
+      city: property.city || '',
+    });
+    setShowAddProperty(true);
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -480,7 +536,7 @@ export default function AgentDashboard() {
                         {property.square_meters && <div>📐 {property.square_meters} m²</div>}
                         {property.location && <div>📍 {property.location}</div>}
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-3">
                         <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
                           property.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
                         }`}>
@@ -489,6 +545,20 @@ export default function AgentDashboard() {
                         <span className="text-xs text-gray-500">
                           {new Date(property.created_at).toLocaleDateString('tr-TR')}
                         </span>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => editProperty(property)}
+                          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+                        >
+                          ✏️ Düzenle
+                        </button>
+                        <button
+                          onClick={() => deleteProperty(property.id)}
+                          className="flex-1 px-3 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition"
+                        >
+                          🗑️ Sil
+                        </button>
                       </div>
                     </div>
                   </div>
