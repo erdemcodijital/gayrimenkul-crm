@@ -1,0 +1,55 @@
+import { notFound } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
+import { Database } from '@/lib/database.types';
+
+type Agent = Database['public']['Tables']['agents']['Row'];
+
+interface PageProps {
+  params: {
+    domain: string;
+  };
+}
+
+async function getAgent(domain: string): Promise<Agent | null> {
+  console.log('🔍 Aranan domain:', domain);
+  
+  const { data, error } = await supabase
+    .from('agents')
+    .select('*')
+    .eq('domain', domain)
+    .eq('is_active', true)
+    .single();
+
+  console.log('📊 Supabase yanıtı:', { data, error });
+
+  if (error || !data) {
+    console.log('❌ Danışman bulunamadı:', error?.message);
+    return null;
+  }
+
+  console.log('✅ Danışman bulundu:', data.name);
+  return data;
+}
+
+export default async function AgentPage({ params }: PageProps) {
+  const agent = await getAgent(params.domain);
+
+  if (!agent) {
+    notFound();
+  }
+
+  // Basit test sayfası
+  return (
+    <div style={{ padding: '50px', fontFamily: 'Arial' }}>
+      <h1>✅ Sayfa Çalışıyor!</h1>
+      <h2>Danışman Bilgileri:</h2>
+      <ul>
+        <li><strong>Ad:</strong> {agent.name}</li>
+        <li><strong>Email:</strong> {agent.email}</li>
+        <li><strong>Şehir:</strong> {agent.city}</li>
+        <li><strong>Domain:</strong> {agent.domain}</li>
+        <li><strong>Telefon:</strong> {agent.phone}</li>
+      </ul>
+    </div>
+  );
+}

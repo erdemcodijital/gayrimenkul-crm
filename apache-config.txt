@@ -1,0 +1,43 @@
+# Apache Reverse Proxy Konfigürasyonu
+# erdem.agency/gayrimenkul -> localhost:3000
+
+# 1. XAMPP Control Panel'i açın
+# 2. Apache "Config" butonu > "httpd.conf" dosyasını açın
+# 3. Şu satırları bulun ve başındaki # işaretini kaldırın (uncomment):
+
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule rewrite_module modules/mod_rewrite.so
+
+# 4. Dosyanın en altına şunu ekleyin:
+
+<VirtualHost *:80>
+    ServerName erdem.agency
+    DocumentRoot "C:/xampp/htdocs"
+
+    # Gayrimenkul CRM Reverse Proxy
+    ProxyPreserveHost On
+    ProxyPass /gayrimenkul http://localhost:3000/gayrimenkul
+    ProxyPassReverse /gayrimenkul http://localhost:3000/gayrimenkul
+
+    # WebSocket desteği (eğer gerekirse)
+    RewriteEngine on
+    RewriteCond %{HTTP:Upgrade} websocket [NC]
+    RewriteCond %{HTTP:Connection} upgrade [NC]
+    RewriteRule ^/gayrimenkul/?(.*) "ws://localhost:3000/gayrimenkul/$1" [P,L]
+
+    # Diğer istekler normal şekilde
+    <Directory "C:/xampp/htdocs">
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+# 5. Apache'yi yeniden başlatın (XAMPP Control Panel'den "Stop" sonra "Start")
+# 6. Next.js uygulamasını çalıştırın: npm run dev
+# 7. Tarayıcıda erdem.agency/gayrimenkul adresine gidin
+
+# NOT: Eğer HTTPS kullanıyorsanız:
+# <VirtualHost *:443> için de aynı konfigürasyonu yapın
+# SSL sertifikalarını ekleyin
