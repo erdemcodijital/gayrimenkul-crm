@@ -177,8 +177,9 @@ export default function AgentDashboard() {
         city: '',
       });
       await loadProperties(agent.id);
-    } catch (err) {
-      alert('İşlem başarısız');
+    } catch (err: any) {
+      console.error('İlan kayıt hatası:', err);
+      alert(`İşlem başarısız: ${err.message || 'Bilinmeyen hata'}`);
     } finally {
       setSavingProperty(false);
     }
