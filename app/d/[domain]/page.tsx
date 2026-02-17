@@ -15,6 +15,7 @@ async function getAgent(domain: string): Promise<Agent | null> {
   console.log('🔍 Aranan domain:', domain);
   
   // is_active kontrolünü KALDIRDIK - sayfada kontrol edeceğiz
+  // CACHE'i KAPATTIK - her zaman fresh data çek
   const { data, error } = await supabase
     .from('agents')
     .select('*')
@@ -31,6 +32,10 @@ async function getAgent(domain: string): Promise<Agent | null> {
   console.log('✅ Danışman bulundu:', data.name);
   return data;
 }
+
+// Cache'i kapat - her zaman fresh data
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: PageProps) {
   const agent = await getAgent(params.domain);
