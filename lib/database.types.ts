@@ -62,6 +62,59 @@ export interface Database {
           updated_at?: string
         }
       }
+      properties: {
+        Row: {
+          id: string
+          agent_id: string | null
+          title: string
+          description: string | null
+          price: number | null
+          property_type: string | null
+          room_count: string | null
+          square_meters: number | null
+          location: string | null
+          district: string | null
+          city: string | null
+          images: string[] | null
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          agent_id?: string | null
+          title: string
+          description?: string | null
+          price?: number | null
+          property_type?: string | null
+          room_count?: string | null
+          square_meters?: number | null
+          location?: string | null
+          district?: string | null
+          city?: string | null
+          images?: string[] | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          agent_id?: string | null
+          title?: string
+          description?: string | null
+          price?: number | null
+          property_type?: string | null
+          room_count?: string | null
+          square_meters?: number | null
+          location?: string | null
+          district?: string | null
+          city?: string | null
+          images?: string[] | null
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
       leads: {
         Row: {
           id: string
