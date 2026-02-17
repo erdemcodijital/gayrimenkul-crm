@@ -31,6 +31,17 @@ export default function AgentDashboard() {
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
+  const [propertyForm, setPropertyForm] = useState({
+    title: '',
+    description: '',
+    price: '',
+    property_type: 'Satılık',
+    room_count: '',
+    square_meters: '',
+    location: '',
+    city: '',
+  });
+  const [savingProperty, setSavingProperty] = useState(false);
 
   useEffect(() => {
     // Check if already authenticated
@@ -102,6 +113,49 @@ export default function AgentDashboard() {
       alert('Tema rengi kaydedilemedi');
     } finally {
       setSavingTheme(false);
+    }
+  };
+
+  const saveProperty = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agent) return;
+    
+    setSavingProperty(true);
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .insert({
+          agent_id: agent.id,
+          title: propertyForm.title,
+          description: propertyForm.description,
+          price: propertyForm.price ? parseFloat(propertyForm.price) : null,
+          property_type: propertyForm.property_type,
+          room_count: propertyForm.room_count,
+          square_meters: propertyForm.square_meters ? parseInt(propertyForm.square_meters) : null,
+          location: propertyForm.location,
+          city: propertyForm.city,
+          status: 'active',
+        });
+
+      if (error) throw error;
+      
+      alert('İlan başarıyla eklendi!');
+      setShowAddProperty(false);
+      setPropertyForm({
+        title: '',
+        description: '',
+        price: '',
+        property_type: 'Satılık',
+        room_count: '',
+        square_meters: '',
+        location: '',
+        city: '',
+      });
+      await loadProperties(agent.id);
+    } catch (err) {
+      alert('İlan eklenemedi');
+    } finally {
+      setSavingProperty(false);
     }
   };
 
@@ -526,6 +580,126 @@ export default function AgentDashboard() {
           </div>
         )}
       </main>
+
+      {/* Add Property Modal */}
+      {showAddProperty && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
+              <h2 className="text-xl font-semibold text-gray-900">Yeni İlan Ekle</h2>
+              <button onClick={() => setShowAddProperty(false)} className="text-gray-400 hover:text-gray-600">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={saveProperty} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Başlık *</label>
+                <input
+                  type="text"
+                  value={propertyForm.title}
+                  onChange={(e) => setPropertyForm({...propertyForm, title: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  required
+                  placeholder="örn: Merkezi Konumda 3+1 Satılık Daire"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
+                <textarea
+                  value={propertyForm.description}
+                  onChange={(e) => setPropertyForm({...propertyForm, description: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  rows={3}
+                  placeholder="İlan detayları..."
+                ></textarea>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL)</label>
+                  <input
+                    type="number"
+                    value={propertyForm.price}
+                    onChange={(e) => setPropertyForm({...propertyForm, price: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="2500000"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">İlan Türü</label>
+                  <select
+                    value={propertyForm.property_type}
+                    onChange={(e) => setPropertyForm({...propertyForm, property_type: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  >
+                    <option>Satılık</option>
+                    <option>Kiralık</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Oda Sayısı</label>
+                  <input
+                    type="text"
+                    value={propertyForm.room_count}
+                    onChange={(e) => setPropertyForm({...propertyForm, room_count: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="3+1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Metrekare</label>
+                  <input
+                    type="number"
+                    value={propertyForm.square_meters}
+                    onChange={(e) => setPropertyForm({...propertyForm, square_meters: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="120"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Lokasyon</label>
+                <input
+                  type="text"
+                  value={propertyForm.location}
+                  onChange={(e) => setPropertyForm({...propertyForm, location: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  placeholder="örn: Kadıköy, Moda Mahallesi"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Şehir</label>
+                <input
+                  type="text"
+                  value={propertyForm.city}
+                  onChange={(e) => setPropertyForm({...propertyForm, city: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  placeholder="İstanbul"
+                />
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowAddProperty(false)}
+                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingProperty}
+                  className="flex-1 px-4 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition disabled:opacity-50"
+                >
+                  {savingProperty ? 'Kaydediliyor...' : 'İlanı Kaydet'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

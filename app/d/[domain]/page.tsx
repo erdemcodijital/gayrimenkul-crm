@@ -59,6 +59,15 @@ export default async function AgentPage({ params }: PageProps) {
     notFound();
   }
 
+  // Agent'ın portföy ilanlarını çek
+  const { data: properties } = await supabase
+    .from('properties')
+    .select('*')
+    .eq('agent_id', agent.id)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(6);
+
   // Aktif mi kontrolü
   if (!agent.is_active) {
     return (
@@ -238,6 +247,61 @@ export default async function AgentPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {/* Properties Section */}
+      {properties && properties.length > 0 && (
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Portföyümden Seçmeler</h2>
+              <p className="text-lg text-gray-600 max-w-2xl mx-auto">Size özel seçilmiş gayrimenkul ilanları</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property: any) => (
+                <div key={property.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
+                  <div className="h-56 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                    <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                  </div>
+                  <div className="p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-3 line-clamp-2">{property.title}</h3>
+                    {property.price && (
+                      <div className="text-2xl font-bold mb-4" style={{ color: themeColor }}>
+                        {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', minimumFractionDigits: 0 }).format(property.price)}
+                      </div>
+                    )}
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      {property.property_type && (
+                        <div className="inline-block px-3 py-1 bg-gray-100 rounded-full text-xs font-medium mr-2">
+                          {property.property_type}
+                        </div>
+                      )}
+                      {property.room_count && <span>🛏️ {property.room_count}</span>}
+                      {property.square_meters && <span className="ml-3">📐 {property.square_meters} m²</span>}
+                    </div>
+                    {property.location && (
+                      <div className="text-sm text-gray-600 mb-4">
+                        📍 {property.location}
+                      </div>
+                    )}
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full text-center px-4 py-3 border-2 rounded-lg font-medium transition hover:bg-gray-50"
+                      style={{ borderColor: themeColor, color: themeColor }}
+                    >
+                      İletişime Geç
+                    </a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section - Minimal */}
       <section className="py-24 bg-gray-50 border-y border-gray-200">
