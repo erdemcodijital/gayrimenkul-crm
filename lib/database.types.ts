@@ -19,6 +19,8 @@ export interface Database {
           city: string | null
           domain: string | null
           whatsapp_number: string | null
+          pin_code: string | null
+          theme_color: string | null
           is_active: boolean
           license_status: string
           license_expires_at: string | null
@@ -34,6 +36,8 @@ export interface Database {
           city?: string | null
           domain?: string | null
           whatsapp_number?: string | null
+          pin_code?: string | null
+          theme_color?: string | null
           is_active?: boolean
           license_status?: string
           license_expires_at?: string | null
@@ -49,6 +53,8 @@ export interface Database {
           city?: string | null
           domain?: string | null
           whatsapp_number?: string | null
+          pin_code?: string | null
+          theme_color?: string | null
           is_active?: boolean
           license_status?: string
           license_expires_at?: string | null
