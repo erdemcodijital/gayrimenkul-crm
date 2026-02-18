@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode, Calendar } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode, Calendar, MapPin } from 'lucide-react';
 import { Toast, ConfirmModal } from '@/components/Toast';
 import { BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
