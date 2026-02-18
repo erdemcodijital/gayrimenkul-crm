@@ -18,10 +18,14 @@ interface SystemStats {
 
 export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [leads, setLeads] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const [activeTab, setActiveTab] = useState<'agents' | 'leads'>('agents');
+  const [filterAgent, setFilterAgent] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
   const [stats, setStats] = useState<SystemStats>({
     uptime: 99.9,
     totalAgents: 0,
@@ -32,6 +36,7 @@ export default function AgentsPage() {
 
   useEffect(() => {
     loadAgents();
+    loadLeads();
     loadStats();
   }, []);
 
@@ -72,6 +77,29 @@ export default function AgentsPage() {
       setLoading(false);
     }
   };
+
+  const loadLeads = async () => {
+    try {
+      const { data, error} = await supabase
+        .from('leads')
+        .select(`
+          *,
+          agents (name, domain)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setLeads(data || []);
+    } catch (error) {
+      console.error('Leadler yüklenirken hata:', error);
+    }
+  };
+
+  const filteredLeads = leads.filter(lead => {
+    if (filterAgent !== 'all' && lead.agent_id !== filterAgent) return false;
+    if (filterStatus !== 'all' && lead.status !== filterStatus) return false;
+    return true;
+  });
 
   const toggleAgentStatus = async (agent: Agent) => {
     try {
@@ -200,7 +228,34 @@ export default function AgentsPage() {
         </div>
       </div>
 
-      {/* Modern Table */}
+      {/* Tabs */}
+      <div className="mb-6 border-b border-gray-200">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab('agents')}
+            className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+              activeTab === 'agents'
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Danışmanlar ({agents.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('leads')}
+            className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+              activeTab === 'leads'
+                ? 'border-gray-900 text-gray-900'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Tüm Leadler ({leads.length})
+          </button>
+        </nav>
+      </div>
+
+      {/* Agents Tab */}
+      {activeTab === 'agents' && (
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -328,6 +383,91 @@ export default function AgentsPage() {
         </table>
         </div>
       </div>
+      )}
+
+      {/* Leads Tab */}
+      {activeTab === 'leads' && (
+        <div className="space-y-4">
+          {/* Filters */}
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Danışman</label>
+                <select
+                  value={filterAgent}
+                  onChange={(e) => setFilterAgent(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                >
+                  <option value="all">Tümü</option>
+                  {agents.map(agent => (
+                    <option key={agent.id} value={agent.id}>{agent.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                >
+                  <option value="all">Tümü</option>
+                  <option value="new">Yeni</option>
+                  <option value="contacted">İletişimde</option>
+                  <option value="meeting">Görüşme Yapıldı</option>
+                  <option value="closed_success">Başarılı</option>
+                  <option value="closed_cancelled">İptal Edildi</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Leads List */}
+          <div className="bg-white border border-gray-200 rounded-lg divide-y divide-gray-200">
+            {filteredLeads.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">
+                Lead bulunamadı
+              </div>
+            ) : (
+              filteredLeads.map((lead: any) => (
+                <div key={lead.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{lead.name}</h3>
+                      <div className="text-sm text-gray-600 mt-1">
+                        <div>📞 {lead.phone}</div>
+                        {lead.email && <div>📧 {lead.email}</div>}
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-xs text-gray-500">
+                          Danışman: <strong>{lead.agents?.name || 'Bilinmiyor'}</strong>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
+                        lead.status === 'new' ? 'bg-blue-50 text-blue-700' :
+                        lead.status === 'contacted' ? 'bg-indigo-50 text-indigo-700' :
+                        lead.status === 'meeting' ? 'bg-amber-50 text-amber-700' :
+                        lead.status === 'closed_success' ? 'bg-green-50 text-green-700' :
+                        'bg-gray-50 text-gray-700'
+                      }`}>
+                        {lead.status === 'new' ? 'Yeni' :
+                         lead.status === 'contacted' ? 'İletişimde' :
+                         lead.status === 'meeting' ? 'Görüşme' :
+                         lead.status === 'closed_success' ? 'Başarılı' : 'İptal'}
+                      </span>
+                      <div className="text-xs text-gray-500 mt-2">
+                        {new Date(lead.created_at).toLocaleDateString('tr-TR')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
 
       {showCreateModal && (
         <CreateAgentModal
