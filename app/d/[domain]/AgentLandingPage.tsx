@@ -7,6 +7,7 @@ import { formatPhone } from '@/lib/utils';
 import LeadForm from './LeadForm';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Property = Database['public']['Tables']['properties']['Row'];
@@ -98,6 +99,32 @@ export default function AgentLandingPage({ agent }: Props) {
     setFilteredProperties(filtered);
   };
 
+  // Animation Variants
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 }
+  };
+
+  const scaleIn = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50">
       {/* Success Message */}
@@ -113,47 +140,96 @@ export default function AgentLandingPage({ agent }: Props) {
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800 opacity-90"></div>
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800 opacity-90"
+          animate={{
+            backgroundPosition: ['0% 0%', '100% 100%'],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            repeatType: 'reverse'
+          }}
+        />
         <div className="relative container mx-auto px-4 py-20 md:py-32">
           <div className="max-w-4xl mx-auto text-center text-white">
-            <div className="mb-6">
-              <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+            <motion.div 
+              className="mb-6"
+              initial="hidden"
+              animate="visible"
+              variants={staggerContainer}
+            >
+              <motion.div 
+                className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl"
+                variants={scaleIn}
+                transition={{ duration: 0.5 }}
+                whileHover={{ scale: 1.1, rotate: 360 }}
+              >
                 <Building2 className="w-12 h-12 text-primary-600" />
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold mb-4">
+              </motion.div>
+              
+              <motion.h1 
+                className="text-4xl md:text-6xl font-bold mb-4"
+                variants={fadeInUp}
+                transition={{ duration: 0.6 }}
+              >
                 {agent.name}
-              </h1>
-              <div className="flex items-center justify-center space-x-2 text-xl mb-6">
+              </motion.h1>
+              
+              <motion.div 
+                className="flex items-center justify-center space-x-2 text-xl mb-6"
+                variants={fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+              >
                 <MapPin className="w-6 h-6" />
                 <span>{agent.city || 'Türkiye'}</span>
-              </div>
-              <p className="text-xl md:text-2xl mb-8 text-primary-50">
+              </motion.div>
+              
+              <motion.p 
+                className="text-xl md:text-2xl mb-8 text-primary-50"
+                variants={fadeInUp}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
                 Gayrimenkul Danışmanı
-              </p>
-            </div>
+              </motion.p>
+            </motion.div>
             
-            <p className="text-lg md:text-xl mb-10 text-primary-50 max-w-2xl mx-auto">
+            <motion.p 
+              className="text-lg md:text-xl mb-10 text-primary-50 max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
               Size en uygun gayrimenkul seçeneklerini bulmak için buradayım. 
               Hayalinizdeki evi birlikte bulalım!
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
+              <motion.button
                 onClick={() => setShowForm(true)}
-                className="bg-white text-primary-600 hover:bg-primary-50 font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg"
+                className="bg-white text-primary-600 hover:bg-primary-50 font-bold py-4 px-8 rounded-lg transition-all shadow-lg text-lg"
+                whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
+                whileTap={{ scale: 0.95 }}
               >
                 Ücretsiz Danışmanlık Al
-              </button>
+              </motion.button>
               {agent.whatsapp_number && (
-                <button
+                <motion.button
                   onClick={handleWhatsAppClick}
-                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-lg"
+                  className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg transition-all shadow-lg flex items-center justify-center space-x-2 text-lg"
+                  whileHover={{ scale: 1.05, boxShadow: '0 20px 40px rgba(0,0,0,0.2)' }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <MessageCircle className="w-6 h-6" />
                   <span>WhatsApp ile İletişim</span>
-                </button>
+                </motion.button>
               )}
-            </div>
+            </motion.div>
           </div>
         </div>
         
@@ -168,14 +244,20 @@ export default function AgentLandingPage({ agent }: Props) {
       {/* Properties Section */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
+          <motion.div 
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               İlanlarımız
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
               Size en uygun gayrimenkul seçeneklerini inceleyin
             </p>
-          </div>
+          </motion.div>
 
           {/* Search & Filters */}
           <div className="max-w-6xl mx-auto mb-8">
@@ -252,16 +334,27 @@ export default function AgentLandingPage({ agent }: Props) {
 
           {/* Properties Grid */}
           {filteredProperties.length === 0 ? (
-            <div className="text-center py-12">
+            <motion.div 
+              className="text-center py-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
               <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 text-lg">Henüz ilan bulunmuyor</p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-              {filteredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} agentDomain={agent.domain} />
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-100px' }}
+            >
+              {filteredProperties.map((property, index) => (
+                <PropertyCard key={property.id} property={property} agentDomain={agent.domain} index={index} />
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
@@ -269,10 +362,22 @@ export default function AgentLandingPage({ agent }: Props) {
       {/* Why Choose Me Section */}
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             Neden Benimle Çalışmalısınız?
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          </motion.h2>
+          <motion.div 
+            className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
             {[
               'Geniş gayrimenkul portföyü',
               'Profesyonel ve güvenilir hizmet',
@@ -281,41 +386,69 @@ export default function AgentLandingPage({ agent }: Props) {
               'Müşteri memnuniyeti odaklı yaklaşım',
               '7/24 iletişim desteği'
             ].map((item, index) => (
-              <div key={index} className="flex items-start space-x-3 bg-white p-4 rounded-lg shadow-sm">
+              <motion.div 
+                key={index} 
+                className="flex items-start space-x-3 bg-white p-4 rounded-lg shadow-sm"
+                variants={fadeInUp}
+                whileHover={{ scale: 1.03, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}
+                transition={{ duration: 0.2 }}
+              >
                 <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0 mt-1" />
                 <span className="text-gray-800 text-lg">{item}</span>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-br from-primary-600 to-primary-800 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold mb-6"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             Hayalinizdeki Evi Birlikte Bulalım
-          </h2>
-          <p className="text-xl mb-8 text-primary-50 max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p 
+            className="text-xl mb-8 text-primary-50 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
             Size özel gayrimenkul seçenekleri için hemen iletişime geçin
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button
+          </motion.p>
+          <motion.div 
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <motion.button
               onClick={() => setShowForm(true)}
-              className="bg-white text-primary-600 hover:bg-primary-50 font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg text-lg"
+              className="bg-white text-primary-600 hover:bg-primary-50 font-bold py-4 px-8 rounded-lg shadow-lg text-lg"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               Formu Doldur
-            </button>
+            </motion.button>
             {agent.phone && (
-              <a
+              <motion.a
                 href={`tel:${formatPhone(agent.phone)}`}
-                className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg transition-all transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 text-lg"
+                className="bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-lg shadow-lg flex items-center justify-center space-x-2 text-lg"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Phone className="w-6 h-6" />
                 <span>Hemen Ara</span>
-              </a>
+              </motion.a>
             )}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -335,6 +468,47 @@ export default function AgentLandingPage({ agent }: Props) {
         </div>
       </footer>
 
+      {/* Floating WhatsApp Button */}
+      {agent.whatsapp_number && (
+        <motion.div
+          className="fixed bottom-6 right-6 z-50"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 1, duration: 0.5, type: 'spring' }}
+        >
+          <motion.button
+            onClick={handleWhatsAppClick}
+            className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center group"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            animate={{
+              boxShadow: [
+                '0 0 20px rgba(34, 197, 94, 0.4)',
+                '0 0 40px rgba(34, 197, 94, 0.6)',
+                '0 0 20px rgba(34, 197, 94, 0.4)',
+              ]
+            }}
+            transition={{
+              boxShadow: {
+                duration: 2,
+                repeat: Infinity,
+                repeatType: 'reverse'
+              }
+            }}
+          >
+            <MessageCircle className="w-8 h-8" />
+            <motion.span
+              className="ml-0 overflow-hidden whitespace-nowrap max-w-0 group-hover:max-w-xs group-hover:ml-3"
+              initial={{ width: 0 }}
+              whileHover={{ width: 'auto' }}
+              transition={{ duration: 0.3 }}
+            >
+              WhatsApp
+            </motion.span>
+          </motion.button>
+        </motion.div>
+      )}
+
       {/* Lead Form Modal */}
       {showForm && (
         <LeadForm
@@ -349,9 +523,18 @@ export default function AgentLandingPage({ agent }: Props) {
 }
 
 // Property Card Component with Image Slider
-function PropertyCard({ property, agentDomain }: { property: Property; agentDomain: string | null }) {
+function PropertyCard({ property, agentDomain, index }: { property: Property; agentDomain: string | null; index: number }) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const images = Array.isArray(property.images) ? property.images : [];
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
 
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -375,19 +558,28 @@ function PropertyCard({ property, agentDomain }: { property: Property; agentDoma
   };
 
   return (
-    <Link 
-      href={`/d/${agentDomain}/property/${property.id}`}
-      className="block bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+    <motion.div
+      variants={cardVariants}
     >
-      {/* Image Slider */}
-      <div className="relative h-64 bg-gray-200 overflow-hidden group">
-        {images.length > 0 ? (
-          <>
-            <img
-              src={images[currentImageIndex]}
-              alt={property.title || 'İlan'}
-              className="w-full h-full object-cover"
-            />
+      <Link 
+        href={`/d/${agentDomain}/property/${property.id}`}
+        className="block bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300"
+      >
+        <motion.div
+          whileHover={{ y: -8, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+          transition={{ duration: 0.3 }}
+        >
+          {/* Image Slider */}
+          <div className="relative h-64 bg-gray-200 overflow-hidden group">
+            {images.length > 0 ? (
+              <>
+                <motion.img
+                  src={images[currentImageIndex]}
+                  alt={property.title || 'İlan'}
+                  className="w-full h-full object-cover"
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.3 }}
+                />
             {images.length > 1 && (
               <>
                 <button
@@ -470,6 +662,8 @@ function PropertyCard({ property, agentDomain }: { property: Property; agentDoma
           </span>
         </div>
       </div>
-    </Link>
+        </motion.div>
+      </Link>
+    </motion.div>
   );
 }
