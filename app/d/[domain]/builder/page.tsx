@@ -9,6 +9,7 @@ import { EditorProvider, useEditor } from '@/contexts/EditorContext';
 import ClientLandingPage from '../ClientLandingPage';
 import BuilderSidebar from '@/components/BuilderSidebar';
 import SectionAdder from '@/components/SectionAdder';
+import ComponentsPanel from '@/components/ComponentsPanel';
 import { Section, SectionType, SECTION_TEMPLATES } from '@/types/sections';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
@@ -460,6 +461,16 @@ function BuilderContent({ domain, router }: any) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
+        {/* Components Panel - Show in edit mode for new pages */}
+        <div className="flex flex-1 overflow-hidden">
+          {mode === 'edit' && currentPageId && pages.length > 0 && (() => {
+            const currentPage = pages.find(p => p.id === currentPageId);
+            const showComponentsPanel = currentPage && !currentPage.is_home;
+            return showComponentsPanel ? <ComponentsPanel onAddComponent={handleAddSection} /> : null;
+          })()}
+          
+          {/* Canvas Area */}
+          <div className="flex-1 flex flex-col">
         {/* Toolbar */}
         <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-4">
@@ -577,6 +588,8 @@ function BuilderContent({ domain, router }: any) {
               </>
             );
           })()}
+        </div>
+          </div>
         </div>
       </div>
     </div>
