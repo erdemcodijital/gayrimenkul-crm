@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2 } from 'lucide-react';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -641,7 +641,8 @@ export default function AgentDashboard() {
                         onClick={() => deleteLead(lead.id)}
                         className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition"
                       >
-                        🗑️ Sil
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Sil
                       </button>
                       <button
                         onClick={() => {
@@ -654,7 +655,8 @@ export default function AgentDashboard() {
                         }}
                         className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition"
                       >
-                        📝 Notlar
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        Notlar
                       </button>
                     </div>
                   </div>

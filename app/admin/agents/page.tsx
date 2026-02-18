@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { Plus, Edit, Trash2, CheckCircle, XCircle, ExternalLink, Server, Users, Activity, TrendingUp, Key, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, CheckCircle, XCircle, ExternalLink, Server, Users, Activity, TrendingUp, Key, Calendar, Phone, Mail } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
@@ -434,9 +434,17 @@ export default function AgentsPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-semibold text-gray-900">{lead.name}</h3>
-                      <div className="text-sm text-gray-600 mt-1">
-                        <div>📞 {lead.phone}</div>
-                        {lead.email && <div>📧 {lead.email}</div>}
+                      <div className="text-sm text-gray-600 mt-1 space-y-1">
+                        <div className="flex items-center">
+                          <Phone className="w-3 h-3 mr-2" />
+                          {lead.phone}
+                        </div>
+                        {lead.email && (
+                          <div className="flex items-center">
+                            <Mail className="w-3 h-3 mr-2" />
+                            {lead.email}
+                          </div>
+                        )}
                       </div>
                       <div className="mt-2">
                         <span className="text-xs text-gray-500">
