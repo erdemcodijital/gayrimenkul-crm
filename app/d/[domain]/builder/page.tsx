@@ -73,7 +73,7 @@ function BuilderContent({ domain, router }: any) {
     }
   }, [currentPageId, pages]);
 
-  const loadPageContent = (page: Page) => {
+  const loadPageContent = async (page: Page) => {
     console.log('📄 Loading page content:', page.title, page.content);
     
     // If page has content, we'll use it
@@ -83,6 +83,35 @@ function BuilderContent({ domain, router }: any) {
       // Content will be loaded by ClientLandingPage from page prop
     } else {
       console.log('ℹ️ Page has no custom content, using defaults');
+      
+      // AUTO-MIGRATION: Create sections for home page from agent data
+      if (page.is_home && agent) {
+        console.log('🔄 Auto-creating sections for home page...');
+        
+        const heroSection: Section = {
+          id: `hero-${Date.now()}`,
+          type: 'hero',
+          order: 0,
+          data: {
+            title: agent.hero_title || 'Hayalinizdeki Evi Bulun',
+            subtitle: agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı',
+            buttonText: agent.hero_button_text || 'İletişime Geçin',
+            buttonLink: `https://wa.me/${agent.whatsapp_number || ''}`,
+            stats: (agent as any).stats_list || []
+          }
+        };
+        
+        const sections = [heroSection];
+        
+        // Save to database
+        await supabase
+          .from('pages')
+          .update({ content: { sections } })
+          .eq('id', page.id);
+        
+        // Reload pages
+        loadPages();
+      }
     }
   };
 
