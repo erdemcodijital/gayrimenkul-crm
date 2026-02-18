@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode, Calendar, MapPin } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode, Calendar, MapPin, Building2, DollarSign, Ruler, Bath, Car, Flame, Eye, FileText, Image as ImageIcon, Check, Paintbrush } from 'lucide-react';
 import { Toast, ConfirmModal } from '@/components/Toast';
 import { BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
 import AppointmentManager from '@/components/AppointmentManager';
+import LandingPageEditor from './LandingPageEditor';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -60,6 +61,7 @@ export default function AgentDashboard() {
     show_cta: true,
   });
   const [savingLanding, setSavingLanding] = useState(false);
+  const [showVisualEditor, setShowVisualEditor] = useState(false);
   const [propertyForm, setPropertyForm] = useState({
     title: '',
     description: '',
@@ -1410,41 +1412,86 @@ export default function AgentDashboard() {
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">Site Ayarları</h2>
-            
-            {/* Theme Color */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tema Rengi
-                </label>
-                <p className="text-xs text-gray-500 mb-3">
-                  Landing sayfanızın ana rengini belirleyin
-                </p>
-                <div className="flex items-center space-x-4">
-                  <input
-                    type="color"
-                    value={themeColor}
-                    onChange={(e) => setThemeColor(e.target.value)}
-                    className="h-12 w-20 rounded border border-gray-300 cursor-pointer"
-                  />
-                  <div className="flex-1">
-                    <input
-                      type="text"
-                      value={themeColor}
-                      onChange={(e) => setThemeColor(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
-                      placeholder="#111827"
-                    />
+          <div className="space-y-6">
+            {/* Visual Editor Card */}
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-200 rounded-xl p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
+                      <Paintbrush className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Visual Editor</h3>
+                      <p className="text-sm text-gray-600">Wix-style sürükle-bırak editor</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    Landing sayfanızı görsel olarak düzenleyin. Section'ları sürükleyip yeniden sıralayın, 
+                    canlı önizleme yapın ve anında kaydedin.
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium text-purple-700">
+                      🖱️ Drag & Drop
+                    </span>
+                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium text-purple-700">
+                      👁️ Live Preview
+                    </span>
+                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium text-purple-700">
+                      💾 Auto Save
+                    </span>
+                    <span className="px-3 py-1 bg-white rounded-full text-xs font-medium text-purple-700">
+                      🎨 Custom Styles
+                    </span>
                   </div>
                   <button
-                    onClick={saveThemeColor}
-                    disabled={savingTheme}
-                    className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition disabled:opacity-50"
+                    onClick={() => setShowVisualEditor(true)}
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-semibold transition shadow-lg flex items-center gap-2"
                   >
-                    {savingTheme ? 'Kaydediliyor...' : 'Kaydet'}
+                    <Paintbrush className="w-5 h-5" />
+                    Visual Editor'ı Aç
                   </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Regular Settings */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">Temel Ayarlar</h2>
+            
+              {/* Theme Color */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tema Rengi
+                  </label>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Landing sayfanızın ana rengini belirleyin
+                  </p>
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="color"
+                      value={themeColor}
+                      onChange={(e) => setThemeColor(e.target.value)}
+                      className="h-12 w-20 rounded border border-gray-300 cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <input
+                        type="text"
+                        value={themeColor}
+                        onChange={(e) => setThemeColor(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg font-mono text-sm"
+                        placeholder="#111827"
+                      />
+                    </div>
+                    <button
+                      onClick={saveThemeColor}
+                      disabled={savingTheme}
+                      className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition disabled:opacity-50"
+                    >
+                      {savingTheme ? 'Kaydediliyor...' : 'Kaydet'}
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -1841,6 +1888,34 @@ export default function AgentDashboard() {
           type={toast.type}
           onClose={() => setToast(null)}
         />
+      )}
+
+      {/* Visual Editor Modal */}
+      {showVisualEditor && agent && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full h-full max-w-[95vw] max-h-[95vh] overflow-hidden shadow-2xl">
+            <div className="h-full flex flex-col">
+              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50">
+                <h2 className="text-xl font-bold text-gray-900">Visual Editor</h2>
+                <button
+                  onClick={() => setShowVisualEditor(false)}
+                  className="p-2 hover:bg-gray-100 rounded-full transition"
+                >
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <LandingPageEditor 
+                  agent={agent} 
+                  onSave={() => {
+                    setToast({ message: 'Landing sayfası güncellendi!', type: 'success' });
+                    verifyPin(localStorage.getItem(`agent_pin_${domain}`) || '');
+                  }} 
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Confirm Modal */}

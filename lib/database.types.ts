@@ -28,6 +28,8 @@ export interface Database {
           show_properties: boolean
           show_features: boolean
           show_cta: boolean
+          sections_order: Json | null
+          custom_sections: Json | null
           is_active: boolean
           license_status: string
           license_expires_at: string | null
@@ -52,6 +54,8 @@ export interface Database {
           show_properties?: boolean
           show_features?: boolean
           show_cta?: boolean
+          sections_order?: Json | null
+          custom_sections?: Json | null
           is_active?: boolean
           license_status?: string
           license_expires_at?: string | null
@@ -76,6 +80,8 @@ export interface Database {
           show_properties?: boolean
           show_features?: boolean
           show_cta?: boolean
+          sections_order?: Json | null
+          custom_sections?: Json | null
           is_active?: boolean
           license_status?: string
           license_expires_at?: string | null
