@@ -312,6 +312,41 @@ function BuilderContent({ domain, router }: any) {
       // If we have a current page with sections system, already saved via handleUpdateSection
       if (currentPageId && pages.length > 0) {
         const currentPage = pages.find(p => p.id === currentPageId);
+        
+        // Ana sayfa (is_home) için agents tablosuna kaydet
+        if (currentPage?.is_home) {
+          console.log('💾 Saving home page to agents table:', sections);
+          
+          const updateData: any = {};
+          
+          // Hero section
+          if (sections['hero']?.title) updateData.hero_title = sections['hero'].title;
+          if (sections['hero']?.subtitle) updateData.hero_subtitle = sections['hero'].subtitle;
+          if (sections['hero']?.buttonText) updateData.hero_button_text = sections['hero'].buttonText;
+          if (sections['hero']?.stats) updateData.stats_list = sections['hero'].stats;
+          
+          // Features section
+          if (sections['features']?.title) updateData.features_title = sections['features'].title;
+          if (sections['features']?.subtitle) updateData.features_subtitle = sections['features'].subtitle;
+          if (sections['features']?.list) updateData.features_list = sections['features'].list;
+          
+          // Properties section
+          if (sections['properties']?.title) updateData.properties_title = sections['properties'].title;
+          
+          // CTA section
+          if (sections['cta']?.title) updateData.cta_title = sections['cta'].title;
+          if (sections['cta']?.description) updateData.cta_description = sections['cta'].description;
+          
+          await supabase
+            .from('agents')
+            .update(updateData)
+            .eq('id', agent.id);
+          
+          alert('✅ Ana sayfa kaydedildi!');
+          setSaving(false);
+          return;
+        }
+        
         if (currentPage && currentPage.content?.sections) {
           alert('✅ Değişiklikler otomatik kaydedildi!');
           setSaving(false);
