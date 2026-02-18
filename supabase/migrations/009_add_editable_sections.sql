@@ -12,7 +12,12 @@ ADD COLUMN IF NOT EXISTS features_list JSONB DEFAULT '[
   {"title": "Uzman Destek", "description": "Deneyimli danışmanlık ekibi"}
 ]'::jsonb,
 ADD COLUMN IF NOT EXISTS hero_button_text TEXT DEFAULT 'Ücretsiz Görüşme',
-ADD COLUMN IF NOT EXISTS hero_phone_text TEXT DEFAULT NULL;
+ADD COLUMN IF NOT EXISTS hero_phone_text TEXT DEFAULT NULL,
+ADD COLUMN IF NOT EXISTS stats_list JSONB DEFAULT '[
+  {"value": "200+", "label": "Mutlu Müşteri"},
+  {"value": "150+", "label": "Başarılı Satış"},
+  {"value": "10+", "label": "Yıl Tecrübe"}
+]'::jsonb;
 
 -- Add comments
 COMMENT ON COLUMN agents.features_title IS 'Features section title';

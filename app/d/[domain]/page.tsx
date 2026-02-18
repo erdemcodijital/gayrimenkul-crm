@@ -155,18 +155,16 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
             </div>
             
             <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t border-gray-200">
-              <div>
-                <div className="text-3xl font-bold text-gray-900">200+</div>
-                <div className="text-sm text-gray-600 mt-1">Mutlu Müşteri</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-900">150+</div>
-                <div className="text-sm text-gray-600 mt-1">Başarılı Satış</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-gray-900">10+</div>
-                <div className="text-sm text-gray-600 mt-1">Yıl Tecrübe</div>
-              </div>
+              {((agent as any).stats_list || [
+                { value: '200+', label: 'Mutlu Müşteri' },
+                { value: '150+', label: 'Başarılı Satış' },
+                { value: '10+', label: 'Yıl Tecrübe' }
+              ]).map((stat: any, i: number) => (
+                <div key={i}>
+                  <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

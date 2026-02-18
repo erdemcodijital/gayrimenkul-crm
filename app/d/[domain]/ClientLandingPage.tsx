@@ -29,6 +29,11 @@ export default function ClientLandingPage({ agent }: Props) {
   const [propertiesTitle, setPropertiesTitle] = useState('Portföyümden Seçmeler');
   const [ctaTitle, setCtaTitle] = useState('Hayalinizdeki Evi Bulun');
   const [ctaDescription, setCtaDescription] = useState('Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
+  const [statsList, setStatsList] = useState([
+    { value: '200+', label: 'Mutlu Müşteri' },
+    { value: '150+', label: 'Başarılı Satış' },
+    { value: '10+', label: 'Yıl Tecrübe' }
+  ]);
   
   // Editor context
   let editorContext;
@@ -167,18 +172,40 @@ export default function ClientLandingPage({ agent }: Props) {
               </div>
               
               <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t border-gray-200">
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">200+</div>
-                  <div className="text-sm text-gray-600 mt-1">Mutlu Müşteri</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">150+</div>
-                  <div className="text-sm text-gray-600 mt-1">Başarılı Satış</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">10+</div>
-                  <div className="text-sm text-gray-600 mt-1">Yıl Tecrübe</div>
-                </div>
+                {statsList.map((stat, i) => (
+                  <div key={i}>
+                    <div 
+                      className="text-3xl font-bold text-gray-900"
+                      contentEditable={editMode}
+                      suppressContentEditableWarning
+                      style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                      onBlur={(e) => {
+                        const newValue = e.currentTarget.textContent || '';
+                        const updatedList = [...statsList];
+                        updatedList[i] = { ...updatedList[i], value: newValue };
+                        setStatsList(updatedList);
+                        if (updateSection) updateSection('hero', { stats: updatedList });
+                      }}
+                    >
+                      {stat.value}
+                    </div>
+                    <div 
+                      className="text-sm text-gray-600 mt-1"
+                      contentEditable={editMode}
+                      suppressContentEditableWarning
+                      style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                      onBlur={(e) => {
+                        const newLabel = e.currentTarget.textContent || '';
+                        const updatedList = [...statsList];
+                        updatedList[i] = { ...updatedList[i], label: newLabel };
+                        setStatsList(updatedList);
+                        if (updateSection) updateSection('hero', { stats: updatedList });
+                      }}
+                    >
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -66,6 +66,7 @@ function BuilderContent({ domain, router }: any) {
       if (sections['hero']?.title) updateData.hero_title = sections['hero'].title;
       if (sections['hero']?.subtitle) updateData.hero_subtitle = sections['hero'].subtitle;
       if (sections['hero']?.buttonText) updateData.hero_button_text = sections['hero'].buttonText;
+      if (sections['hero']?.stats) updateData.stats_list = sections['hero'].stats;
       
       // Features section
       if (sections['features']?.title) updateData.features_title = sections['features'].title;
