@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps) {
 
   return {
     title: `${agent.name} - Gayrimenkul Danışmanı`,
-    description: `${agent.city ? agent.city + ' ' : ''}Gayrimenkul Danışmanı ${agent.name}. Size en uygun gayrimenkul seçeneklerini bulmak için buradayım.`,
+    description: agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı hizmeti',
   };
 }
 
