@@ -276,6 +276,34 @@ export default function AgentDashboard() {
     }
   };
 
+  const updateLeadStatus = async (id: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .update({ status: newStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      if (agent) await loadLeads(agent.id);
+    } catch (err) {
+      alert('Status güncellenemedi');
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; color: string }> = {
+      new: { label: '🆕 Yeni', color: 'bg-green-100 text-green-800' },
+      contacted: { label: '📞 İletişimde', color: 'bg-blue-100 text-blue-800' },
+      meeting: { label: '🤝 Görüşme', color: 'bg-yellow-100 text-yellow-800' },
+      closed_success: { label: '✅ Başarılı', color: 'bg-green-600 text-white' },
+      closed_cancelled: { label: '❌ İptal', color: 'bg-red-100 text-red-800' },
+    };
+    
+    const config = statusConfig[status] || statusConfig.new;
+    return `inline-block px-3 py-1 text-xs font-medium rounded-full ${config.color}`;
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     verifyPin(pinCode);
@@ -494,9 +522,17 @@ export default function AgentDashboard() {
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
                         <h3 className="text-base font-semibold text-gray-900">{lead.name}</h3>
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                          Yeni
-                        </span>
+                        <select
+                          value={lead.status}
+                          onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                          className={`${getStatusBadge(lead.status)} border-none cursor-pointer`}
+                        >
+                          <option value="new">🆕 Yeni</option>
+                          <option value="contacted">📞 İletişimde</option>
+                          <option value="meeting">🤝 Görüşme</option>
+                          <option value="closed_success">✅ Başarılı</option>
+                          <option value="closed_cancelled">❌ İptal</option>
+                        </select>
                       </div>
                       
                       <div className="space-y-1">
