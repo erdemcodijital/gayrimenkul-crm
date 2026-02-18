@@ -28,9 +28,9 @@ export default function AgentDashboard() {
   });
   const [properties, setProperties] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'settings'>('leads');
-  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [newNote, setNewNote] = useState('');
+  const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [leadNotes, setLeadNotes] = useState<Record<string, any[]>>({});
+  const [newNote, setNewNote] = useState<Record<string, string>>({});
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
@@ -310,8 +310,24 @@ export default function AgentDashboard() {
     }
   };
 
-  const addLeadNote = async (leadId: string, note: string) => {
-    if (!note.trim() || !agent) return;
+  const loadLeadNotes = async (leadId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('lead_notes')
+        .select('*')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setLeadNotes(prev => ({ ...prev, [leadId]: data || [] }));
+    } catch (err) {
+      console.error('Notlar yüklenirken hata:', err);
+    }
+  };
+
+  const addLeadNote = async (leadId: string) => {
+    const note = newNote[leadId];
+    if (!note?.trim() || !agent) return;
     
     try {
       // @ts-ignore
@@ -328,8 +344,8 @@ export default function AgentDashboard() {
         return;
       }
       
-      setNewNote('');
-      alert('Not eklendi!');
+      setNewNote(prev => ({ ...prev, [leadId]: '' }));
+      await loadLeadNotes(leadId);
     } catch (err: any) {
       alert(`Not eklenemedi: ${err.message}`);
     }
@@ -627,8 +643,67 @@ export default function AgentDashboard() {
                       >
                         🗑️ Sil
                       </button>
+                      <button
+                        onClick={() => {
+                          if (expandedLead === lead.id) {
+                            setExpandedLead(null);
+                          } else {
+                            setExpandedLead(lead.id);
+                            loadLeadNotes(lead.id);
+                          }
+                        }}
+                        className="inline-flex items-center px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 text-sm font-medium rounded-lg transition"
+                      >
+                        📝 Notlar
+                      </button>
                     </div>
                   </div>
+                  
+                  {/* Notes Section - Expandable */}
+                  {expandedLead === lead.id && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <h4 className="font-semibold text-gray-900 mb-3">Notlar</h4>
+                      
+                      {/* Add Note */}
+                      <div className="mb-4 flex gap-2">
+                        <input
+                          type="text"
+                          value={newNote[lead.id] || ''}
+                          onChange={(e) => setNewNote(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                          placeholder="Not ekle..."
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              addLeadNote(lead.id);
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => addLeadNote(lead.id)}
+                          disabled={!newNote[lead.id]?.trim()}
+                          className="px-4 py-2 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white text-sm font-medium rounded-md transition"
+                        >
+                          Ekle
+                        </button>
+                      </div>
+
+                      {/* Notes List */}
+                      <div className="space-y-2">
+                        {leadNotes[lead.id]?.length === 0 ? (
+                          <p className="text-sm text-gray-500 italic">Henüz not yok</p>
+                        ) : (
+                          leadNotes[lead.id]?.map((note: any) => (
+                            <div key={note.id} className="bg-gray-50 p-3 rounded-md">
+                              <p className="text-sm text-gray-900">{note.note}</p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                {new Date(note.created_at).toLocaleString('tr-TR')}
+                              </p>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
