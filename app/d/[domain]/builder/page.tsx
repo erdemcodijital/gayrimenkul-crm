@@ -136,7 +136,8 @@ function BuilderContent({ domain, router }: any) {
       {/* Canvas - Landing Page Preview */}
       <div className="flex-1 overflow-hidden bg-gray-100">
         <iframe
-          src={`/d/${domain}`}
+          key={mode}
+          src={`/d/${domain}${mode === 'edit' ? '?edit=true' : ''}`}
           className="w-full h-full border-0"
           title="Landing Page Preview"
         />
