@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode, Calendar } from 'lucide-react';
 import { Toast, ConfirmModal } from '@/components/Toast';
 import { BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import QRCodeGenerator from '@/components/QRCodeGenerator';
+import AppointmentManager from '@/components/AppointmentManager';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -39,7 +40,7 @@ export default function AgentDashboard() {
     weeklyData: [] as { day: string; count: number }[],
   });
   const [properties, setProperties] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'qr' | 'settings'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'appointments' | 'qr' | 'settings'>('leads');
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [leadNotes, setLeadNotes] = useState<Record<string, any[]>>({});
   const [newNote, setNewNote] = useState<Record<string, string>>({});
@@ -732,6 +733,15 @@ export default function AgentDashboard() {
                 <span className="font-medium">Portföy</span>
               </button>
               <button
+                onClick={() => { setActiveTab('appointments'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
+                  activeTab === 'appointments' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Calendar className="w-5 h-5" />
+                <span className="font-medium">Randevular</span>
+              </button>
+              <button
                 onClick={() => { setActiveTab('qr'); setMobileMenuOpen(false); }}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
                   activeTab === 'qr' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
@@ -786,6 +796,16 @@ export default function AgentDashboard() {
               }`}
             >
               Portföy
+            </button>
+            <button
+              onClick={() => setActiveTab('appointments')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'appointments'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Randevular
             </button>
             <button
               onClick={() => setActiveTab('qr')}
@@ -1281,6 +1301,11 @@ export default function AgentDashboard() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Appointments Tab */}
+        {activeTab === 'appointments' && agent && (
+          <AppointmentManager agentId={agent.id} />
         )}
 
         {/* QR Code Tab */}
