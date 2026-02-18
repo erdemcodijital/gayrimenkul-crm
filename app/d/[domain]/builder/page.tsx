@@ -52,7 +52,6 @@ function BuilderContent({ domain, router }: any) {
     loadAgent();
   }, [domain]);
 
-  // Load pages after agent is loaded
   useEffect(() => {
     if (agent) {
       loadPages();
