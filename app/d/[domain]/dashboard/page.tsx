@@ -24,10 +24,11 @@ export default function AgentDashboard() {
     thisWeek: 0,
     thisMonth: 0,
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'settings'>('leads');
   const [properties, setProperties] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'settings'>('leads');
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [newNote, setNewNote] = useState('');
+  const [leadNotes, setLeadNotes] = useState<Record<string, any[]>>({});
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
@@ -304,6 +305,31 @@ export default function AgentDashboard() {
     } catch (err: any) {
       console.error('Status güncelleme hatası:', err);
       alert(`Status güncellenemedi: ${err.message}`);
+    }
+  };
+
+  const addLeadNote = async (leadId: string, note: string) => {
+    if (!note.trim() || !agent) return;
+    
+    try {
+      // @ts-ignore
+      const { error } = await supabase
+        .from('lead_notes')
+        .insert({
+          lead_id: leadId,
+          agent_id: agent.id,
+          note: note.trim(),
+        });
+
+      if (error) {
+        alert(`Not eklenemedi: ${error.message}`);
+        return;
+      }
+      
+      setNewNote('');
+      alert('Not eklendi!');
+    } catch (err: any) {
+      alert(`Not eklenemedi: ${err.message}`);
     }
   };
 
