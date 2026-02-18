@@ -278,17 +278,25 @@ export default function AgentDashboard() {
 
   const updateLeadStatus = async (id: string, newStatus: string) => {
     try {
-      const { error } = await supabase
+      console.log('Status güncelleniyor:', { id, newStatus });
+      
+      const { data, error } = await supabase
         .from('leads')
         // @ts-ignore
         .update({ status: newStatus })
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Status güncelleme hatası:', error);
+        alert(`Status güncellenemedi: ${error.message}`);
+        return;
+      }
       
+      console.log('Status güncellendi:', data);
       if (agent) await loadLeads(agent.id);
-    } catch (err) {
-      alert('Status güncellenemedi');
+    } catch (err: any) {
+      console.error('Status güncelleme hatası:', err);
+      alert(`Status güncellenemedi: ${err.message}`);
     }
   };
 
