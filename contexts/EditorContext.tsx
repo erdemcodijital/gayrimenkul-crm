@@ -27,10 +27,15 @@ export function EditorProvider({ children }: { children: ReactNode }) {
   const [sections, setSections] = useState<Record<string, SectionData>>({});
 
   const updateSection = (id: string, props: any) => {
-    setSections(prev => ({
-      ...prev,
-      [id]: { ...prev[id], id, ...props }
-    }));
+    console.log('🔵 updateSection called:', id, props);
+    setSections(prev => {
+      const updated = {
+        ...prev,
+        [id]: { ...prev[id], id, ...props }
+      };
+      console.log('🟢 sections updated:', updated);
+      return updated;
+    });
   };
 
   const getSaveData = () => sections;
