@@ -205,6 +205,7 @@ export default function AgentDashboard() {
       
       setShowAddProperty(false);
       setEditingProperty(null);
+      setImageFiles([]);
       setPropertyForm({
         title: '',
         description: '',
@@ -792,6 +793,29 @@ export default function AgentDashboard() {
                   placeholder="İstanbul"
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fotoğraflar</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setImageFiles(files);
+                  }}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Birden fazla fotoğraf seçebilirsiniz. Desteklenen formatlar: JPG, PNG
+                </p>
+                {imageFiles.length > 0 && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    {imageFiles.length} fotoğraf seçildi
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
