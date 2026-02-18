@@ -5,25 +5,22 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50 transition-all duration-300">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center space-x-3 group cursor-pointer">
-              <img 
-                src="/logo.png" 
-                alt="Logo" 
-                className="h-12 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300"
-                style={{ filter: 'brightness(0) saturate(100%)' }}
-              />
-              <span className="text-2xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">Gayrimenkul CRM</span>
-            </div>
-            <div className="flex items-center gap-6">
-              <a href="#features" className="text-gray-700 hover:text-gray-900 font-medium transition-colors hidden md:block">
-                Özellikler
-              </a>
-              <a href="#benefits" className="text-gray-700 hover:text-gray-900 font-medium transition-colors hidden md:block">
-                Avantajlar
-              </a>
+      <header className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col items-center justify-center text-center space-y-3">
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              className="h-16 sm:h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-500"
+              style={{ filter: 'brightness(0) saturate(100%)' }}
+            />
+            <div className="space-y-1">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+                Gayrimenkul CRM
+              </h1>
+              <p className="text-sm sm:text-base text-gray-600 font-light italic max-w-md">
+                "Profesyonel emlak çözümleriyle geleceği inşa edin"
+              </p>
             </div>
           </div>
         </div>
