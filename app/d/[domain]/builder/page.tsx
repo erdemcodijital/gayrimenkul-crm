@@ -186,10 +186,52 @@ function BuilderContent({ domain, router }: any) {
 
       {/* Right Panel - Properties (when section is selected) */}
       {mode === 'edit' && (
-        <div className="fixed right-0 top-[57px] bottom-0 w-80 bg-white border-l border-gray-200 shadow-2xl overflow-y-auto">
+        <div className="fixed right-0 top-[57px] bottom-0 w-96 bg-white border-l border-gray-200 shadow-2xl overflow-y-auto z-40">
           <div className="p-4">
-            <h3 className="text-sm font-bold text-gray-900 mb-4">Properties</h3>
-            <p className="text-sm text-gray-500">Select a section to edit its properties</p>
+            <h3 className="text-lg font-bold text-gray-900 mb-1">Düzenleyici</h3>
+            <p className="text-xs text-gray-500 mb-4">Değişiklikler otomatik kaydedilir</p>
+            
+            <div className="space-y-4">
+              {/* Quick Actions */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <h4 className="text-sm font-semibold text-blue-900 mb-2">💡 İpucu</h4>
+                <p className="text-xs text-blue-700">
+                  Başlıklara tıklayarak düzenleyebilirsiniz. 
+                  Değişiklikler yapınca "Save" butonuna tıklayın.
+                </p>
+              </div>
+
+              {/* Section Info */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">📄 Bölümler</h4>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Hero - Ana başlık ve açıklama</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                    <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+                    <span>Features - Özellikler listesi</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                    <span>Properties - İlanlar</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="border-t border-gray-200 pt-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">📝 Nasıl Kullanılır?</h4>
+                <ol className="text-xs text-gray-600 space-y-2 list-decimal list-inside">
+                  <li>Düzenlemek istediğiniz metne tıklayın</li>
+                  <li>Yeni metni yazın</li>
+                  <li>Başka bir yere tıklayın</li>
+                  <li>Save butonuna tıklayın</li>
+                  <li>View Live ile kontrol edin</li>
+                </ol>
+              </div>
+            </div>
           </div>
         </div>
       )}
