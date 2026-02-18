@@ -175,7 +175,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Neden Benimle Çalışmalısınız?</h2>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{agent.features_title || 'Neden Benimle Çalışmalısınız?'}</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın</p>
           </div>
           
@@ -204,7 +204,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Portföyümden Seçmeler</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">{agent.properties_title || 'Portföyümden Seçmeler'}</h2>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -433,7 +433,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
       <section className="py-24 bg-gray-50 border-y border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Hayalinizdeki Evi Bulun
+            {agent.cta_title || 'Hayalinizdeki Evi Bulun'}
           </h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Size özel gayrimenkul danışmanlığı için hemen iletişime geçin
