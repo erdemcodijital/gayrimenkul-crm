@@ -249,15 +249,24 @@ export default async function AgentPage({ params }: PageProps) {
                         </span>
                       )}
                     </div>
-                    <a
-                      href={whatsappLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block w-full text-center px-4 py-3 border-2 rounded-lg font-medium"
-                      style={{ borderColor: themeColor, color: themeColor }}
-                    >
-                      İletişime Geç
-                    </a>
+                    <div className="flex gap-2">
+                      <a
+                        href={`/d/${agent.domain}/properties/${property.id}`}
+                        className="flex-1 text-center px-4 py-3 border-2 rounded-lg font-medium transition hover:bg-gray-50"
+                        style={{ borderColor: themeColor, color: themeColor }}
+                      >
+                        Detaylı Bilgi
+                      </a>
+                      <a
+                        href={whatsappLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 text-center px-4 py-3 rounded-lg font-medium transition text-white"
+                        style={{ backgroundColor: themeColor }}
+                      >
+                        İletişim
+                      </a>
+                    </div>
                   </div>
                 </div>
               ))}
