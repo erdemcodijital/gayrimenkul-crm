@@ -56,10 +56,26 @@ export default function AgentDashboard() {
     description: '',
     price: '',
     property_type: 'Satılık',
+    category: 'Daire', // Daire, Villa, Arsa, İşyeri, vs
     room_count: '',
     square_meters: '',
     location: '',
     city: '',
+    district: '', // İlçe
+    neighborhood: '', // Mahalle
+    building_age: '', // Bina yaşı
+    floor: '', // Bulunduğu kat
+    total_floors: '', // Bina kat sayısı
+    bathroom_count: '', // Banyo sayısı
+    balcony: false, // Balkon var mı
+    furnished: false, // Eşyalı mı
+    in_site: false, // Site içinde mi
+    heating_type: '', // Isıtma türü
+    front_view: '', // Cephe
+    use_status: 'Boş', // Kullanım durumu
+    deed_status: 'Kat Mülkiyeti', // Tapu durumu
+    parking: false, // Otopark
+    elevator: false, // Asansör
   });
   const [savingProperty, setSavingProperty] = useState(false);
   const [editingProperty, setEditingProperty] = useState<any>(null);
@@ -1267,9 +1283,24 @@ export default function AgentDashboard() {
                             {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(property.price)}
                           </div>
                         )}
-                        {property.room_count && <div>🛏️ {property.room_count}</div>}
-                        {property.square_meters && <div>📐 {property.square_meters} m²</div>}
-                        {property.location && <div>📍 {property.location}</div>}
+                        {property.room_count && (
+                          <div className="flex items-center gap-1">
+                            <Briefcase className="w-4 h-4" />
+                            {property.room_count}
+                          </div>
+                        )}
+                        {property.square_meters && (
+                          <div className="flex items-center gap-1">
+                            <Home className="w-4 h-4" />
+                            {property.square_meters} m²
+                          </div>
+                        )}
+                        {property.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            {property.location}
+                          </div>
+                        )}
                       </div>
                       <div className="flex items-center justify-between mb-3">
                         <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${
@@ -1284,15 +1315,17 @@ export default function AgentDashboard() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => editProperty(property)}
-                          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+                          className="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition flex items-center justify-center gap-2"
                         >
-                          ✏️ Düzenle
+                          <Edit2 className="w-4 h-4" />
+                          Düzenle
                         </button>
                         <button
                           onClick={() => deleteProperty(property.id)}
-                          className="flex-1 px-3 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition"
+                          className="flex-1 px-3 py-2 border border-red-300 text-red-600 rounded-lg text-sm font-medium hover:bg-red-50 transition flex items-center justify-center gap-2"
                         >
-                          🗑️ Sil
+                          <Trash2 className="w-4 h-4" />
+                          Sil
                         </button>
                       </div>
                     </div>
