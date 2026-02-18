@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X } from 'lucide-react';
+import { Toast, ConfirmModal } from '@/components/Toast';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -33,6 +34,8 @@ export default function AgentDashboard() {
   const [newNote, setNewNote] = useState<Record<string, string>>({});
   const [editingNote, setEditingNote] = useState<string | null>(null);
   const [editNoteText, setEditNoteText] = useState('');
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
@@ -116,9 +119,9 @@ export default function AgentDashboard() {
 
       if (error) throw error;
       
-      alert('Tema rengi kaydedildi! Landing sayfanızı yenilediğinizde göreceksiniz.');
+      setToast({ message: 'Tema rengi kaydedildi! Landing sayfanızı yenilediğinizde göreceksiniz.', type: 'success' });
     } catch (err) {
-      alert('Tema rengi kaydedilemedi');
+      setToast({ message: 'Tema rengi kaydedilemedi', type: 'error' });
     } finally {
       setSavingTheme(false);
     }
@@ -184,7 +187,7 @@ export default function AgentDashboard() {
           .eq('id', editingProperty.id);
 
         if (error) throw error;
-        alert('İlan güncellendi!');
+        setToast({ message: 'İlan güncellendi!', type: 'success' });
       } else {
         // Insert new
         // @ts-ignore
@@ -205,7 +208,7 @@ export default function AgentDashboard() {
           });
 
         if (error) throw error;
-        alert('İlan başarıyla eklendi!');
+        setToast({ message: 'İlan başarıyla eklendi!', type: 'success' });
       }
       
       setShowAddProperty(false);
@@ -224,28 +227,32 @@ export default function AgentDashboard() {
       await loadProperties(agent.id);
     } catch (err: any) {
       console.error('İlan kayıt hatası:', err);
-      alert(`İşlem başarısız: ${err.message || 'Bilinmeyen hata'}`);
+      setToast({ message: 'İşlem başarısız', type: 'error' });
     } finally {
       setSavingProperty(false);
     }
   };
 
   const deleteProperty = async (id: string) => {
-    if (!confirm('Bu ilanı silmek istediğinizden emin misiniz?')) return;
-    
-    try {
-      const { error } = await supabase
-        .from('properties')
-        .delete()
-        .eq('id', id);
+    setConfirmModal({
+      title: 'İlan Sil',
+      message: 'Bu ilanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('properties')
+            .delete()
+            .eq('id', id);
 
-      if (error) throw error;
-      
-      alert('İlan silindi!');
-      if (agent) await loadProperties(agent.id);
-    } catch (err) {
-      alert('İlan silinemedi');
-    }
+          if (error) throw error;
+          
+          setToast({ message: 'İlan başarıyla silindi!', type: 'success' });
+          if (agent) await loadProperties(agent.id);
+        } catch (err) {
+          setToast({ message: 'İlan silinemedi', type: 'error' });
+        }
+      }
+    });
   };
 
   const editProperty = (property: any) => {
@@ -264,21 +271,25 @@ export default function AgentDashboard() {
   };
 
   const deleteLead = async (id: string) => {
-    if (!confirm('Bu lead\'i silmek istediğinizden emin misiniz?')) return;
-    
-    try {
-      const { error } = await supabase
-        .from('leads')
-        .delete()
-        .eq('id', id);
+    setConfirmModal({
+      title: 'Lead Sil',
+      message: 'Bu lead\'i silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.',
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('leads')
+            .delete()
+            .eq('id', id);
 
-      if (error) throw error;
-      
-      alert('Lead silindi!');
-      if (agent) await loadLeads(agent.id);
-    } catch (err) {
-      alert('Lead silinemedi');
-    }
+          if (error) throw error;
+          
+          setToast({ message: 'Lead başarıyla silindi!', type: 'success' });
+          if (agent) await loadLeads(agent.id);
+        } catch (err) {
+          setToast({ message: 'Lead silinemedi', type: 'error' });
+        }
+      }
+    });
   };
 
   const updateLeadStatus = async (id: string, newStatus: string) => {
@@ -294,7 +305,7 @@ export default function AgentDashboard() {
 
       if (error) {
         console.error('Status güncelleme hatası:', error);
-        alert(`Status güncellenemedi: ${error.message}`);
+        setToast({ message: 'Status güncellenemedi', type: 'error' });
         return;
       }
       
@@ -308,7 +319,7 @@ export default function AgentDashboard() {
       );
     } catch (err: any) {
       console.error('Status güncelleme hatası:', err);
-      alert(`Status güncellenemedi: ${err.message}`);
+      setToast({ message: 'Status güncellenemedi', type: 'error' });
     }
   };
 
@@ -342,14 +353,15 @@ export default function AgentDashboard() {
         });
 
       if (error) {
-        alert(`Not eklenemedi: ${error.message}`);
+        setToast({ message: 'Not eklenemedi', type: 'error' });
         return;
       }
       
       setNewNote(prev => ({ ...prev, [leadId]: '' }));
+      setToast({ message: 'Not eklendi', type: 'success' });
       await loadLeadNotes(leadId);
     } catch (err: any) {
-      alert(`Not eklenemedi: ${err.message}`);
+      setToast({ message: 'Not eklenemedi', type: 'error' });
     }
   };
 
@@ -364,36 +376,42 @@ export default function AgentDashboard() {
         .eq('id', noteId);
 
       if (error) {
-        alert(`Not güncellenemedi: ${error.message}`);
+        setToast({ message: 'Not güncellenemedi', type: 'error' });
         return;
       }
       
       setEditingNote(null);
       setEditNoteText('');
+      setToast({ message: 'Not güncellendi', type: 'success' });
       await loadLeadNotes(leadId);
     } catch (err: any) {
-      alert(`Not güncellenemedi: ${err.message}`);
+      setToast({ message: 'Not güncellenemedi', type: 'error' });
     }
   };
 
   const deleteLeadNote = async (noteId: string, leadId: string) => {
-    if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) return;
-    
-    try {
-      const { error } = await supabase
-        .from('lead_notes')
-        .delete()
-        .eq('id', noteId);
+    setConfirmModal({
+      title: 'Not Sil',
+      message: 'Bu notu silmek istediğinizden emin misiniz?',
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('lead_notes')
+            .delete()
+            .eq('id', noteId);
 
-      if (error) {
-        alert(`Not silinemedi: ${error.message}`);
-        return;
+          if (error) {
+            setToast({ message: 'Not silinemedi', type: 'error' });
+            return;
+          }
+          
+          setToast({ message: 'Not silindi', type: 'success' });
+          await loadLeadNotes(leadId);
+        } catch (err: any) {
+          setToast({ message: 'Not silinemedi', type: 'error' });
+        }
       }
-      
-      await loadLeadNotes(leadId);
-    } catch (err: any) {
-      alert(`Not silinemedi: ${err.message}`);
-    }
+    });
   };
 
   const getStatusConfig = (status: string) => {
@@ -1121,6 +1139,25 @@ export default function AgentDashboard() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Confirm Modal */}
+      {confirmModal && (
+        <ConfirmModal
+          title={confirmModal.title}
+          message={confirmModal.message}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal(null)}
+        />
       )}
     </div>
   );
