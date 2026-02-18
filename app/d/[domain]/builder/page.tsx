@@ -579,6 +579,8 @@ function BuilderContent({ domain, router }: any) {
                 <ClientLandingPage 
                   agent={agent} 
                   currentPage={currentPage}
+                  onUpdateSection={handleUpdateSection}
+                  onDeleteSection={handleDeleteSection}
                 />
                 {mode === 'edit' && currentPage?.content?.sections && (
                   <div className="p-8 bg-gray-100">

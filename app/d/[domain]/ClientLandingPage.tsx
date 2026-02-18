@@ -25,9 +25,11 @@ interface PageContent {
 interface Props {
   agent: Agent;
   currentPage?: PageContent;
+  onUpdateSection?: (id: string, data: any) => void;
+  onDeleteSection?: (id: string) => void;
 }
 
-export default function ClientLandingPage({ agent, currentPage }: Props) {
+export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
@@ -106,7 +108,7 @@ export default function ClientLandingPage({ agent, currentPage }: Props) {
     }
   }, [currentPage, agent]);
   
-  // Editor context
+  // Editor context for old system
   let editorContext;
   try {
     editorContext = useEditor();
@@ -114,7 +116,8 @@ export default function ClientLandingPage({ agent, currentPage }: Props) {
     editorContext = null;
   }
   
-  const { editMode, updateSection } = editorContext || {};
+  const updateSection = onUpdateSection || editorContext?.updateSection;
+  const editMode = editorContext?.editMode || false;
 
   useEffect(() => {
     loadProperties();
@@ -139,23 +142,14 @@ export default function ClientLandingPage({ agent, currentPage }: Props) {
   // Check if page uses new sections system
   const useSectionsSystem = currentPage?.content?.sections && Array.isArray(currentPage.content.sections);
 
-  const handleUpdateSection = (id: string, data: any) => {
-    if (updateSection) {
-      updateSection(id, data);
-    }
-  };
-
   // NEW SECTIONS SYSTEM
   if (useSectionsSystem) {
     return (
       <div className="min-h-screen bg-white">
         <SectionRenderer 
           sections={currentPage.content.sections as Section[]}
-          onUpdateSection={handleUpdateSection}
-          onDeleteSection={editMode ? (id) => {
-            // This will be handled by builder's handleDeleteSection
-            console.log('Delete section:', id);
-          } : undefined}
+          onUpdateSection={onUpdateSection || (() => {})}
+          onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
         />
       </div>
     );
