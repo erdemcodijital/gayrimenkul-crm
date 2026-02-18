@@ -45,9 +45,8 @@ function BuilderContent({ domain, router }: any) {
     setLoading(false);
   };
 
-  const handleSave = async () => {
+  const saveChanges = async () => {
     setSaving(true);
-    // Save logic here
     setTimeout(() => {
       setSaving(false);
       alert('✅ Saved!');
@@ -119,7 +118,7 @@ function BuilderContent({ domain, router }: any) {
             View Live
           </button>
           <button
-            onClick={handleSave}
+            onClick={saveChanges}
             disabled={saving}
             className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition"
           >
