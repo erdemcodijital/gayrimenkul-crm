@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2 } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X } from 'lucide-react';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -31,6 +31,8 @@ export default function AgentDashboard() {
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [leadNotes, setLeadNotes] = useState<Record<string, any[]>>({});
   const [newNote, setNewNote] = useState<Record<string, string>>({});
+  const [editingNote, setEditingNote] = useState<string | null>(null);
+  const [editNoteText, setEditNoteText] = useState('');
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
@@ -348,6 +350,49 @@ export default function AgentDashboard() {
       await loadLeadNotes(leadId);
     } catch (err: any) {
       alert(`Not eklenemedi: ${err.message}`);
+    }
+  };
+
+  const updateLeadNote = async (noteId: string, leadId: string) => {
+    if (!editNoteText.trim()) return;
+    
+    try {
+      const { error } = await supabase
+        .from('lead_notes')
+        // @ts-ignore
+        .update({ note: editNoteText.trim() })
+        .eq('id', noteId);
+
+      if (error) {
+        alert(`Not güncellenemedi: ${error.message}`);
+        return;
+      }
+      
+      setEditingNote(null);
+      setEditNoteText('');
+      await loadLeadNotes(leadId);
+    } catch (err: any) {
+      alert(`Not güncellenemedi: ${err.message}`);
+    }
+  };
+
+  const deleteLeadNote = async (noteId: string, leadId: string) => {
+    if (!confirm('Bu notu silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('lead_notes')
+        .delete()
+        .eq('id', noteId);
+
+      if (error) {
+        alert(`Not silinemedi: ${error.message}`);
+        return;
+      }
+      
+      await loadLeadNotes(leadId);
+    } catch (err: any) {
+      alert(`Not silinemedi: ${err.message}`);
     }
   };
 
@@ -696,10 +741,66 @@ export default function AgentDashboard() {
                         ) : (
                           leadNotes[lead.id]?.map((note: any) => (
                             <div key={note.id} className="bg-gray-50 p-3 rounded-md">
-                              <p className="text-sm text-gray-900">{note.note}</p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                {new Date(note.created_at).toLocaleString('tr-TR')}
-                              </p>
+                              {editingNote === note.id ? (
+                                <div className="flex gap-2">
+                                  <input
+                                    type="text"
+                                    value={editNoteText}
+                                    onChange={(e) => setEditNoteText(e.target.value)}
+                                    className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+                                    onKeyPress={(e) => {
+                                      if (e.key === 'Enter') {
+                                        updateLeadNote(note.id, lead.id);
+                                      }
+                                    }}
+                                  />
+                                  <button
+                                    onClick={() => updateLeadNote(note.id, lead.id)}
+                                    className="p-1 text-green-600 hover:bg-green-50 rounded"
+                                    title="Kaydet"
+                                  >
+                                    <Edit2 className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setEditingNote(null);
+                                      setEditNoteText('');
+                                    }}
+                                    className="p-1 text-gray-600 hover:bg-gray-200 rounded"
+                                    title="İptal"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <p className="text-sm text-gray-900">{note.note}</p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      {new Date(note.created_at).toLocaleString('tr-TR')}
+                                    </p>
+                                  </div>
+                                  <div className="flex gap-1 ml-2">
+                                    <button
+                                      onClick={() => {
+                                        setEditingNote(note.id);
+                                        setEditNoteText(note.note);
+                                      }}
+                                      className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                                      title="Düzenle"
+                                    >
+                                      <Edit2 className="w-3 h-3" />
+                                    </button>
+                                    <button
+                                      onClick={() => deleteLeadNote(note.id, lead.id)}
+                                      className="p-1 text-red-600 hover:bg-red-50 rounded"
+                                      title="Sil"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           ))
                         )}
