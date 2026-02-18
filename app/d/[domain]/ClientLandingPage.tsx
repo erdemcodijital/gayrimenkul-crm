@@ -17,6 +17,7 @@ export default function ClientLandingPage({ agent }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
+  const [heroButtonText, setHeroButtonText] = useState('Ücretsiz Görüşme');
   const [featuresTitle, setFeaturesTitle] = useState('Neden Benimle Çalışmalısınız?');
   const [propertiesTitle, setPropertiesTitle] = useState('Portföyümden Seçmeler');
   const [ctaTitle, setCtaTitle] = useState('Hayalinizdeki Evi Bulun');
@@ -130,7 +131,18 @@ export default function ClientLandingPage({ agent }: Props) {
                   className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                   style={{ backgroundColor: themeColor }}
                 >
-                  Ücretsiz Görüşme
+                  <span
+                    contentEditable={editMode}
+                    suppressContentEditableWarning
+                    style={{ outline: editMode ? '2px dashed #fff' : 'none' }}
+                    onBlur={(e) => {
+                      const newText = e.currentTarget.textContent || '';
+                      setHeroButtonText(newText);
+                      if (updateSection) updateSection('hero', { buttonText: newText });
+                    }}
+                  >
+                    {heroButtonText}
+                  </span>
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
