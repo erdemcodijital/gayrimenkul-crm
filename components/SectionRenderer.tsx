@@ -44,7 +44,7 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
 
   return (
     <>
-      {sections.sort((a, b) => a.order - b.order).map((section) => (
+      {(sections || []).sort((a, b) => a.order - b.order).map((section) => (
         <div 
           key={section.id} 
           className={`relative group ${editMode && onSectionClick ? 'cursor-pointer hover:ring-2 hover:ring-blue-400 transition' : ''}`}
