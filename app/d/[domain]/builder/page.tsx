@@ -84,14 +84,18 @@ function BuilderContent({ domain, router }: any) {
     } else {
       console.log('ℹ️ Page has no custom content, using defaults');
       
-      // AUTO-MIGRATION: Create sections for home page from agent data
+      // AUTO-MIGRATION: Create full sections for home page from agent data
       if (page.is_home && agent) {
-        console.log('🔄 Auto-creating sections for home page...');
+        console.log('🔄 Auto-creating full sections for home page...');
         
-        const heroSection: Section = {
+        const sections: Section[] = [];
+        let order = 0;
+        
+        // Hero Section
+        sections.push({
           id: `hero-${Date.now()}`,
           type: 'hero',
-          order: 0,
+          order: order++,
           data: {
             title: agent.hero_title || 'Hayalinizdeki Evi Bulun',
             subtitle: agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı',
@@ -99,9 +103,36 @@ function BuilderContent({ domain, router }: any) {
             buttonLink: `https://wa.me/${agent.whatsapp_number || ''}`,
             stats: (agent as any).stats_list || []
           }
-        };
+        });
         
-        const sections = [heroSection];
+        // Features Section
+        if ((agent as any).features_list && (agent as any).features_list.length > 0) {
+          sections.push({
+            id: `features-${Date.now()}`,
+            type: 'features',
+            order: order++,
+            data: {
+              title: (agent as any).features_title || 'Neden Benimle Çalışmalısınız?',
+              subtitle: (agent as any).features_subtitle || '',
+              list: (agent as any).features_list
+            }
+          });
+        }
+        
+        // CTA Section
+        if ((agent as any).cta_title) {
+          sections.push({
+            id: `cta-${Date.now()}`,
+            type: 'cta',
+            order: order++,
+            data: {
+              title: (agent as any).cta_title,
+              description: (agent as any).cta_description || '',
+              buttonText: 'İletişime Geçin',
+              buttonLink: `https://wa.me/${agent.whatsapp_number || ''}`
+            }
+          });
+        }
         
         // Update local state immediately
         setPages(pages.map(p => 
