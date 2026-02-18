@@ -280,11 +280,12 @@ export default function AgentDashboard() {
     try {
       console.log('Status güncelleniyor:', { id, newStatus });
       
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('leads')
         // @ts-ignore
         .update({ status: newStatus })
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
       if (error) {
         console.error('Status güncelleme hatası:', error);
@@ -292,8 +293,14 @@ export default function AgentDashboard() {
         return;
       }
       
-      console.log('Status güncellendi:', data);
-      if (agent) await loadLeads(agent.id);
+      console.log('Status güncellendi! Lead listesi yenileniyor...');
+      
+      // Lead listesini lokalde güncelle (daha hızlı)
+      setLeads(prevLeads => 
+        prevLeads.map(lead => 
+          lead.id === id ? { ...lead, status: newStatus } : lead
+        )
+      );
     } catch (err: any) {
       console.error('Status güncelleme hatası:', err);
       alert(`Status güncellenemedi: ${err.message}`);
