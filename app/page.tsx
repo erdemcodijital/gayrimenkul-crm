@@ -6,21 +6,19 @@ export default function HomePage() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-gray-200 bg-white/90 backdrop-blur-md sticky top-0 z-50 transition-all duration-300">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col items-center justify-center text-center space-y-3">
-            <img 
-              src="/logo.png" 
-              alt="Logo" 
-              className="h-16 sm:h-20 w-auto object-contain transform hover:scale-105 transition-transform duration-500"
-              style={{ filter: 'brightness(0) saturate(100%)' }}
-            />
-            <div className="space-y-1">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-                Gayrimenkul CRM
-              </h1>
-              <p className="text-sm sm:text-base text-gray-600 font-light italic max-w-md">
-                "Profesyonel emlak çözümleriyle geleceği inşa edin"
-              </p>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-20">
+            <div className="flex items-center gap-4 group">
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                className="h-10 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300"
+                style={{ filter: 'brightness(0) saturate(100%)' }}
+              />
+              <div className="border-l border-gray-300 pl-4 hidden sm:block">
+                <div className="text-xl font-bold text-gray-900">Gayrimenkul CRM</div>
+                <div className="text-xs text-gray-500">Dijital emlak çözümleri</div>
+              </div>
             </div>
           </div>
         </div>
