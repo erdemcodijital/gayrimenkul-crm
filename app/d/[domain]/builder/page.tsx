@@ -7,8 +7,20 @@ import { Database } from '@/lib/database.types';
 import { Save, Eye, X } from 'lucide-react';
 import { EditorProvider, useEditor } from '@/contexts/EditorContext';
 import ClientLandingPage from '../ClientLandingPage';
+import BuilderSidebar from '@/components/BuilderSidebar';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
+
+interface Page {
+  id: string;
+  agent_id: string;
+  title: string;
+  slug: string;
+  is_home: boolean;
+  visible: boolean;
+  order_index: number;
+  content: any;
+}
 
 export default function VisualBuilderPage() {
   const params = useParams();
@@ -25,12 +37,15 @@ export default function VisualBuilderPage() {
 function BuilderContent({ domain, router }: any) {
   const { setEditMode, getSaveData } = useEditor();
   const [agent, setAgent] = useState<Agent | null>(null);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [currentPageId, setCurrentPageId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
 
   useEffect(() => {
     loadAgent();
+    loadPages();
   }, [domain]);
 
   // Sync mode with EditorContext
@@ -41,7 +56,6 @@ function BuilderContent({ domain, router }: any) {
   const loadAgent = async () => {
     const { data } = await supabase
       .from('agents')
-      .select('*')
       .eq('domain', domain)
       .single();
 
@@ -49,6 +63,108 @@ function BuilderContent({ domain, router }: any) {
       setAgent(data);
     }
     setLoading(false);
+  };
+
+  const loadPages = async () => {
+    if (!agent) return;
+    
+    const { data } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('agent_id', agent.id)
+      .order('order_index', { ascending: true });
+
+    if (data && data.length > 0) {
+      setPages(data as Page[]);
+      // Set first page or home page as current
+      const homePage = data.find((p: any) => p.is_home);
+      setCurrentPageId(homePage?.id || data[0].id);
+    } else {
+      // Create default home page if none exists
+      await createDefaultHomePage();
+    }
+  };
+
+  const createDefaultHomePage = async () => {
+    if (!agent) return;
+
+    const { data } = await supabase
+      .from('pages')
+      .insert({
+        agent_id: agent.id,
+        title: 'Ana Sayfa',
+        slug: 'home',
+        is_home: true,
+        visible: true,
+        order_index: 0,
+        content: {}
+      })
+      .select()
+      .single();
+
+    if (data) {
+      setPages([data as Page]);
+      setCurrentPageId(data.id);
+    }
+  };
+
+  const handleNewPage = async () => {
+    if (!agent) return;
+
+    const title = prompt('Sayfa başlığı:', 'Yeni Sayfa');
+    if (!title) return;
+
+    const slug = title.toLowerCase()
+      .replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's')
+      .replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]+/g, '-');
+
+    const { data } = await supabase
+      .from('pages')
+      .insert({
+        agent_id: agent.id,
+        title,
+        slug,
+        is_home: false,
+        visible: true,
+        order_index: pages.length,
+        content: {}
+      })
+      .select()
+      .single();
+
+    if (data) {
+      setPages([...pages, data as Page]);
+      setCurrentPageId(data.id);
+    }
+  };
+
+  const handleDeletePage = async (pageId: string) => {
+    await supabase.from('pages').delete().eq('id', pageId);
+    setPages(pages.filter(p => p.id !== pageId));
+    if (currentPageId === pageId) {
+      setCurrentPageId(pages[0]?.id || null);
+    }
+  };
+
+  const handleToggleVisibility = async (pageId: string, visible: boolean) => {
+    await supabase
+      .from('pages')
+      .update({ visible })
+      .eq('id', pageId);
+    
+    setPages(pages.map(p => p.id === pageId ? { ...p, visible } : p));
+  };
+
+  const handleThemeColorChange = async (color: string) => {
+    if (!agent) return;
+    
+    await supabase
+      .from('agents')
+      .update({ theme_color: color })
+      .eq('id', agent.id);
+    
+    loadAgent();
   };
 
   const saveChanges = async () => {
@@ -126,21 +242,35 @@ function BuilderContent({ domain, router }: any) {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900">
-      {/* Toolbar */}
-      <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between shadow-lg">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.push(`/d/${domain}/dashboard`)}
-            className="text-gray-400 hover:text-white transition"
-            title="Panele Dön"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          
-          <div className="h-6 w-px bg-gray-700" />
-          
-          <div className="text-sm font-semibold text-white">Sayfa Düzenleyici</div>
+    <div className="h-screen flex bg-gray-900">
+      {/* Left Sidebar */}
+      <BuilderSidebar
+        pages={pages}
+        currentPageId={currentPageId}
+        onPageSelect={setCurrentPageId}
+        onNewPage={handleNewPage}
+        onDeletePage={handleDeletePage}
+        onToggleVisibility={handleToggleVisibility}
+        themeColor={agent.theme_color || '#111827'}
+        onThemeColorChange={handleThemeColorChange}
+      />
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Toolbar */}
+        <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push(`/d/${domain}/dashboard`)}
+              className="text-gray-400 hover:text-white transition"
+              title="Panele Dön"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="h-6 w-px bg-gray-700" />
+            
+            <div className="text-sm font-semibold text-white">Sayfa Düzenleyici</div>
           
           <div className="flex items-center gap-2 ml-4">
             <button
@@ -185,89 +315,11 @@ function BuilderContent({ domain, router }: any) {
         </div>
       </div>
 
-      {/* Canvas - Landing Page Preview */}
-      <div className="flex-1 overflow-y-auto bg-gray-100">
-        {agent && <ClientLandingPage agent={agent} />}
-      </div>
-
-      {/* Right Panel - Properties (when section is selected) */}
-      {mode === 'edit' && (
-        <div className="fixed right-0 top-[57px] bottom-0 w-96 bg-white border-l border-gray-200 shadow-2xl overflow-y-auto z-40">
-          <div className="p-4">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Düzenleyici</h3>
-            <p className="text-xs text-gray-500 mb-4">Değişiklikler Kaydet butonuyla kaydedilir</p>
-            
-            <div className="space-y-4">
-              {/* Theme Color */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Tema Rengi</h4>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="color"
-                    value={agent?.theme_color || '#111827'}
-                    onChange={(e) => {
-                      if (agent) {
-                        supabase
-                          .from('agents')
-                          .update({ theme_color: e.target.value })
-                          .eq('id', agent.id)
-                          .then(() => {
-                            loadAgent();
-                          });
-                      }
-                    }}
-                    className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
-                  />
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-600">Butonlar ve vurgular için kullanılır</p>
-                    <p className="text-xs text-gray-400 mt-1">{agent?.theme_color || '#111827'}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="text-sm font-semibold text-blue-900 mb-2">İpucu</h4>
-                <p className="text-xs text-blue-700">
-                  Başlıklara tıklayarak düzenleyebilirsiniz. 
-                  Değişiklikler yapınca "Kaydet" butonuna tıklayın.
-                </p>
-              </div>
-
-              {/* Section Info */}
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Bölümler</h4>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span>Hero - Ana başlık ve açıklama</span>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                    <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-                    <span>Features - Özellikler listesi</span>
-                  </div>
-                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                    <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                    <span>Properties - İlanlar</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Instructions */}
-              <div className="border-t border-gray-200 pt-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">Nasıl Kullanılır?</h4>
-                <ol className="text-xs text-gray-600 space-y-2 list-decimal list-inside">
-                  <li>Düzenlemek istediğiniz metne tıklayın</li>
-                  <li>Yeni metni yazın</li>
-                  <li>Başka bir yere tıklayın</li>
-                  <li>Kaydet butonuna tıklayın</li>
-                  <li>Canlı Görüntüle ile kontrol edin</li>
-                </ol>
-              </div>
-            </div>
-          </div>
+        {/* Canvas - Landing Page Preview */}
+        <div className="flex-1 overflow-y-auto bg-gray-100">
+          {agent && <ClientLandingPage agent={agent} />}
         </div>
-      )}
+      </div>
     </div>
   );
 }
