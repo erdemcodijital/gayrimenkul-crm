@@ -77,6 +77,7 @@ function BuilderContent({ domain, router }: any) {
       
       // CTA section
       if (sections['cta']?.title) updateData.cta_title = sections['cta'].title;
+      if (sections['cta']?.description) updateData.cta_description = sections['cta'].description;
       
       if (Object.keys(updateData).length === 0) {
         alert('⚠️ Değişiklik yapılmadı!');

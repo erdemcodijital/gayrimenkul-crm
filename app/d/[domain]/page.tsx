@@ -436,7 +436,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
             {agent.cta_title || 'Hayalinizdeki Evi Bulun'}
           </h2>
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-            Size özel gayrimenkul danışmanlığı için hemen iletişime geçin
+            {(agent as any).cta_description || 'Size özel gayrimenkul danışmanlığı için hemen iletişime geçin'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a 

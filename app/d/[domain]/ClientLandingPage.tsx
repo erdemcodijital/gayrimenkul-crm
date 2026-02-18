@@ -28,6 +28,7 @@ export default function ClientLandingPage({ agent }: Props) {
   ]);
   const [propertiesTitle, setPropertiesTitle] = useState('Portföyümden Seçmeler');
   const [ctaTitle, setCtaTitle] = useState('Hayalinizdeki Evi Bulun');
+  const [ctaDescription, setCtaDescription] = useState('Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
   
   // Editor context
   let editorContext;
@@ -344,6 +345,45 @@ export default function ClientLandingPage({ agent }: Props) {
           </section>
         </EditableSectionWrapper>
       )}
+
+      {/* CTA Section */}
+      <EditableSectionWrapper sectionId="cta" sectionType="cta">
+        <section className="py-24 bg-gray-50 border-y border-gray-200">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              <span
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                style={{ 
+                  outline: editMode ? '2px dashed #3b82f6' : 'none',
+                  display: 'inline-block',
+                  minWidth: '200px'
+                }}
+                onBlur={(e) => {
+                  const newTitle = e.currentTarget.textContent || '';
+                  setCtaTitle(newTitle);
+                  if (updateSection) updateSection('cta', { title: newTitle });
+                }}
+              >
+                {ctaTitle}
+              </span>
+            </h2>
+            <p 
+              className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto"
+              contentEditable={editMode}
+              suppressContentEditableWarning
+              style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+              onBlur={(e) => {
+                const newDesc = e.currentTarget.textContent || '';
+                setCtaDescription(newDesc);
+                if (updateSection) updateSection('cta', { description: newDesc });
+              }}
+            >
+              {ctaDescription}
+            </p>
+          </div>
+        </section>
+      </EditableSectionWrapper>
     </div>
   );
 }
