@@ -121,6 +121,7 @@ export interface Database {
           agent_id: string | null
           name: string
           phone: string
+          email: string | null
           budget: string | null
           room_count: string | null
           district: string | null
@@ -135,6 +136,7 @@ export interface Database {
           agent_id?: string | null
           name: string
           phone: string
+          email?: string | null
           budget?: string | null
           room_count?: string | null
           district?: string | null
@@ -149,6 +151,7 @@ export interface Database {
           agent_id?: string | null
           name?: string
           phone?: string
+          email?: string | null
           budget?: string | null
           room_count?: string | null
           district?: string | null
@@ -173,6 +176,29 @@ export interface Database {
         Update: {
           id?: string
           user_id?: string
+          created_at?: string
+        }
+      }
+      lead_notes: {
+        Row: {
+          id: string
+          lead_id: string
+          agent_id: string | null
+          note: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          lead_id: string
+          agent_id?: string | null
+          note: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          lead_id?: string
+          agent_id?: string | null
+          note?: string
           created_at?: string
         }
       }
