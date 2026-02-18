@@ -64,6 +64,13 @@ export default function AgentDashboard() {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'name' | 'status'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [propertySearchQuery, setPropertySearchQuery] = useState('');
+  const [propertyFilterType, setPropertyFilterType] = useState<string>('all');
+  const [propertySortBy, setPropertySortBy] = useState<'date' | 'price'>('date');
 
   useEffect(() => {
     // Check if already authenticated
@@ -526,6 +533,86 @@ export default function AgentDashboard() {
     }
   };
 
+  // Filter and Sort Leads
+  const getFilteredAndSortedLeads = () => {
+    let filtered = [...leads];
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(lead =>
+        lead.name?.toLowerCase().includes(query) ||
+        lead.phone?.toLowerCase().includes(query) ||
+        lead.email?.toLowerCase().includes(query)
+      );
+    }
+
+    // Status filter
+    if (filterStatus !== 'all') {
+      filtered = filtered.filter(lead => lead.status === filterStatus);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = new Date(a.created_at).getTime();
+        const dateB = new Date(b.created_at).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      
+      if (sortBy === 'name') {
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        const comparison = nameA.localeCompare(nameB);
+        return sortOrder === 'asc' ? comparison : -comparison;
+      }
+      
+      if (sortBy === 'status') {
+        const statusOrder = ['new', 'contacted', 'meeting', 'closed_success', 'closed_cancelled'];
+        const statusA = statusOrder.indexOf(a.status);
+        const statusB = statusOrder.indexOf(b.status);
+        return statusA - statusB;
+      }
+      
+      return 0;
+    });
+
+    return filtered;
+  };
+
+  // Filter and Sort Properties
+  const getFilteredAndSortedProperties = () => {
+    let filtered = [...properties];
+
+    // Search filter
+    if (propertySearchQuery.trim()) {
+      const query = propertySearchQuery.toLowerCase();
+      filtered = filtered.filter((prop: any) =>
+        prop.title?.toLowerCase().includes(query) ||
+        prop.location?.toLowerCase().includes(query) ||
+        prop.city?.toLowerCase().includes(query)
+      );
+    }
+
+    // Type filter
+    if (propertyFilterType !== 'all') {
+      filtered = filtered.filter((prop: any) => prop.property_type === propertyFilterType);
+    }
+
+    // Sort
+    filtered.sort((a: any, b: any) => {
+      if (propertySortBy === 'date') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+      if (propertySortBy === 'price') {
+        return (b.price || 0) - (a.price || 0);
+      }
+      return 0;
+    });
+
+    return filtered;
+  };
+
   // Login Form
   if (!isAuthenticated) {
     return (
@@ -784,13 +871,64 @@ export default function AgentDashboard() {
           </div>
         </div>
 
+        {/* Search & Filter Bar */}
+        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="İsim, telefon veya email ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+              />
+              <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            {/* Status Filter */}
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
+            >
+              <option value="all">Tüm Durumlar</option>
+              <option value="new">Yeni</option>
+              <option value="contacted">İletişimde</option>
+              <option value="meeting">Görüşme</option>
+              <option value="closed_success">Başarılı</option>
+              <option value="closed_cancelled">İptal</option>
+            </select>
+
+            {/* Sort */}
+            <select
+              value={`${sortBy}-${sortOrder}`}
+              onChange={(e) => {
+                const [by, order] = e.target.value.split('-') as ['date' | 'name' | 'status', 'asc' | 'desc'];
+                setSortBy(by);
+                setSortOrder(order);
+              }}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
+            >
+              <option value="date-desc">Tarihe Göre (Yeni → Eski)</option>
+              <option value="date-asc">Tarihe Göre (Eski → Yeni)</option>
+              <option value="name-asc">İsme Göre (A → Z)</option>
+              <option value="name-desc">İsme Göre (Z → A)</option>
+              <option value="status-asc">Duruma Göre</option>
+            </select>
+          </div>
+        </div>
+
         {/* Leads List */}
         <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900">Leadlerim</h2>
+            <span className="text-sm text-gray-600">{getFilteredAndSortedLeads().length} lead</span>
           </div>
 
-          {leads.length === 0 ? (
+          {getFilteredAndSortedLeads().length === 0 ? (
             <div className="px-6 py-12 text-center">
               <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600">Henüz lead yok</p>
@@ -798,7 +936,7 @@ export default function AgentDashboard() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {leads.map((lead) => (
+              {getFilteredAndSortedLeads().map((lead) => (
                 <div key={lead.id} className="px-6 py-4 hover:bg-gray-50 transition">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -996,17 +1134,62 @@ export default function AgentDashboard() {
         {/* Portfolio Tab */}
         {activeTab === 'portfolio' && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <h2 className="text-xl font-semibold text-gray-900">Portföyüm</h2>
               <button
                 onClick={() => setShowAddProperty(true)}
-                className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition"
+                className="w-full sm:w-auto px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition"
               >
                 + Yeni İlan Ekle
               </button>
             </div>
 
-            {properties.length === 0 ? (
+            {/* Property Search & Filter */}
+            {properties.length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Search */}
+                  <div className="flex-1 relative">
+                    <input
+                      type="text"
+                      placeholder="Başlık veya konum ara..."
+                      value={propertySearchQuery}
+                      onChange={(e) => setPropertySearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent text-sm"
+                    />
+                    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+
+                  {/* Type Filter */}
+                  <select
+                    value={propertyFilterType}
+                    onChange={(e) => setPropertyFilterType(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
+                  >
+                    <option value="all">Tüm İlanlar</option>
+                    <option value="Satılık">Satılık</option>
+                    <option value="Kiralık">Kiralık</option>
+                  </select>
+
+                  {/* Sort */}
+                  <select
+                    value={propertySortBy}
+                    onChange={(e) => setPropertySortBy(e.target.value as 'date' | 'price')}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
+                  >
+                    <option value="date">Tarihe Göre</option>
+                    <option value="price">Fiyata Göre</option>
+                  </select>
+                </div>
+                <div className="mt-2 text-xs text-gray-600">
+                  {getFilteredAndSortedProperties().length} ilan bulundu
+                </div>
+              </div>
+            )}
+
+            {getFilteredAndSortedProperties().length === 0 ? (
               <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1024,7 +1207,7 @@ export default function AgentDashboard() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {properties.map((property: any) => (
+                {getFilteredAndSortedProperties().map((property: any) => (
                   <div key={property.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
                     <div className="h-48 bg-gray-200 flex items-center justify-center">
                       <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
