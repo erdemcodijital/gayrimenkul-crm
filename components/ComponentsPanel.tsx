@@ -88,14 +88,14 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
   }, {} as Record<string, typeof COMPONENTS>);
 
   return (
-    <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+    <div className="w-64 bg-gray-900 border-r border-gray-700 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-gray-900 font-semibold text-base flex items-center gap-2">
-          <Grid className="w-4 h-4 text-gray-600" />
+      <div className="p-4 border-b border-gray-700">
+        <h2 className="text-white font-semibold text-sm flex items-center gap-2">
+          <Grid className="w-4 h-4" />
           Bölümler
         </h2>
-        <p className="text-gray-500 text-xs mt-1">Sayfanıza eklemek için tıklayın</p>
+        <p className="text-gray-400 text-xs mt-1">Tıklayarak ekleyin</p>
       </div>
 
       {/* Components List */}
@@ -103,8 +103,8 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
         {Object.entries(groupedComponents).map(([category, components]) => (
           <div key={category} className="mb-1">
             {/* Category Header */}
-            <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-              <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+            <div className="px-3 py-2 bg-gray-800/50">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
                 {category}
               </h3>
             </div>
@@ -114,43 +114,32 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
               {components.map((component) => {
                 const Icon = component.icon;
                 return (
-                  <div
+                  <button
                     key={component.type}
-                    draggable
-                    onDragStart={() => handleDragStart(component.type)}
-                    onDragEnd={handleDragEnd}
                     onClick={() => onAddComponent(component.type)}
                     className={`
-                      group cursor-move hover:bg-blue-50 border border-gray-200 hover:border-blue-300 
-                      rounded-md p-3 transition-all duration-150
+                      w-full group cursor-pointer hover:bg-gray-800 border border-gray-700 hover:border-blue-500 
+                      rounded-md p-2.5 transition-all duration-150 text-left
                       ${draggedType === component.type ? 'opacity-50 scale-95' : ''}
                     `}
                   >
-                    <div className="flex items-start gap-3">
-                      {/* Drag Handle */}
-                      <div className="flex-shrink-0 text-gray-400 group-hover:text-gray-600">
-                        <GripVertical className="w-4 h-4" />
-                      </div>
-                      
+                    <div className="flex items-start gap-2.5">
                       {/* Icon */}
-                      <div className="flex-shrink-0 p-1.5 bg-gray-100 group-hover:bg-blue-100 rounded">
-                        <Icon className="w-4 h-4 text-gray-600 group-hover:text-blue-600" />
+                      <div className="flex-shrink-0 p-1.5 bg-gray-800 group-hover:bg-blue-600 rounded">
+                        <Icon className="w-3.5 h-3.5 text-gray-400 group-hover:text-white" />
                       </div>
                       
                       {/* Content */}
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-medium text-gray-900 group-hover:text-blue-700">
+                        <h4 className="text-xs font-medium text-white group-hover:text-blue-400">
                           {component.label}
                         </h4>
-                        <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                        <p className="text-xs text-gray-400 mt-0.5 leading-tight">
                           {component.description}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1 leading-tight italic">
-                          {component.details}
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -159,19 +148,15 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
       </div>
 
       {/* Footer */}
-      <div className="p-3 border-t border-gray-200 bg-gray-50">
-        <div className="text-xs text-gray-600 space-y-1.5">
+      <div className="p-3 border-t border-gray-700 bg-gray-800/50">
+        <div className="text-xs text-gray-400 space-y-1.5">
           <p className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
-            <span><strong>Tıklayın</strong> - Hemen ekleyin</span>
+            <span className="w-1 h-1 bg-blue-500 rounded-full"></span>
+            <span>Tıklayarak ekleyin</span>
           </p>
           <p className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
-            <span><strong>Düzenleyin</strong> - Metinlere tıklayarak</span>
-          </p>
-          <p className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
-            <span><strong>Silin</strong> - Üzerine gelip çöp kutusu ikonu</span>
+            <span className="w-1 h-1 bg-blue-500 rounded-full"></span>
+            <span>Bölüme tıklayarak düzenleyin</span>
           </p>
         </div>
       </div>
