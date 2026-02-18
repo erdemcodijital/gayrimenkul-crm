@@ -243,16 +243,13 @@ export default function LandingPageEditor({ agent, onSave }: Props) {
         </div>
 
         {/* Preview iFrame */}
-        <div className="flex-1 overflow-hidden bg-white relative">
+        <div className="flex-1 overflow-hidden bg-white">
           <iframe
             id="preview-iframe"
             src={`/d/${agent.domain}?edit=true`}
             className="w-full h-full border-0"
             title="Landing Page Preview"
           />
-          <div className="absolute top-4 right-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg px-4 py-2 text-sm font-medium text-yellow-800 shadow-lg">
-            💡 İpucu: Metinlere tıklayarak düzenleyebilirsiniz
-          </div>
         </div>
       </div>
     </div>

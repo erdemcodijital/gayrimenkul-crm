@@ -25,9 +25,15 @@ export default function AgentLandingPage({ agent }: Props) {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
-  const [editableTitle, setEditableTitle] = useState(agent.hero_title || agent.name);
-  const [editableSubtitle, setEditableSubtitle] = useState(agent.hero_subtitle || 'Gayrimenkul Danışmanı');
-  const [editableDescription, setEditableDescription] = useState(agent.about_text || 'Size en uygun gayrimenkul seçeneklerini bulmak için buradayım.');
+  const [editableTitle, setEditableTitle] = useState('');
+  const [editableSubtitle, setEditableSubtitle] = useState('');
+  const [editableDescription, setEditableDescription] = useState('');
+
+  useEffect(() => {
+    setEditableTitle(agent.hero_title || agent.name);
+    setEditableSubtitle(agent.hero_subtitle || 'Gayrimenkul Danışmanı');
+    setEditableDescription(agent.about_text || 'Size en uygun gayrimenkul seçeneklerini bulmak için buradayım.');
+  }, [agent]);
   const [filters, setFilters] = useState({
     search: '',
     propertyType: 'all',
@@ -134,6 +140,18 @@ export default function AgentLandingPage({ agent }: Props) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50">
+      {/* Edit Mode Banner */}
+      {isEditMode && (
+        <div className="fixed top-0 left-0 right-0 bg-yellow-400 text-gray-900 px-4 py-3 z-50 shadow-lg">
+          <div className="container mx-auto flex items-center justify-center gap-3">
+            <svg className="w-5 h-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+            </svg>
+            <span className="font-semibold">DÜZENLEME MODU - Metinlere tıklayın ve yazmaya başlayın!</span>
+          </div>
+        </div>
+      )}
+
       {/* Success Message */}
       {formSubmitted && (
         <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 flex items-center space-x-3 animate-slide-in">
@@ -176,16 +194,29 @@ export default function AgentLandingPage({ agent }: Props) {
               </motion.div>
               
               <motion.h1 
-                className={`text-4xl md:text-6xl font-bold mb-4 ${isEditMode ? 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-yellow-400 rounded px-2 py-1' : ''}`}
+                className={`text-4xl md:text-6xl font-bold mb-4 ${isEditMode ? 'cursor-text hover:bg-yellow-100/30 hover:outline hover:outline-4 hover:outline-yellow-400 rounded-lg px-4 py-2 transition-all relative' : ''}`}
                 variants={fadeInUp}
                 transition={{ duration: 0.6 }}
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
+                onFocus={(e) => {
+                  if (isEditMode) {
+                    e.currentTarget.style.outline = '4px solid #facc15';
+                    e.currentTarget.style.backgroundColor = 'rgba(254, 240, 138, 0.2)';
+                  }
+                }}
                 onBlur={(e) => {
                   if (isEditMode) {
+                    e.currentTarget.style.outline = '';
+                    e.currentTarget.style.backgroundColor = '';
                     const newTitle = e.currentTarget.textContent || '';
                     setEditableTitle(newTitle);
                     window.parent.postMessage({ type: 'UPDATE_HERO', field: 'title', value: newTitle }, '*');
+                  }
+                }}
+                onClick={(e) => {
+                  if (isEditMode) {
+                    e.currentTarget.focus();
                   }
                 }}
               >
@@ -202,16 +233,29 @@ export default function AgentLandingPage({ agent }: Props) {
               </motion.div>
               
               <motion.p 
-                className={`text-xl md:text-2xl mb-8 text-primary-50 ${isEditMode ? 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-yellow-400 rounded px-2 py-1' : ''}`}
+                className={`text-xl md:text-2xl mb-8 text-primary-50 ${isEditMode ? 'cursor-text hover:bg-yellow-100/30 hover:outline hover:outline-4 hover:outline-yellow-400 rounded-lg px-4 py-2 transition-all' : ''}`}
                 variants={fadeInUp}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 contentEditable={isEditMode}
                 suppressContentEditableWarning
+                onFocus={(e) => {
+                  if (isEditMode) {
+                    e.currentTarget.style.outline = '4px solid #facc15';
+                    e.currentTarget.style.backgroundColor = 'rgba(254, 240, 138, 0.2)';
+                  }
+                }}
                 onBlur={(e) => {
                   if (isEditMode) {
+                    e.currentTarget.style.outline = '';
+                    e.currentTarget.style.backgroundColor = '';
                     const newSubtitle = e.currentTarget.textContent || '';
                     setEditableSubtitle(newSubtitle);
                     window.parent.postMessage({ type: 'UPDATE_HERO', field: 'subtitle', value: newSubtitle }, '*');
+                  }
+                }}
+                onClick={(e) => {
+                  if (isEditMode) {
+                    e.currentTarget.focus();
                   }
                 }}
               >
@@ -220,17 +264,30 @@ export default function AgentLandingPage({ agent }: Props) {
             </motion.div>
             
             <motion.p 
-              className={`text-lg md:text-xl mb-10 text-primary-50 max-w-2xl mx-auto ${isEditMode ? 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-yellow-400 rounded px-2 py-1' : ''}`}
+              className={`text-lg md:text-xl mb-10 text-primary-50 max-w-2xl mx-auto ${isEditMode ? 'cursor-text hover:bg-yellow-100/30 hover:outline hover:outline-4 hover:outline-yellow-400 rounded-lg px-4 py-2 transition-all' : ''}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
               contentEditable={isEditMode}
               suppressContentEditableWarning
+              onFocus={(e) => {
+                if (isEditMode) {
+                  e.currentTarget.style.outline = '4px solid #facc15';
+                  e.currentTarget.style.backgroundColor = 'rgba(254, 240, 138, 0.2)';
+                }
+              }}
               onBlur={(e) => {
                 if (isEditMode) {
+                  e.currentTarget.style.outline = '';
+                  e.currentTarget.style.backgroundColor = '';
                   const newDescription = e.currentTarget.textContent || '';
                   setEditableDescription(newDescription);
                   window.parent.postMessage({ type: 'UPDATE_HERO', field: 'description', value: newDescription }, '*');
+                }
+              }}
+              onClick={(e) => {
+                if (isEditMode) {
+                  e.currentTarget.focus();
                 }
               }}
             >
