@@ -92,8 +92,13 @@ export default function AdminLayout({
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <Building2 className="w-8 h-8 text-primary-600" />
+          <div className="flex items-center space-x-3">
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              className="h-8 w-auto object-contain"
+              style={{ filter: 'brightness(0) saturate(100%)' }}
+            />
             <span className="text-xl font-bold text-gray-900">Admin Panel</span>
           </div>
         </div>

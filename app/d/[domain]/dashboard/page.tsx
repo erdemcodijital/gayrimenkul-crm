@@ -677,12 +677,17 @@ export default function AgentDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-white" />
+              <div className="h-10 flex items-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="h-10 w-auto object-contain"
+                  style={{ filter: 'brightness(0) saturate(100%)' }}
+                />
               </div>
-              <div>
+              <div className="border-l border-gray-300 pl-3 hidden sm:block">
                 <h1 className="text-base sm:text-lg font-bold text-gray-900">{agent?.name}</h1>
-                <p className="text-xs text-gray-500 hidden sm:block">Danışman Paneli</p>
+                <p className="text-xs text-gray-500">Danışman Paneli</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
