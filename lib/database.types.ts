@@ -89,6 +89,38 @@ export interface Database {
           updated_at?: string
         }
       }
+      page_sections: {
+        Row: {
+          id: string
+          agent_id: string | null
+          section_type: string
+          section_order: number
+          is_visible: boolean
+          props: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          agent_id?: string | null
+          section_type: string
+          section_order?: number
+          is_visible?: boolean
+          props?: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          agent_id?: string | null
+          section_type?: string
+          section_order?: number
+          is_visible?: boolean
+          props?: Json
+          created_at?: string
+          updated_at?: string
+        }
+      }
       properties: {
         Row: {
           id: string

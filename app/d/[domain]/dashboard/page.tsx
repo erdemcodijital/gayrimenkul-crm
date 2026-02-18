@@ -1413,30 +1413,38 @@ export default function AgentDashboard() {
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="space-y-6">
-            {/* Landing Page Editor Card */}
-            <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-6">
+            {/* Visual Builder Card */}
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-300 rounded-xl p-6">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center">
                       <Paintbrush className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Landing Sayfası Editörü</h3>
-                      <p className="text-sm text-gray-600">Basit ve hızlı düzenleme</p>
+                      <h3 className="text-xl font-bold text-gray-900">Visual Builder</h3>
+                      <p className="text-sm text-gray-600">Wix-Style Landing Page Editor</p>
                     </div>
                   </div>
                   <p className="text-gray-700 mb-4">
-                    Landing sayfanızdaki başlıkları, metinleri ve içerikleri kolayca düzenleyin. 
-                    Anlık önizleme ile sonuçları görün.
+                    Drag & drop ile section'ları düzenleyin. İçerikleri direkt sayfa üzerinde değiştirin.
+                    3-panel editor: Blocks → Canvas → Properties
                   </p>
-                  <a
-                    href={`/d/${agent?.domain}/edit`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white rounded-lg font-semibold transition shadow-lg"
-                  >
-                    <Paintbrush className="w-5 h-5" />
-                    Sayfayı Düzenle
-                  </a>
+                  <div className="flex gap-3">
+                    <a
+                      href={`/d/${agent?.domain}/builder`}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-lg font-semibold transition shadow-lg"
+                    >
+                      <Paintbrush className="w-5 h-5" />
+                      Open Builder
+                    </a>
+                    <a
+                      href={`/d/${agent?.domain}/edit`}
+                      className="inline-flex items-center gap-2 px-4 py-3 border-2 border-purple-300 text-purple-700 rounded-lg font-medium hover:bg-purple-50 transition"
+                    >
+                      Simple Editor
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
