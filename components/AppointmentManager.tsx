@@ -112,7 +112,7 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
           notes: formData.notes,
           meeting_link: formData.meeting_link,
           status: 'pending'
-        });
+        } as any);
 
       if (error) throw error;
 
@@ -153,7 +153,7 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
 
       const { error } = await supabase
         .from('appointments')
-        .update(updateData)
+        .update(updateData as any)
         .eq('id', id);
 
       if (error) throw error;

@@ -42,8 +42,8 @@ export default function PublicAppointmentPage() {
 
       if (agentData) {
         setAgent(agentData);
-        setThemeColor(agentData.theme_color || '#111827');
-        await loadAvailability(agentData.id);
+        setThemeColor((agentData as any).theme_color || '#111827');
+        await loadAvailability((agentData as any).id);
       }
     } catch (error) {
       console.error('Agent yüklenemedi:', error);
@@ -208,7 +208,7 @@ export default function PublicAppointmentPage() {
       const { error } = await supabase
         .from('appointments')
         .insert({
-          agent_id: agent.id,
+          agent_id: (agent as any).id,
           title: `${formData.name} - Randevu`,
           appointment_date: appointmentDateTime.toISOString(),
           duration: selectedDuration,
@@ -218,14 +218,18 @@ export default function PublicAppointmentPage() {
           customer_email: formData.email,
           notes: formData.notes,
           status: 'pending'
-        });
+        } as any);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
       setSuccess(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Randevu oluşturulamadı:', error);
-      alert('Randevu oluşturulamadı. Lütfen tekrar deneyin.');
+      const errorMessage = error?.message || 'Bilinmeyen hata';
+      alert(`Randevu oluşturulamadı: ${errorMessage}`);
     } finally {
       setSubmitting(false);
     }
