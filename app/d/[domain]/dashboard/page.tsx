@@ -1436,142 +1436,231 @@ export default function AgentDashboard() {
         )}
       </main>
 
-      {/* Add Property Modal */}
+      {/* Add Property Modal - Premium Design */}
       {showAddProperty && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
-              <h2 className="text-xl font-semibold text-gray-900">Yeni İlan Ekle</h2>
-              <button onClick={() => setShowAddProperty(false)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <form onSubmit={saveProperty} className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Başlık *</label>
-                <input
-                  type="text"
-                  value={propertyForm.title}
-                  onChange={(e) => setPropertyForm({...propertyForm, title: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  required
-                  placeholder="örn: Merkezi Konumda 3+1 Satılık Daire"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Açıklama</label>
-                <textarea
-                  value={propertyForm.description}
-                  onChange={(e) => setPropertyForm({...propertyForm, description: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  rows={3}
-                  placeholder="İlan detayları..."
-                ></textarea>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Fiyat (TL)</label>
-                  <input
-                    type="number"
-                    value={propertyForm.price}
-                    onChange={(e) => setPropertyForm({...propertyForm, price: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    placeholder="2500000"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">İlan Türü</label>
-                  <select
-                    value={propertyForm.property_type}
-                    onChange={(e) => setPropertyForm({...propertyForm, property_type: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  >
-                    <option>Satılık</option>
-                    <option>Kiralık</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Oda Sayısı</label>
-                  <input
-                    type="text"
-                    value={propertyForm.room_count}
-                    onChange={(e) => setPropertyForm({...propertyForm, room_count: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    placeholder="3+1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Metrekare</label>
-                  <input
-                    type="number"
-                    value={propertyForm.square_meters}
-                    onChange={(e) => setPropertyForm({...propertyForm, square_meters: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    placeholder="120"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Lokasyon</label>
-                <input
-                  type="text"
-                  value={propertyForm.location}
-                  onChange={(e) => setPropertyForm({...propertyForm, location: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  placeholder="örn: Kadıköy, Moda Mahallesi"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Şehir</label>
-                <input
-                  type="text"
-                  value={propertyForm.city}
-                  onChange={(e) => setPropertyForm({...propertyForm, city: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                  placeholder="İstanbul"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fotoğraflar</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={(e) => {
-                    const files = Array.from(e.target.files || []);
-                    setImageFiles(files);
-                  }}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Birden fazla fotoğraf seçebilirsiniz. Desteklenen formatlar: JPG, PNG
-                </p>
-                {imageFiles.length > 0 && (
-                  <div className="mt-2 text-sm text-gray-600">
-                    {imageFiles.length} fotoğraf seçildi
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-4xl w-full my-8 shadow-2xl">
+            {/* Header with Gradient */}
+            <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 via-white to-gray-50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <Home className="w-5 h-5 text-white" />
                   </div>
-                )}
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">Yeni İlan Ekle</h2>
+                    <p className="text-sm text-gray-600">Emlak ilanınızın detaylarını doldurun</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowAddProperty(false)} 
+                  className="p-2 hover:bg-gray-100 rounded-full transition"
+                >
+                  <X className="w-6 h-6 text-gray-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Form Content */}
+            <form onSubmit={saveProperty} className="p-8 space-y-8 max-h-[calc(100vh-200px)] overflow-y-auto">
+              
+              {/* Temel Bilgiler Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Briefcase className="w-5 h-5 text-gray-700" />
+                  <h3 className="text-lg font-semibold text-gray-900">Temel Bilgiler</h3>
+                </div>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      İlan Başlığı <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={propertyForm.title}
+                      onChange={(e) => setPropertyForm({...propertyForm, title: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition text-base"
+                      required
+                      placeholder="örn: Merkezi Konumda Lüks 3+1 Satılık Daire"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Detaylı Açıklama</label>
+                    <textarea
+                      value={propertyForm.description}
+                      onChange={(e) => setPropertyForm({...propertyForm, description: e.target.value})}
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                      rows={4}
+                      placeholder="İlan hakkında detaylı bilgi yazın..."
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Fiyat (TL)</label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">₺</span>
+                        <input
+                          type="number"
+                          value={propertyForm.price}
+                          onChange={(e) => setPropertyForm({...propertyForm, price: e.target.value})}
+                          className="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                          placeholder="2500000"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">İlan Türü</label>
+                      <select
+                        value={propertyForm.property_type}
+                        onChange={(e) => setPropertyForm({...propertyForm, property_type: e.target.value})}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white"
+                      >
+                        <option>Satılık</option>
+                        <option>Kiralık</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex gap-3 pt-4">
+              {/* Emlak Özellikleri Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Home className="w-5 h-5 text-gray-700" />
+                  <h3 className="text-lg font-semibold text-gray-900">Emlak Özellikleri</h3>
+                </div>
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Oda Sayısı</label>
+                      <input
+                        type="text"
+                        value={propertyForm.room_count}
+                        onChange={(e) => setPropertyForm({...propertyForm, room_count: e.target.value})}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white"
+                        placeholder="3+1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Metrekare (m²)</label>
+                      <input
+                        type="number"
+                        value={propertyForm.square_meters}
+                        onChange={(e) => setPropertyForm({...propertyForm, square_meters: e.target.value})}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white"
+                        placeholder="120"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Konum Bilgileri Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <MapPin className="w-5 h-5 text-gray-700" />
+                  <h3 className="text-lg font-semibold text-gray-900">Konum Bilgileri</h3>
+                </div>
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Şehir</label>
+                      <input
+                        type="text"
+                        value={propertyForm.city}
+                        onChange={(e) => setPropertyForm({...propertyForm, city: e.target.value})}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white"
+                        placeholder="İstanbul"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">İlçe / Mahalle</label>
+                      <input
+                        type="text"
+                        value={propertyForm.location}
+                        onChange={(e) => setPropertyForm({...propertyForm, location: e.target.value})}
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition bg-white"
+                        placeholder="Kadıköy, Moda Mahallesi"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Fotoğraflar Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <h3 className="text-lg font-semibold text-gray-900">Fotoğraflar</h3>
+                </div>
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6">
+                  <label className="block">
+                    <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-gray-400 transition cursor-pointer bg-white">
+                      <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files || []);
+                          setImageFiles(files);
+                        }}
+                        className="hidden"
+                      />
+                      <p className="text-sm font-semibold text-gray-700">Fotoğraf yüklemek için tıklayın</p>
+                      <p className="text-xs text-gray-500 mt-2">veya sürükleyip bırakın (JPG, PNG - Max 10MB)</p>
+                    </div>
+                  </label>
+                  {imageFiles.length > 0 && (
+                    <div className="mt-4 flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-lg">
+                      <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-sm font-medium text-green-800">{imageFiles.length} fotoğraf seçildi</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 pt-6 border-t-2 border-gray-200">
                 <button
                   type="button"
                   onClick={() => setShowAddProperty(false)}
-                  className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition"
+                  className="flex-1 px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition text-lg"
                 >
                   İptal
                 </button>
                 <button
                   type="submit"
                   disabled={savingProperty}
-                  className="flex-1 px-4 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-medium transition disabled:opacity-50"
+                  className="flex-1 px-6 py-4 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg text-lg flex items-center justify-center gap-2"
                 >
-                  {savingProperty ? 'Kaydediliyor...' : 'İlanı Kaydet'}
+                  {savingProperty ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Kaydediliyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span>İlanı Yayınla</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
