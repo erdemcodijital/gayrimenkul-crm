@@ -471,8 +471,10 @@ function BuilderContent({ domain, router }: any) {
             return showComponentsPanel ? <ComponentsPanel onAddComponent={handleAddSection} /> : null;
           })()}
           
-          {/* Canvas Area */}
-          <div className="flex-1 flex flex-col">
+          {/* Canvas Area + Properties Panel Wrapper */}
+          <div className="flex-1 flex">
+            {/* Canvas Area */}
+            <div className="flex-1 flex flex-col">
         {/* Toolbar */}
         <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-4">
@@ -594,19 +596,22 @@ function BuilderContent({ domain, router }: any) {
             );
           })()}
         </div>
-        
-        {/* Properties Panel - Right Side - Only show when section selected */}
-        {mode === 'edit' && selectedSection && (
-          <PropertiesPanel
-            selectedSection={selectedSection}
-            onUpdate={(data) => {
-              if (selectedSection) {
-                handleUpdateSection(selectedSection.id, data);
-              }
-            }}
-            onClose={() => setSelectedSection(null)}
-          />
-        )}
+            </div>
+            
+            {/* Properties Panel - Right Side - Only show when section selected */}
+            {mode === 'edit' && selectedSection && (
+              <PropertiesPanel
+                selectedSection={selectedSection}
+                onUpdate={(data) => {
+                  if (selectedSection) {
+                    handleUpdateSection(selectedSection.id, data);
+                    // Update selectedSection state to reflect changes
+                    setSelectedSection({ ...selectedSection, data });
+                  }
+                }}
+                onClose={() => setSelectedSection(null)}
+              />
+            )}
           </div>
         </div>
       </div>
