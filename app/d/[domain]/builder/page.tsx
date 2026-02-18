@@ -190,6 +190,19 @@ function BuilderContent({ domain, router }: any) {
     loadAgent();
   };
 
+  const handleSectionVisibilityChange = async (section: string, visible: boolean) => {
+    if (!agent) return;
+    
+    const updateData: any = { [section]: visible };
+    
+    await supabase
+      .from('agents')
+      .update(updateData)
+      .eq('id', agent.id);
+    
+    loadAgent();
+  };
+
   const saveChanges = async () => {
     if (!agent) return;
     
@@ -277,6 +290,13 @@ function BuilderContent({ domain, router }: any) {
           onToggleVisibility={handleToggleVisibility}
           themeColor={agent.theme_color || '#111827'}
           onThemeColorChange={handleThemeColorChange}
+          sectionVisibility={{
+            show_stats: (agent as any).show_stats ?? true,
+            show_features: (agent as any).show_features ?? true,
+            show_properties: (agent as any).show_properties ?? true,
+            show_cta: (agent as any).show_cta ?? true,
+          }}
+          onSectionVisibilityChange={handleSectionVisibilityChange}
         />
       )}
 
