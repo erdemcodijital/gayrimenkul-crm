@@ -27,9 +27,10 @@ interface Props {
   currentPage?: PageContent;
   onUpdateSection?: (id: string, data: any) => void;
   onDeleteSection?: (id: string) => void;
+  onSectionClick?: (section: Section) => void;
 }
 
-export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection }: Props) {
+export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection, onSectionClick }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
@@ -150,6 +151,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
           sections={currentPage.content.sections as Section[]}
           onUpdateSection={onUpdateSection || (() => {})}
           onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
+          onSectionClick={onSectionClick}
         />
       </div>
     );

@@ -10,6 +10,7 @@ import ClientLandingPage from '../ClientLandingPage';
 import BuilderSidebar from '@/components/BuilderSidebar';
 import SectionAdder from '@/components/SectionAdder';
 import ComponentsPanel from '@/components/ComponentsPanel';
+import PropertiesPanel from '@/components/PropertiesPanel';
 import { Section, SectionType, SECTION_TEMPLATES } from '@/types/sections';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
@@ -45,6 +46,7 @@ function BuilderContent({ domain, router }: any) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
+  const [selectedSection, setSelectedSection] = useState<Section | null>(null);
 
   useEffect(() => {
     loadAgent();
@@ -581,6 +583,7 @@ function BuilderContent({ domain, router }: any) {
                   currentPage={currentPage}
                   onUpdateSection={handleUpdateSection}
                   onDeleteSection={handleDeleteSection}
+                  onSectionClick={(section) => mode === 'edit' && setSelectedSection(section)}
                 />
                 {mode === 'edit' && currentPage?.content?.sections && (
                   <div className="p-8 bg-gray-100">
@@ -591,6 +594,19 @@ function BuilderContent({ domain, router }: any) {
             );
           })()}
         </div>
+        
+        {/* Properties Panel - Right Side */}
+        {mode === 'edit' && (
+          <PropertiesPanel
+            selectedSection={selectedSection}
+            onUpdate={(data) => {
+              if (selectedSection) {
+                handleUpdateSection(selectedSection.id, data);
+              }
+            }}
+            onClose={() => setSelectedSection(null)}
+          />
+        )}
           </div>
         </div>
       </div>

@@ -12,9 +12,10 @@ interface Props {
   sections: Section[];
   onUpdateSection: (id: string, data: any) => void;
   onDeleteSection?: (id: string) => void;
+  onSectionClick?: (section: Section) => void;
 }
 
-export default function SectionRenderer({ sections, onUpdateSection, onDeleteSection }: Props) {
+export default function SectionRenderer({ sections, onUpdateSection, onDeleteSection, onSectionClick }: Props) {
   const editorContext = useEditor();
   const editMode = editorContext?.editMode || false;
 
@@ -44,11 +45,18 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
   return (
     <>
       {sections.sort((a, b) => a.order - b.order).map((section) => (
-        <div key={section.id} className="relative group">
+        <div 
+          key={section.id} 
+          className={`relative group ${editMode && onSectionClick ? 'cursor-pointer hover:ring-2 hover:ring-blue-400 transition' : ''}`}
+          onClick={() => editMode && onSectionClick && onSectionClick(section)}
+        >
           {editMode && onDeleteSection && (
             <div className="absolute top-2 right-2 z-50 flex gap-2 opacity-0 group-hover:opacity-100 transition">
               <button
-                onClick={() => onDeleteSection(section.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteSection(section.id);
+                }}
                 className="p-2 bg-red-600 hover:bg-red-700 text-white rounded shadow-lg"
                 title="Bölümü Sil"
               >
