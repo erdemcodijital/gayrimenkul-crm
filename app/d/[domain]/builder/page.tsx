@@ -595,8 +595,8 @@ function BuilderContent({ domain, router }: any) {
           })()}
         </div>
         
-        {/* Properties Panel - Right Side */}
-        {mode === 'edit' && (
+        {/* Properties Panel - Right Side - Only show when section selected */}
+        {mode === 'edit' && selectedSection && (
           <PropertiesPanel
             selectedSection={selectedSection}
             onUpdate={(data) => {
