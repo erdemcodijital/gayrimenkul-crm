@@ -21,11 +21,39 @@ export default function PropertiesPanel({ selectedSection, onUpdate, onClose }: 
 
   if (!selectedSection || !localData) {
     return (
-      <div className="w-80 bg-white border-l border-gray-200 flex items-center justify-center p-8">
-        <div className="text-center text-gray-500">
-          <Layout className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p className="text-sm">Bir bölüm seçin</p>
-          <p className="text-xs mt-1">Düzenlemek için canvas'taki bir bölüme tıklayın</p>
+      <div className="w-80 bg-gray-900 border-l border-gray-700 flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="mb-6">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center">
+              <Layout className="w-8 h-8 text-gray-600" />
+            </div>
+            <h3 className="text-white font-semibold text-sm mb-2">Özellikler Paneli</h3>
+            <p className="text-gray-400 text-xs leading-relaxed max-w-xs mx-auto">
+              Bir bölüme tıklayarak başlık, buton linki ve diğer özellikleri düzenleyin
+            </p>
+          </div>
+          
+          <div className="space-y-3 text-left max-w-xs mx-auto">
+            <div className="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                1
+              </div>
+              <div>
+                <p className="text-white text-xs font-medium mb-1">Canvas'ta bölüme tıklayın</p>
+                <p className="text-gray-500 text-xs">Hero, Text, Features gibi</p>
+              </div>
+            </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+              <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                2
+              </div>
+              <div>
+                <p className="text-white text-xs font-medium mb-1">Özellikleri düzenleyin</p>
+                <p className="text-gray-500 text-xs">Burada tüm detaylar görünür</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
