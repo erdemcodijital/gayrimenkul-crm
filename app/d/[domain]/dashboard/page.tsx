@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings } from 'lucide-react';
 import { Toast, ConfirmModal } from '@/components/Toast';
 import { BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -63,6 +63,7 @@ export default function AgentDashboard() {
   const [editingProperty, setEditingProperty] = useState<any>(null);
   const [uploadingImages, setUploadingImages] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     // Check if already authenticated
@@ -585,7 +586,7 @@ export default function AgentDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
@@ -593,24 +594,76 @@ export default function AgentDashboard() {
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-gray-900">{agent?.name}</h1>
-                <p className="text-xs text-gray-500">Danışman Paneli</p>
+                <h1 className="text-base sm:text-lg font-bold text-gray-900">{agent?.name}</h1>
+                <p className="text-xs text-gray-500 hidden sm:block">Danışman Paneli</p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Çıkış
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleLogout}
+                className="hidden sm:inline-flex items-center px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Çıkış
+              </button>
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="sm:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="sm:hidden border-t border-gray-200 bg-white">
+            <div className="px-4 py-3 space-y-1">
+              <button
+                onClick={() => { setActiveTab('leads'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
+                  activeTab === 'leads' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <TrendingUp className="w-5 h-5" />
+                <span className="font-medium">Leadlerim</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('portfolio'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
+                  activeTab === 'portfolio' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Briefcase className="w-5 h-5" />
+                <span className="font-medium">Portföy ({properties.length})</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
+                  activeTab === 'settings' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Settings className="w-5 h-5" />
+                <span className="font-medium">Ayarlar</span>
+              </button>
+              <div className="pt-2 border-t border-gray-200 mt-2">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition text-left"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Çıkış</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
-        <div className="mb-6 border-b border-gray-200">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Tabs - Desktop Only */}
+        <div className="mb-6 border-b border-gray-200 hidden sm:block">
           <nav className="flex space-x-8">
             <button
               onClick={() => setActiveTab('leads')}

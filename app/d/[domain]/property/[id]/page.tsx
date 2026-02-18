@@ -21,6 +21,8 @@ export default function PropertyDetailPage() {
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   useEffect(() => {
     loadProperty();
@@ -99,6 +101,32 @@ export default function PropertyDetailPage() {
     }).format(price);
   };
 
+  // Touch handlers for swipe
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }
+    if (isRightSwipe && images.length > 0) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -119,25 +147,30 @@ export default function PropertyDetailPage() {
         <div className="container mx-auto px-4 py-8">
           {images.length > 0 ? (
             <div className="relative">
-              <div className="relative h-96 md:h-[600px] rounded-xl overflow-hidden bg-gray-200 group">
+              <div 
+                className="relative h-96 md:h-[600px] rounded-xl overflow-hidden bg-gray-200 group touch-pan-y"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
                 <img
                   src={images[currentImageIndex]}
                   alt={property.title || 'İlan'}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover select-none"
                 />
                 {images.length > 1 && (
                   <>
                     <button
                       onClick={() => setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length)}
-                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute left-2 md:left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 md:p-3 rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     >
-                      <ChevronLeft className="w-6 h-6" />
+                      <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                     <button
                       onClick={() => setCurrentImageIndex((prev) => (prev + 1) % images.length)}
-                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute right-2 md:right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 md:p-3 rounded-full md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     >
-                      <ChevronRight className="w-6 h-6" />
+                      <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                   </>
                 )}
@@ -180,25 +213,25 @@ export default function PropertyDetailPage() {
               <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
                 {/* Title & Price */}
                 <div className="mb-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 flex-1">
-                      {property.title}
-                    </h1>
-                    <span className="bg-primary-600 text-white px-4 py-2 rounded-full text-sm font-semibold ml-4">
+                  <div className="mb-4">
+                    <span className="bg-primary-600 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-semibold inline-block mb-3">
                       {property.property_type}
                     </span>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                      {property.title}
+                    </h1>
                   </div>
-                  <div className="text-3xl md:text-4xl font-bold text-primary-600 mb-4">
+                  <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-600 mb-4">
                     {formatPrice(property.price)}
                   </div>
                   <div className="flex items-center text-gray-600">
-                    <MapPin className="w-5 h-5 mr-2" />
-                    <span className="text-lg">{property.location || property.city}</span>
+                    <MapPin className="w-5 h-5 mr-2 flex-shrink-0" />
+                    <span className="text-base sm:text-lg">{property.location || property.city}</span>
                   </div>
                 </div>
 
                 {/* Features */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8 pb-8 border-b">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-8 pb-8 border-b">
                   {property.room_count && (
                     <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg">
                       <Bed className="w-6 h-6 text-primary-600" />
@@ -240,7 +273,7 @@ export default function PropertyDetailPage() {
 
             {/* Contact Card */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
+              <div className="bg-white rounded-xl shadow-lg p-6 lg:sticky lg:top-24">
                 {agent && (
                   <>
                     <div className="text-center mb-6">

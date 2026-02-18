@@ -179,9 +179,9 @@ export default function AgentLandingPage({ agent }: Props) {
 
           {/* Search & Filters */}
           <div className="max-w-6xl mx-auto mb-8">
-            <div className="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 border border-gray-200">
               {/* Search Bar */}
-              <div className="flex gap-4 mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <input
@@ -189,21 +189,21 @@ export default function AgentLandingPage({ agent }: Props) {
                     placeholder="Şehir, mahalle veya başlık ara..."
                     value={filters.search}
                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </div>
                 <button
                   onClick={() => setShowFilters(!showFilters)}
-                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                   <SlidersHorizontal className="w-5 h-5" />
-                  <span className="hidden sm:inline">Filtrele</span>
+                  <span>Filtrele</span>
                 </button>
               </div>
 
               {/* Advanced Filters */}
               {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t">
                   <select
                     value={filters.propertyType}
                     onChange={(e) => setFilters({ ...filters, propertyType: e.target.value })}
