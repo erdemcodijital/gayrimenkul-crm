@@ -18,6 +18,8 @@ export default function AgentDashboard() {
   const [pinCode, setPinCode] = useState('');
   const [agent, setAgent] = useState<Agent | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [stats, setStats] = useState({
     total: 0,
     today: 0,
