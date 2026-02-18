@@ -54,6 +54,18 @@ function BuilderContent({ domain, router }: any) {
     }
   }, [agent]);
 
+  // Update URL when page changes
+  useEffect(() => {
+    if (currentPageId && pages.length > 0) {
+      const currentPage = pages.find(p => p.id === currentPageId);
+      if (currentPage) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('page', currentPage.slug);
+        window.history.pushState({}, '', url.toString());
+      }
+    }
+  }, [currentPageId, pages]);
+
   // Sync mode with EditorContext
   useEffect(() => {
     setEditMode(mode === 'edit');
@@ -95,7 +107,20 @@ function BuilderContent({ domain, router }: any) {
 
       if (data && data.length > 0) {
         setPages(data as Page[]);
-        // Set first page or home page as current
+        
+        // Check if there's a page in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageSlug = urlParams.get('page');
+        
+        if (pageSlug) {
+          const page = data.find((p: any) => p.slug === pageSlug);
+          if (page) {
+            setCurrentPageId(page.id);
+            return;
+          }
+        }
+        
+        // Otherwise set first page or home page as current
         const homePage = data.find((p: any) => p.is_home);
         setCurrentPageId(homePage?.id || data[0].id);
       } else {
@@ -315,7 +340,15 @@ function BuilderContent({ domain, router }: any) {
             
             <div className="h-6 w-px bg-gray-700" />
             
-            <div className="text-sm font-semibold text-white">Sayfa Düzenleyici</div>
+            <div className="text-sm font-semibold text-white">
+              {pages.length > 0 && currentPageId ? (
+                <>
+                  Sayfa: {pages.find(p => p.id === currentPageId)?.title || 'Sayfa Düzenleyici'}
+                </>
+              ) : (
+                'Sayfa Düzenleyici'
+              )}
+            </div>
           
           <div className="flex items-center gap-2 ml-4">
             <button
