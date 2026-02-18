@@ -1,6 +1,7 @@
 -- Add more editable landing page fields
 ALTER TABLE agents
 ADD COLUMN IF NOT EXISTS features_title TEXT DEFAULT 'Neden Benimle Çalışmalısınız?',
+ADD COLUMN IF NOT EXISTS features_subtitle TEXT DEFAULT 'Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın',
 ADD COLUMN IF NOT EXISTS properties_title TEXT DEFAULT 'Portföyümden Seçmeler',
 ADD COLUMN IF NOT EXISTS cta_title TEXT DEFAULT 'Hayalinizdeki Evi Bulun',
 ADD COLUMN IF NOT EXISTS cta_description TEXT DEFAULT 'Size özel gayrimenkul danışmanlığı için hemen iletişime geçin',

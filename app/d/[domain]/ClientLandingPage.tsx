@@ -19,6 +19,13 @@ export default function ClientLandingPage({ agent }: Props) {
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
   const [heroButtonText, setHeroButtonText] = useState('Ücretsiz Görüşme');
   const [featuresTitle, setFeaturesTitle] = useState('Neden Benimle Çalışmalısınız?');
+  const [featuresSubtitle, setFeaturesSubtitle] = useState('Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
+  const [featuresList, setFeaturesList] = useState([
+    { title: 'Güvenilir Hizmet', description: 'Şeffaf ve dürüst iletişim' },
+    { title: 'Hızlı Çözümler', description: 'En uygun seçenekleri hızlıca buluyoruz' },
+    { title: 'Rekabetçi Fiyat', description: 'Piyasa koşullarına uygun fiyatlar' },
+    { title: 'Uzman Destek', description: 'Deneyimli danışmanlık ekibi' }
+  ]);
   const [propertiesTitle, setPropertiesTitle] = useState('Portföyümden Seçmeler');
   const [ctaTitle, setCtaTitle] = useState('Hayalinizdeki Evi Bulun');
   
@@ -200,24 +207,59 @@ export default function ClientLandingPage({ agent }: Props) {
                   {featuresTitle}
                 </span>
               </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın</p>
+              <p 
+                className="text-lg text-gray-600 max-w-2xl mx-auto"
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                onBlur={(e) => {
+                  const newSubtitle = e.currentTarget.textContent || '';
+                  setFeaturesSubtitle(newSubtitle);
+                  if (updateSection) updateSection('features', { subtitle: newSubtitle });
+                }}
+              >
+                {featuresSubtitle}
+              </p>
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { title: 'Güvenilir Hizmet', desc: 'Şeffaf ve dürüst iletişim' },
-                { title: 'Hızlı Çözümler', desc: 'En uygun seçenekleri hızlıca buluyoruz' },
-                { title: 'Rekabetçi Fiyat', desc: 'Piyasa koşullarına uygun fiyatlar' },
-                { title: 'Uzman Destek', desc: 'Deneyimli danışmanlık ekibi' }
-              ].map((feature, i) => (
+              {featuresList.map((feature, i) => (
                 <div key={i} className="text-center">
                   <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <svg className="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                  <p className="text-sm text-gray-600">{feature.desc}</p>
+                  <h3 
+                    className="font-semibold text-gray-900 mb-2"
+                    contentEditable={editMode}
+                    suppressContentEditableWarning
+                    style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                    onBlur={(e) => {
+                      const newTitle = e.currentTarget.textContent || '';
+                      const updatedList = [...featuresList];
+                      updatedList[i] = { ...updatedList[i], title: newTitle };
+                      setFeaturesList(updatedList);
+                      if (updateSection) updateSection('features', { list: updatedList });
+                    }}
+                  >
+                    {feature.title}
+                  </h3>
+                  <p 
+                    className="text-sm text-gray-600"
+                    contentEditable={editMode}
+                    suppressContentEditableWarning
+                    style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                    onBlur={(e) => {
+                      const newDesc = e.currentTarget.textContent || '';
+                      const updatedList = [...featuresList];
+                      updatedList[i] = { ...updatedList[i], description: newDesc };
+                      setFeaturesList(updatedList);
+                      if (updateSection) updateSection('features', { list: updatedList });
+                    }}
+                  >
+                    {feature.description}
+                  </p>
                 </div>
               ))}
             </div>
