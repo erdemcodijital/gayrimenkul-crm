@@ -195,9 +195,36 @@ function BuilderContent({ domain, router }: any) {
         <div className="fixed right-0 top-[57px] bottom-0 w-96 bg-white border-l border-gray-200 shadow-2xl overflow-y-auto z-40">
           <div className="p-4">
             <h3 className="text-lg font-bold text-gray-900 mb-1">Düzenleyici</h3>
-            <p className="text-xs text-gray-500 mb-4">Değişiklikler otomatik kaydedilir</p>
+            <p className="text-xs text-gray-500 mb-4">Değişiklikler Kaydet butonuyla kaydedilir</p>
             
             <div className="space-y-4">
+              {/* Theme Color */}
+              <div className="bg-white border border-gray-200 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Tema Rengi</h4>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={agent?.theme_color || '#111827'}
+                    onChange={(e) => {
+                      if (agent) {
+                        supabase
+                          .from('agents')
+                          .update({ theme_color: e.target.value })
+                          .eq('id', agent.id)
+                          .then(() => {
+                            loadAgent();
+                          });
+                      }
+                    }}
+                    className="w-16 h-10 rounded border border-gray-300 cursor-pointer"
+                  />
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-600">Butonlar ve vurgular için kullanılır</p>
+                    <p className="text-xs text-gray-400 mt-1">{agent?.theme_color || '#111827'}</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Quick Actions */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                 <h4 className="text-sm font-semibold text-blue-900 mb-2">İpucu</h4>
