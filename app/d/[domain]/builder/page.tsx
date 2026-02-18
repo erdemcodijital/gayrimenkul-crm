@@ -497,26 +497,20 @@ function BuilderContent({ domain, router }: any) {
             const currentPage = pages.find(p => p.id === currentPageId);
             const isEmptyPage = currentPage && (!currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0);
             
-            // Ana sayfa için özel durum - eski sistem kullan
+            // Ana sayfa için özel durum - eski sistem göster (full landing page)
             if (currentPage?.is_home && isEmptyPage) {
               return (
-                <div className="flex items-center justify-center min-h-screen p-8">
-                  <div className="max-w-2xl w-full text-center">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-                      <h2 className="text-2xl font-bold text-blue-900 mb-3">Ana Sayfa (Eski Sistem)</h2>
-                      <p className="text-blue-700 mb-4">
-                        Ana sayfa şu an eski static sistem kullanıyor. 
-                        Yeni section-based sistemine geçmek için migration gerekli.
-                      </p>
-                      <p className="text-sm text-blue-600">
-                        Ana sayfa zaten çalışıyor: <code className="bg-blue-100 px-2 py-1 rounded">/d/{domain}</code>
-                      </p>
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      İstersen bu sayfayı sil ve yeni section-based ana sayfa oluştur.
-                    </div>
+                <>
+                  <ClientLandingPage 
+                    agent={agent} 
+                    currentPage={undefined}
+                  />
+                  <div className="bg-yellow-50 border-t-4 border-yellow-400 p-4 text-center">
+                    <p className="text-sm text-yellow-800">
+                      ⚠️ Ana sayfa eski sistem kullanıyor. Yeni section-based sisteme geçmek için "Yeni Sayfa Ekle" ile yeni ana sayfa oluştur.
+                    </p>
                   </div>
-                </div>
+                </>
               );
             }
             
