@@ -12,51 +12,58 @@ const COMPONENTS = [
   {
     type: 'hero' as SectionType,
     icon: Layout,
-    label: 'Hero Section',
-    description: 'Large header with headline and call-to-action',
-    category: 'Headers'
+    label: 'Ana Başlık',
+    description: 'Büyük başlık, alt başlık ve eylem butonu',
+    details: 'İstatistikler, buton linki eklenebilir',
+    category: 'Başlık'
   },
   {
     type: 'text' as SectionType,
     icon: FileText,
-    label: 'Text Block',
-    description: 'Rich text content with formatting',
-    category: 'Content'
+    label: 'Metin Bloğu',
+    description: 'Düz metin içeriği ve paragraflar',
+    details: 'Başlık ve açıklama metni eklenebilir',
+    category: 'İçerik'
   },
   {
     type: 'features' as SectionType,
     icon: Star,
-    label: 'Features Grid',
-    description: 'Highlight key features in a grid layout',
-    category: 'Content'
+    label: 'Özellikler',
+    description: 'Hizmetlerinizi veya özelliklerinizi gösterin',
+    details: 'Başlık, açıklama ve özellik kartları',
+    category: 'İçerik'
   },
   {
     type: 'properties' as SectionType,
     icon: Home,
-    label: 'Property Listings',
-    description: 'Display portfolio properties',
-    category: 'Dynamic'
+    label: 'İlan Listesi',
+    description: 'Portföyünüzdeki ilanları gösterin',
+    details: 'Otomatik olarak ilanlarınızı listeler',
+    category: 'Dinamik'
   },
   {
     type: 'gallery' as SectionType,
     icon: Image,
-    label: 'Image Gallery',
-    description: 'Photo gallery with lightbox',
-    category: 'Media'
+    label: 'Fotoğraf Galerisi',
+    description: 'Görselleri grid düzeninde gösterin',
+    details: 'Büyütme özelliği ile fotoğraf galerisi',
+    category: 'Medya'
   },
   {
     type: 'contact' as SectionType,
     icon: Mail,
-    label: 'Contact Form',
-    description: 'Contact information and submission form',
-    category: 'Forms'
+    label: 'İletişim Formu',
+    description: 'İletişim bilgileriniz ve form',
+    details: 'E-posta, telefon, adres ve mesaj formu',
+    category: 'Formlar'
   },
   {
     type: 'cta' as SectionType,
     icon: Megaphone,
-    label: 'Call to Action',
-    description: 'Conversion-focused section',
-    category: 'Marketing'
+    label: 'Harekete Geçirici',
+    description: 'Ziyaretçileri yönlendirin',
+    details: 'Başlık, açıklama ve eylem butonu',
+    category: 'Pazarlama'
   }
 ];
 
@@ -86,9 +93,9 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <h2 className="text-gray-900 font-semibold text-base flex items-center gap-2">
           <Grid className="w-4 h-4 text-gray-600" />
-          Components
+          Bölümler
         </h2>
-        <p className="text-gray-500 text-xs mt-1">Drag and drop to add sections</p>
+        <p className="text-gray-500 text-xs mt-1">Sayfanıza eklemek için tıklayın</p>
       </div>
 
       {/* Components List */}
@@ -138,6 +145,9 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
                         <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
                           {component.description}
                         </p>
+                        <p className="text-xs text-gray-400 mt-1 leading-tight italic">
+                          {component.details}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -152,12 +162,16 @@ export default function ComponentsPanel({ onAddComponent }: ComponentsPanelProps
       <div className="p-3 border-t border-gray-200 bg-gray-50">
         <div className="text-xs text-gray-600 space-y-1.5">
           <p className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span>Drag components onto the canvas</span>
+            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
+            <span><strong>Tıklayın</strong> - Hemen ekleyin</span>
           </p>
           <p className="flex items-center gap-2">
-            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-            <span>Click to add instantly</span>
+            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
+            <span><strong>Düzenleyin</strong> - Metinlere tıklayarak</span>
+          </p>
+          <p className="flex items-center gap-2">
+            <span className="w-1 h-1 bg-blue-400 rounded-full"></span>
+            <span><strong>Silin</strong> - Üzerine gelip çöp kutusu ikonu</span>
           </p>
         </div>
       </div>
