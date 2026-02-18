@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { 
-  Save, Eye, Plus, GripVertical, Settings, Trash2, 
-  Type, Image as ImageIcon, Layout, Home, Check, Phone, X 
-} from 'lucide-react';
+import { Save, Eye, X, Settings as SettingsIcon } from 'lucide-react';
+import { EditorProvider, useEditor } from '@/contexts/EditorContext';
+import AgentLandingPage from '../AgentLandingPage';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Section = Database['public']['Tables']['page_sections']['Row'];

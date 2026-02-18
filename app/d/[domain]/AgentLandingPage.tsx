@@ -9,6 +9,8 @@ import LeadForm from './LeadForm';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import EditableSectionWrapper from '@/components/EditableSectionWrapper';
+import { useEditor } from '@/contexts/EditorContext';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Property = Database['public']['Tables']['properties']['Row'];
@@ -20,6 +22,16 @@ interface Props {
 export default function AgentLandingPage({ agent }: Props) {
   const searchParams = useSearchParams();
   const isEditMode = searchParams.get('edit') === 'true';
+  
+  // Editor context (will be undefined in normal preview mode)
+  let editorContext;
+  try {
+    editorContext = useEditor();
+  } catch {
+    editorContext = null;
+  }
+  
+  const { editMode, updateSection } = editorContext || {};
   
   const [showForm, setShowForm] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -164,6 +176,10 @@ export default function AgentLandingPage({ agent }: Props) {
       )}
 
       {/* Hero Section */}
+      <EditableSectionWrapper
+        sectionId="hero"
+        sectionType="hero"
+      >
       <section className="relative overflow-hidden">
         <motion.div 
           className="absolute inset-0 bg-gradient-to-br from-primary-600 to-primary-800 opacity-90"
@@ -330,6 +346,7 @@ export default function AgentLandingPage({ agent }: Props) {
           </svg>
         </div>
       </section>
+      </EditableSectionWrapper>
 
       {/* Properties Section */}
       {agent.show_properties !== false && (
