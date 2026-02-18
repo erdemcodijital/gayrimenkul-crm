@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       status: 'new',
     };
 
+    // @ts-ignore
     const { error } = await supabase
       .from('leads')
       .insert(leadData);
@@ -27,9 +28,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    // Başarılı - teşekkür sayfasına yönlendir
-    const domain = formData.get('agent_domain') as string;
-    return NextResponse.redirect(new URL(`/d/${domain}?success=true`, request.url));
+    // Başarılı
+    return NextResponse.json({ success: true, message: 'Lead başarıyla kaydedildi' });
     
   } catch (error: any) {
     console.error('API Hatası:', error);

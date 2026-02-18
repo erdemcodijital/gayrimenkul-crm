@@ -258,6 +258,24 @@ export default function AgentDashboard() {
     setShowAddProperty(true);
   };
 
+  const deleteLead = async (id: string) => {
+    if (!confirm('Bu lead\'i silmek istediğinizden emin misiniz?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      alert('Lead silindi!');
+      if (agent) await loadLeads(agent.id);
+    } catch (err) {
+      alert('Lead silinemedi');
+    }
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     verifyPin(pinCode);
@@ -509,7 +527,7 @@ export default function AgentDashboard() {
                       </div>
                     </div>
 
-                    <div className="ml-4 flex-shrink-0">
+                    <div className="ml-4 flex-shrink-0 flex gap-2">
                       <a
                         href={`https://wa.me/${lead.phone?.replace(/\D/g, '')}?text=${encodeURIComponent(`Merhaba ${lead.name}, ${domain} üzerinden iletişime geçtiniz.`)}`}
                         target="_blank"
@@ -519,6 +537,12 @@ export default function AgentDashboard() {
                         <MessageCircle className="w-4 h-4 mr-2" />
                         WhatsApp
                       </a>
+                      <button
+                        onClick={() => deleteLead(lead.id)}
+                        className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition"
+                      >
+                        🗑️ Sil
+                      </button>
                     </div>
                   </div>
                 </div>

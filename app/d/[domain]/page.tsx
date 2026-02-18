@@ -276,7 +276,7 @@ export default async function AgentPage({ params }: PageProps) {
       )}
 
       {/* Lead Form Section */}
-      <section className="py-24 bg-gradient-to-b from-white to-gray-50">
+      <section className="py-24 bg-gradient-to-b from-white to-gray-50" id="lead-form">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
@@ -287,7 +287,28 @@ export default async function AgentPage({ params }: PageProps) {
             </p>
           </div>
 
-          <form 
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formElement = e.target as HTMLFormElement;
+              const formData = new FormData(formElement);
+              
+              try {
+                const response = await fetch('/api/submit-lead', {
+                  method: 'POST',
+                  body: formData,
+                });
+                
+                if (response.ok) {
+                  formElement.reset();
+                  alert('✅ Talebiniz başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
+                } else {
+                  alert('❌ Bir hata oluştu. Lütfen tekrar deneyin.');
+                }
+              } catch (error) {
+                alert('❌ Bir hata oluştu. Lütfen tekrar deneyin.');
+              }
+            }} 
             action="/api/submit-lead" 
             method="POST"
             className="bg-white rounded-2xl shadow-xl p-8 space-y-6"
