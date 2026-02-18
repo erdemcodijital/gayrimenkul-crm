@@ -45,8 +45,14 @@ function BuilderContent({ domain, router }: any) {
 
   useEffect(() => {
     loadAgent();
-    loadPages();
   }, [domain]);
+
+  // Load pages after agent is loaded
+  useEffect(() => {
+    if (agent) {
+      loadPages();
+    }
+  }, [agent]);
 
   // Sync mode with EditorContext
   useEffect(() => {
@@ -68,20 +74,32 @@ function BuilderContent({ domain, router }: any) {
   const loadPages = async () => {
     if (!agent) return;
     
-    const { data } = await supabase
-      .from('pages')
-      .select('*')
-      .eq('agent_id', agent.id)
-      .order('order_index', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('pages')
+        .select('*')
+        .eq('agent_id', agent.id)
+        .order('order_index', { ascending: true });
 
-    if (data && data.length > 0) {
-      setPages(data as Page[]);
-      // Set first page or home page as current
-      const homePage = data.find((p: any) => p.is_home);
-      setCurrentPageId(homePage?.id || data[0].id);
-    } else {
-      // Create default home page if none exists
-      await createDefaultHomePage();
+      if (error) {
+        console.error('Pages load error:', error);
+        // If pages table doesn't exist yet, just continue without pages
+        setPages([]);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        setPages(data as Page[]);
+        // Set first page or home page as current
+        const homePage = data.find((p: any) => p.is_home);
+        setCurrentPageId(homePage?.id || data[0].id);
+      } else {
+        // Create default home page if none exists
+        await createDefaultHomePage();
+      }
+    } catch (err) {
+      console.error('Pages error:', err);
+      setPages([]);
     }
   };
 
