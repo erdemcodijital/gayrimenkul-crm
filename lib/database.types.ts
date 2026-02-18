@@ -21,6 +21,13 @@ export interface Database {
           whatsapp_number: string | null
           pin_code: string | null
           theme_color: string | null
+          hero_title: string | null
+          hero_subtitle: string | null
+          about_text: string | null
+          logo_url: string | null
+          show_properties: boolean
+          show_features: boolean
+          show_cta: boolean
           is_active: boolean
           license_status: string
           license_expires_at: string | null
@@ -38,6 +45,13 @@ export interface Database {
           whatsapp_number?: string | null
           pin_code?: string | null
           theme_color?: string | null
+          hero_title?: string | null
+          hero_subtitle?: string | null
+          about_text?: string | null
+          logo_url?: string | null
+          show_properties?: boolean
+          show_features?: boolean
+          show_cta?: boolean
           is_active?: boolean
           license_status?: string
           license_expires_at?: string | null
@@ -55,6 +69,13 @@ export interface Database {
           whatsapp_number?: string | null
           pin_code?: string | null
           theme_color?: string | null
+          hero_title?: string | null
+          hero_subtitle?: string | null
+          about_text?: string | null
+          logo_url?: string | null
+          show_properties?: boolean
+          show_features?: boolean
+          show_cta?: boolean
           is_active?: boolean
           license_status?: string
           license_expires_at?: string | null

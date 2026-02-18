@@ -173,7 +173,7 @@ export default function AgentLandingPage({ agent }: Props) {
                 variants={fadeInUp}
                 transition={{ duration: 0.6 }}
               >
-                {agent.name}
+                {agent.hero_title || agent.name}
               </motion.h1>
               
               <motion.div 
@@ -190,7 +190,7 @@ export default function AgentLandingPage({ agent }: Props) {
                 variants={fadeInUp}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                Gayrimenkul Danışmanı
+                {agent.hero_subtitle || 'Gayrimenkul Danışmanı'}
               </motion.p>
             </motion.div>
             
@@ -200,8 +200,7 @@ export default function AgentLandingPage({ agent }: Props) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
             >
-              Size en uygun gayrimenkul seçeneklerini bulmak için buradayım. 
-              Hayalinizdeki evi birlikte bulalım!
+              {agent.about_text || 'Size en uygun gayrimenkul seçeneklerini bulmak için buradayım. Hayalinizdeki evi birlikte bulalım!'}
             </motion.p>
 
             <motion.div 
@@ -242,6 +241,7 @@ export default function AgentLandingPage({ agent }: Props) {
       </section>
 
       {/* Properties Section */}
+      {agent.show_properties !== false && (
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <motion.div 
@@ -358,8 +358,10 @@ export default function AgentLandingPage({ agent }: Props) {
           )}
         </div>
       </section>
+      )}
 
       {/* Why Choose Me Section */}
+      {agent.show_features !== false && (
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <motion.h2 
@@ -400,8 +402,10 @@ export default function AgentLandingPage({ agent }: Props) {
           </motion.div>
         </div>
       </section>
+      )}
 
       {/* CTA Section */}
+      {agent.show_cta !== false && (
       <section className="py-20 bg-gradient-to-br from-primary-600 to-primary-800 text-white">
         <div className="container mx-auto px-4 text-center">
           <motion.h2 
@@ -451,6 +455,7 @@ export default function AgentLandingPage({ agent }: Props) {
           </motion.div>
         </div>
       </section>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-8">

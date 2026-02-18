@@ -51,6 +51,15 @@ export default function AgentDashboard() {
   const [showAddProperty, setShowAddProperty] = useState(false);
   const [themeColor, setThemeColor] = useState('#111827');
   const [savingTheme, setSavingTheme] = useState(false);
+  const [landingSettings, setLandingSettings] = useState({
+    hero_title: '',
+    hero_subtitle: '',
+    about_text: '',
+    show_properties: true,
+    show_features: true,
+    show_cta: true,
+  });
+  const [savingLanding, setSavingLanding] = useState(false);
   const [propertyForm, setPropertyForm] = useState({
     title: '',
     description: '',
@@ -133,6 +142,14 @@ export default function AgentDashboard() {
       setAgent(agentData);
       setIsAuthenticated(true);
       setThemeColor(agentData.theme_color || '#111827');
+      setLandingSettings({
+        hero_title: agentData.hero_title || '',
+        hero_subtitle: agentData.hero_subtitle || '',
+        about_text: agentData.about_text || '',
+        show_properties: agentData.show_properties !== false,
+        show_features: agentData.show_features !== false,
+        show_cta: agentData.show_cta !== false,
+      });
       localStorage.setItem(`agent_pin_${domain}`, pin);
       await loadLeads(agentData.id);
       await loadProperties(agentData.id);
@@ -160,6 +177,44 @@ export default function AgentDashboard() {
       setToast({ message: 'Tema rengi kaydedilemedi', type: 'error' });
     } finally {
       setSavingTheme(false);
+    }
+  };
+
+  const saveLandingSettings = async () => {
+    if (!agent) return;
+    
+    setSavingLanding(true);
+    try {
+      const { error } = await supabase
+        .from('agents')
+        .update({
+          hero_title: landingSettings.hero_title,
+          hero_subtitle: landingSettings.hero_subtitle,
+          about_text: landingSettings.about_text,
+          show_properties: landingSettings.show_properties,
+          show_features: landingSettings.show_features,
+          show_cta: landingSettings.show_cta,
+        })
+        .eq('id', agent.id);
+
+      if (error) throw error;
+      
+      setToast({ message: 'Landing sayfası ayarları kaydedildi! Sayfayı yenileyerek görebilirsiniz.', type: 'success' });
+      
+      // Update local agent data
+      setAgent({
+        ...agent,
+        hero_title: landingSettings.hero_title || null,
+        hero_subtitle: landingSettings.hero_subtitle || null,
+        about_text: landingSettings.about_text || null,
+        show_properties: landingSettings.show_properties,
+        show_features: landingSettings.show_features,
+        show_cta: landingSettings.show_cta,
+      });
+    } catch (err) {
+      setToast({ message: 'Ayarlar kaydedilemedi', type: 'error' });
+    } finally {
+      setSavingLanding(false);
     }
   };
 
@@ -1404,6 +1459,117 @@ export default function AgentDashboard() {
                   <div>
                     <p className="text-sm text-gray-700">Landing sayfanızda butonlar ve vurgulamalar bu renkte görünecek</p>
                   </div>
+                </div>
+              </div>
+
+              {/* Landing Page Editor */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Landing Sayfası Düzenleme</h3>
+                <p className="text-sm text-gray-600 mb-6">Landing sayfanızdaki içeriği özelleştirin</p>
+                
+                <div className="space-y-6">
+                  {/* Hero Section */}
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-5">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Hero Bölümü</h4>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Başlık</label>
+                        <input
+                          type="text"
+                          value={landingSettings.hero_title || agent?.name || ''}
+                          onChange={(e) => setLandingSettings({...landingSettings, hero_title: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gray-900"
+                          placeholder={agent?.name || "İsim"}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Alt Başlık</label>
+                        <input
+                          type="text"
+                          value={landingSettings.hero_subtitle || 'Gayrimenkul Danışmanı'}
+                          onChange={(e) => setLandingSettings({...landingSettings, hero_subtitle: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gray-900"
+                          placeholder="Gayrimenkul Danışmanı"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">Açıklama</label>
+                        <textarea
+                          value={landingSettings.about_text || 'Size en uygun gayrimenkul seçeneklerini bulmak için buradayım.'}
+                          onChange={(e) => setLandingSettings({...landingSettings, about_text: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-gray-900"
+                          rows={3}
+                          placeholder="Kendinizden bahsedin..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section Visibility */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-5">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-4">Bölüm Görünürlüğü</h4>
+                    <div className="space-y-3">
+                      <label className="flex items-center justify-between p-3 bg-white rounded-lg cursor-pointer hover:shadow-md transition">
+                        <div className="flex items-center gap-3">
+                          <Home className="w-5 h-5 text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">İlanlar Bölümü</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={landingSettings.show_properties}
+                          onChange={(e) => setLandingSettings({...landingSettings, show_properties: e.target.checked})}
+                          className="w-5 h-5 text-gray-900 rounded focus:ring-gray-900"
+                        />
+                      </label>
+
+                      <label className="flex items-center justify-between p-3 bg-white rounded-lg cursor-pointer hover:shadow-md transition">
+                        <div className="flex items-center gap-3">
+                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="text-sm font-medium text-gray-900">"Neden Benimle Çalışmalısınız" Bölümü</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={landingSettings.show_features}
+                          onChange={(e) => setLandingSettings({...landingSettings, show_features: e.target.checked})}
+                          className="w-5 h-5 text-gray-900 rounded focus:ring-gray-900"
+                        />
+                      </label>
+
+                      <label className="flex items-center justify-between p-3 bg-white rounded-lg cursor-pointer hover:shadow-md transition">
+                        <div className="flex items-center gap-3">
+                          <Phone className="w-5 h-5 text-gray-600" />
+                          <span className="text-sm font-medium text-gray-900">İletişim (CTA) Bölümü</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={landingSettings.show_cta}
+                          onChange={(e) => setLandingSettings({...landingSettings, show_cta: e.target.checked})}
+                          className="w-5 h-5 text-gray-900 rounded focus:ring-gray-900"
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Save Button */}
+                  <button
+                    type="button"
+                    onClick={saveLandingSettings}
+                    disabled={savingLanding}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-gray-900 to-gray-800 hover:from-gray-800 hover:to-gray-700 text-white rounded-lg font-semibold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {savingLanding ? 'Kaydediliyor...' : 'Landing Sayfasını Güncelle'}
+                  </button>
+                  
+                  {/* Preview Button */}
+                  <a
+                    href={`/d/${agent?.domain}`}
+                    target="_blank"
+                    className="block w-full px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-lg font-semibold text-center hover:bg-gray-50 transition"
+                  >
+                    Önizleme →
+                  </a>
                 </div>
               </div>
 
