@@ -19,6 +19,7 @@ import {
   Edit2,
   Trash2
 } from 'lucide-react';
+import { Toast, ConfirmModal } from '@/components/Toast';
 
 interface Appointment {
   id: string;
@@ -48,6 +49,8 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
   const [showNewAppointment, setShowNewAppointment] = useState(false);
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{ title: string; message: string; onConfirm: () => void } | null>(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -141,10 +144,10 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
 
       setShowNewAppointment(false);
       loadAppointments();
-      alert('Randevu başarıyla oluşturuldu!');
+      setToast({ message: 'Randevu başarıyla oluşturuldu!', type: 'success' });
     } catch (error) {
       console.error('Randevu oluşturulamadı:', error);
-      alert('Randevu oluşturulamadı!');
+      setToast({ message: 'Randevu oluşturulamadı!', type: 'error' });
     }
   };
 
@@ -164,26 +167,35 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
         .eq('id', id);
 
       if (error) throw error;
+      setToast({ message: 'Randevu durumu güncellendi!', type: 'success' });
       loadAppointments();
     } catch (error) {
       console.error('Durum güncellenemedi:', error);
+      setToast({ message: 'Durum güncellenemedi!', type: 'error' });
     }
   };
 
   const deleteAppointment = async (id: string) => {
-    if (!confirm('Bu randevuyu silmek istediğinizden emin misiniz?')) return;
+    setConfirmModal({
+      title: 'Randevuyu Sil',
+      message: 'Bu randevuyu silmek istediğinizden emin misiniz?',
+      onConfirm: async () => {
+        try {
+          const { error } = await supabase
+            .from('appointments')
+            .delete()
+            .eq('id', id);
 
-    try {
-      const { error } = await supabase
-        .from('appointments')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-      loadAppointments();
-    } catch (error) {
-      console.error('Randevu silinemedi:', error);
-    }
+          if (error) throw error;
+          setToast({ message: 'Randevu başarıyla silindi!', type: 'success' });
+          loadAppointments();
+        } catch (error) {
+          console.error('Randevu silinemedi:', error);
+          setToast({ message: 'Randevu silinemedi!', type: 'error' });
+        }
+        setConfirmModal(null);
+      }
+    });
   };
 
   // Calendar helper functions
@@ -792,6 +804,25 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
             </div>
           </div>
         </div>
+      )}
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Confirm Modal */}
+      {confirmModal && (
+        <ConfirmModal
+          title={confirmModal.title}
+          message={confirmModal.message}
+          onConfirm={confirmModal.onConfirm}
+          onCancel={() => setConfirmModal(null)}
+        />
       )}
     </div>
   );
