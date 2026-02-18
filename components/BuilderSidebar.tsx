@@ -21,6 +21,13 @@ interface BuilderSidebarProps {
   onToggleVisibility: (pageId: string, visible: boolean) => void;
   themeColor: string;
   onThemeColorChange: (color: string) => void;
+  sectionVisibility: {
+    show_stats: boolean;
+    show_features: boolean;
+    show_properties: boolean;
+    show_cta: boolean;
+  };
+  onSectionVisibilityChange: (section: string, visible: boolean) => void;
 }
 
 export default function BuilderSidebar({
@@ -32,6 +39,8 @@ export default function BuilderSidebar({
   onToggleVisibility,
   themeColor,
   onThemeColorChange,
+  sectionVisibility,
+  onSectionVisibilityChange,
 }: BuilderSidebarProps) {
   const [activeTab, setActiveTab] = useState<'pages' | 'settings'>('pages');
 
@@ -155,6 +164,51 @@ export default function BuilderSidebar({
                   <p className="text-xs text-gray-400">Butonlar ve vurgular</p>
                   <p className="text-xs text-gray-500 mt-1">{themeColor}</p>
                 </div>
+              </div>
+            </div>
+
+            {/* Section Visibility */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Bölümleri Göster/Gizle
+              </label>
+              <div className="space-y-2">
+                <label className="flex items-center justify-between p-2 bg-gray-800 rounded hover:bg-gray-750 cursor-pointer">
+                  <span className="text-sm text-gray-300">İstatistikler</span>
+                  <input
+                    type="checkbox"
+                    checked={sectionVisibility.show_stats}
+                    onChange={(e) => onSectionVisibilityChange('show_stats', e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600"
+                  />
+                </label>
+                <label className="flex items-center justify-between p-2 bg-gray-800 rounded hover:bg-gray-750 cursor-pointer">
+                  <span className="text-sm text-gray-300">Özellikler</span>
+                  <input
+                    type="checkbox"
+                    checked={sectionVisibility.show_features}
+                    onChange={(e) => onSectionVisibilityChange('show_features', e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600"
+                  />
+                </label>
+                <label className="flex items-center justify-between p-2 bg-gray-800 rounded hover:bg-gray-750 cursor-pointer">
+                  <span className="text-sm text-gray-300">İlanlar</span>
+                  <input
+                    type="checkbox"
+                    checked={sectionVisibility.show_properties}
+                    onChange={(e) => onSectionVisibilityChange('show_properties', e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600"
+                  />
+                </label>
+                <label className="flex items-center justify-between p-2 bg-gray-800 rounded hover:bg-gray-750 cursor-pointer">
+                  <span className="text-sm text-gray-300">CTA Bölümü</span>
+                  <input
+                    type="checkbox"
+                    checked={sectionVisibility.show_cta}
+                    onChange={(e) => onSectionVisibilityChange('show_cta', e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600"
+                  />
+                </label>
               </div>
             </div>
 
