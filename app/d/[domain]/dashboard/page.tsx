@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown } from 'lucide-react';
 import { Toast, ConfirmModal } from '@/components/Toast';
+import { BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -26,6 +27,15 @@ export default function AgentDashboard() {
     today: 0,
     thisWeek: 0,
     thisMonth: 0,
+    byStatus: {
+      new: 0,
+      contacted: 0,
+      meeting: 0,
+      closed_success: 0,
+      closed_cancelled: 0,
+    },
+    conversionRate: 0,
+    weeklyData: [] as { day: string; count: number }[],
   });
   const [properties, setProperties] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'settings'>('leads');
@@ -470,11 +480,44 @@ export default function AgentDashboard() {
         const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
+        // Status dağılımı
+        const byStatus = {
+          new: leadsData.filter(l => l.status === 'new').length,
+          contacted: leadsData.filter(l => l.status === 'contacted').length,
+          meeting: leadsData.filter(l => l.status === 'meeting').length,
+          closed_success: leadsData.filter(l => l.status === 'closed_success').length,
+          closed_cancelled: leadsData.filter(l => l.status === 'closed_cancelled').length,
+        };
+
+        // Conversion rate (başarılı / toplam)
+        const conversionRate = leadsData.length > 0 
+          ? Math.round((byStatus.closed_success / leadsData.length) * 100) 
+          : 0;
+
+        // Son 7 günlük data
+        const weeklyData = [];
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+          const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+          const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+          
+          const count = leadsData.filter(l => {
+            const leadDate = new Date(l.created_at);
+            return leadDate >= dayStart && leadDate < dayEnd;
+          }).length;
+
+          const dayName = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'][date.getDay()];
+          weeklyData.push({ day: dayName, count });
+        }
+
         setStats({
           total: leadsData.length,
           today: leadsData.filter(l => new Date(l.created_at) >= today).length,
           thisWeek: leadsData.filter(l => new Date(l.created_at) >= weekAgo).length,
           thisMonth: leadsData.filter(l => new Date(l.created_at) >= monthStart).length,
+          byStatus,
+          conversionRate,
+          weeklyData,
         });
       }
     } catch (error) {
@@ -605,7 +648,7 @@ export default function AgentDashboard() {
         {activeTab === 'leads' && (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="text-xs text-gray-600 mb-1">Toplam Lead</div>
             <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
@@ -621,6 +664,70 @@ export default function AgentDashboard() {
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <div className="text-xs text-gray-600 mb-1">Bu Ay</div>
             <div className="text-2xl font-bold text-purple-600">{stats.thisMonth}</div>
+          </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-xs text-gray-600 mb-1">Conversion Rate</div>
+            <div className="text-2xl font-bold text-orange-600">{stats.conversionRate}%</div>
+            <div className="text-xs text-gray-500 mt-1">Başarılı / Toplam</div>
+          </div>
+        </div>
+
+        {/* Analytics Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Status Dağılımı */}
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Lead Durumları</h3>
+              <PieChart className="w-5 h-5 text-gray-400" />
+            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <RePieChart>
+                <Pie
+                  data={[
+                    { name: 'Yeni', value: stats.byStatus.new, color: '#3B82F6' },
+                    { name: 'İletişimde', value: stats.byStatus.contacted, color: '#6366F1' },
+                    { name: 'Görüşme', value: stats.byStatus.meeting, color: '#F59E0B' },
+                    { name: 'Başarılı', value: stats.byStatus.closed_success, color: '#10B981' },
+                    { name: 'İptal', value: stats.byStatus.closed_cancelled, color: '#6B7280' },
+                  ]}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => (percent && percent > 0) ? `${name}: ${(percent * 100).toFixed(0)}%` : ''}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {[
+                    { name: 'Yeni', value: stats.byStatus.new, color: '#3B82F6' },
+                    { name: 'İletişimde', value: stats.byStatus.contacted, color: '#6366F1' },
+                    { name: 'Görüşme', value: stats.byStatus.meeting, color: '#F59E0B' },
+                    { name: 'Başarılı', value: stats.byStatus.closed_success, color: '#10B981' },
+                    { name: 'İptal', value: stats.byStatus.closed_cancelled, color: '#6B7280' },
+                  ].map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RePieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Haftalık Trend */}
+          <div className="bg-white border border-gray-200 rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Son 7 Gün</h3>
+              <BarChart3 className="w-5 h-5 text-gray-400" />
+            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={stats.weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="day" stroke="#6B7280" fontSize={12} />
+                <YAxis stroke="#6B7280" fontSize={12} />
+                <Tooltip />
+                <Bar dataKey="count" fill="#3B82F6" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
