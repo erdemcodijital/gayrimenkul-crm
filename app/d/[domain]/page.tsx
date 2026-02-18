@@ -122,12 +122,12 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
             </div>
             
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 tracking-tight">
-              Hayalinizdeki Evi<br />
+              {agent.hero_title || 'Hayalinizdeki Evi'}<br />
               <span className="text-gray-500">Birlikte Bulalım</span>
             </h1>
             
             <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
-              Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.
+              {agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.'}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
