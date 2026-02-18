@@ -128,13 +128,14 @@ function BuilderContent({ domain, router }: any) {
           <button
             onClick={() => router.push(`/d/${domain}/dashboard`)}
             className="text-gray-400 hover:text-white transition"
+            title="Panele Dön"
           >
             <X className="w-5 h-5" />
           </button>
           
           <div className="h-6 w-px bg-gray-700" />
           
-          <div className="text-sm font-semibold text-white">Visual Builder</div>
+          <div className="text-sm font-semibold text-white">🎨 Sayfa Düzenleyici</div>
           
           <div className="flex items-center gap-2 ml-4">
             <button
@@ -145,7 +146,7 @@ function BuilderContent({ domain, router }: any) {
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              Edit
+              ✏️ Düzenle
             </button>
             <button
               onClick={() => setMode('preview')}
@@ -155,7 +156,7 @@ function BuilderContent({ domain, router }: any) {
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              Preview
+              👁️ Önizle
             </button>
           </div>
         </div>
@@ -166,7 +167,7 @@ function BuilderContent({ domain, router }: any) {
             className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition"
           >
             <Eye className="w-4 h-4" />
-            View Live
+            🌐 Canlı Görüntüle
           </button>
           <button
             onClick={saveChanges}
@@ -174,7 +175,7 @@ function BuilderContent({ domain, router }: any) {
             className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition"
           >
             <Save className="w-4 h-4" />
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? '💾 Kaydediliyor...' : '💾 Kaydet'}
           </button>
         </div>
       </div>
