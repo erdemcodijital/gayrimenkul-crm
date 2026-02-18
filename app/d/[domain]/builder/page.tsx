@@ -76,22 +76,20 @@ function BuilderContent({ domain, router }: any) {
   const loadPageContent = async (page: Page) => {
     console.log('📄 Loading page content:', page.title, page.content);
     
-    // If page has content, we'll use it
-    // Otherwise editor will use default values from ClientLandingPage
-    if (page.content && Object.keys(page.content).length > 0) {
-      console.log('✅ Page has custom content');
-      // Content will be loaded by ClientLandingPage from page prop
-    } else {
-      console.log('ℹ️ Page has no custom content, using defaults');
+    // AUTO-MIGRATION: Create full sections for home page if Hero section is missing
+    if (page.is_home && agent) {
+      const hasHeroSection = page.content?.sections?.some((s: Section) => s.type === 'hero');
       
-      // AUTO-MIGRATION: Create full sections for home page from agent data
-      if (page.is_home && agent) {
+      if (!hasHeroSection) {
+        console.log('ℹ️ Hero section missing, running full migration...');
         console.log('🔄 Auto-creating full sections for home page...');
         
+        // Keep existing sections (like text blocks user already added)
+        const existingSections = (page.content?.sections || []) as Section[];
         const sections: Section[] = [];
         let order = 0;
         
-        // Hero Section
+        // Hero Section (always first)
         sections.push({
           id: `hero-${Date.now()}`,
           type: 'hero',
@@ -115,8 +113,8 @@ function BuilderContent({ domain, router }: any) {
               title: (agent as any).features_title || 'Neden Benimle Çalışmalısınız?',
               subtitle: (agent as any).features_subtitle || '',
               list: (agent as any).features_list
-            }
-          });
+            } as any
+          } as Section);
         }
         
         // CTA Section
@@ -133,6 +131,14 @@ function BuilderContent({ domain, router }: any) {
             }
           });
         }
+        
+        // Add existing user-created sections (like text blocks) AFTER Hero/Features/CTA
+        existingSections.forEach(existingSection => {
+          sections.push({
+            ...existingSection,
+            order: order++
+          });
+        });
         
         // Update local state immediately
         setPages(pages.map(p => 
