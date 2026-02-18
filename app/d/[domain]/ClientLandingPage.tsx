@@ -15,6 +15,8 @@ interface Props {
 
 export default function ClientLandingPage({ agent }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
+  const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
   
   // Editor context
   let editorContext;
@@ -24,7 +26,7 @@ export default function ClientLandingPage({ agent }: Props) {
     editorContext = null;
   }
   
-  const { editMode } = editorContext || {};
+  const { editMode, updateSection } = editorContext || {};
 
   useEffect(() => {
     loadProperties();
@@ -87,8 +89,13 @@ export default function ClientLandingPage({ agent }: Props) {
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                onBlur={(e) => {
+                  const newTitle = e.currentTarget.textContent || '';
+                  setHeroTitle(newTitle);
+                  if (updateSection) updateSection('hero', { title: newTitle });
+                }}
               >
-                {agent.hero_title || 'Hayalinizdeki Evi'}<br />
+                {heroTitle}<br />
                 <span className="text-gray-500">Birlikte Bulalım</span>
               </h1>
               
@@ -97,8 +104,13 @@ export default function ClientLandingPage({ agent }: Props) {
                 contentEditable={editMode}
                 suppressContentEditableWarning
                 style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                onBlur={(e) => {
+                  const newSubtitle = e.currentTarget.textContent || '';
+                  setHeroSubtitle(newSubtitle);
+                  if (updateSection) updateSection('hero', { subtitle: newSubtitle });
+                }}
               >
-                {agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.'}
+                {heroSubtitle}
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

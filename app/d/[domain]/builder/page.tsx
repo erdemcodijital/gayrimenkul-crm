@@ -23,7 +23,7 @@ export default function VisualBuilderPage() {
 }
 
 function BuilderContent({ domain, router }: any) {
-  const { setEditMode } = useEditor();
+  const { setEditMode, getSaveData } = useEditor();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -52,11 +52,36 @@ function BuilderContent({ domain, router }: any) {
   };
 
   const saveChanges = async () => {
+    if (!agent) return;
+    
     setSaving(true);
-    setTimeout(() => {
+    try {
+      const sections = getSaveData();
+      const heroData = sections['hero'] || {};
+      
+      const { error } = await supabase
+        .from('agents')
+        .update({
+          hero_title: heroData.title || agent.hero_title,
+          hero_subtitle: heroData.subtitle || agent.hero_subtitle,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', agent.id);
+
+      if (error) {
+        console.error('Save error:', error);
+        alert('❌ Kaydetme hatası!');
+      } else {
+        alert('✅ Değişiklikler kaydedildi!');
+        // Reload agent data
+        loadAgent();
+      }
+    } catch (error) {
+      console.error('Save error:', error);
+      alert('❌ Bir hata oluştu!');
+    } finally {
       setSaving(false);
-      alert('✅ Saved!');
-    }, 500);
+    }
   };
 
   if (loading) {
