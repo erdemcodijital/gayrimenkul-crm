@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { Building2, Users, BarChart3, Sparkles, Globe, Shield, Zap, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export default function HomePage() {
@@ -56,13 +55,15 @@ export default function HomePage() {
             
             {/* CTA Buttons with slide up */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center opacity-0 animate-slide-up-delay-3">
-              <Link
-                href="/admin/login"
+              <a
+                href="https://instagram.com/erdemcodijital"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="group px-8 py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 text-lg shadow-xl hover:shadow-2xl hover:scale-105 transform"
               >
                 Hemen Başla
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+              </a>
               <a
                 href="#features"
                 className="px-8 py-4 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white rounded-xl font-semibold transition-all duration-300 text-lg transform hover:scale-105"
@@ -217,13 +218,15 @@ export default function HomePage() {
           <p className="text-xl sm:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
             Gayrimenkul işinizi dijitalleştirin, daha fazla müşteriye ulaşın ve satışlarınızı artırın
           </p>
-          <Link
-            href="/admin/login"
+          <a
+            href="https://instagram.com/erdemcodijital"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-3 px-10 py-5 bg-white hover:bg-gray-100 text-gray-900 rounded-2xl font-bold transition-all duration-300 text-xl shadow-2xl hover:shadow-3xl hover:scale-105 transform"
           >
             Ücretsiz Deneyin
             <ArrowRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-          </Link>
+          </a>
         </div>
       </section>
 
