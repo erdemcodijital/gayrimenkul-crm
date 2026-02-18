@@ -199,13 +199,25 @@ export default function PublicAppointmentPage() {
       return;
     }
 
+    if (!agent || !(agent as any).id) {
+      alert('Agent bilgisi yüklenemedi. Lütfen sayfayı yenileyin.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       const appointmentDateTime = new Date(selectedDate);
       const [hours, minutes] = selectedTime.split(':').map(Number);
       appointmentDateTime.setHours(hours, minutes, 0, 0);
 
-      const { error } = await supabase
+      console.log('Agent ID:', (agent as any).id); // Debug için
+      console.log('Appointment data:', {
+        agent_id: (agent as any).id,
+        customer_name: formData.name,
+        appointment_date: appointmentDateTime.toISOString()
+      });
+
+      const { data, error } = await supabase
         .from('appointments')
         .insert({
           agent_id: (agent as any).id,
@@ -218,7 +230,8 @@ export default function PublicAppointmentPage() {
           customer_email: formData.email,
           notes: formData.notes,
           status: 'pending'
-        } as any);
+        } as any)
+        .select();
 
       if (error) {
         console.error('Supabase error:', error);

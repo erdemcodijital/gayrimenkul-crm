@@ -143,3 +143,45 @@ COMMENT ON TABLE appointments IS 'Randevu kayıtları';
 COMMENT ON TABLE agent_availability IS 'Danışman müsaitlik saatleri';
 COMMENT ON TABLE blocked_dates IS 'Danışman tatil/izin günleri';
 COMMENT ON TABLE appointment_reminders IS 'Randevu hatırlatma logları';
+
+-- Enable Row Level Security
+ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agent_availability ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blocked_dates ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointment_reminders ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for appointments
+-- Anyone can do anything with appointments (we handle auth in application layer)
+CREATE POLICY "Public access to appointments"
+  ON appointments
+  FOR ALL
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- RLS Policies for agent_availability
+-- Public access (we handle auth in application layer)
+CREATE POLICY "Public access to agent availability"
+  ON agent_availability
+  FOR ALL
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- RLS Policies for blocked_dates
+-- Public access (we handle auth in application layer)
+CREATE POLICY "Public access to blocked dates"
+  ON blocked_dates
+  FOR ALL
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- RLS Policies for appointment_reminders
+-- Public access (we handle auth in application layer)
+CREATE POLICY "Public access to appointment reminders"
+  ON appointment_reminders
+  FOR ALL
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
