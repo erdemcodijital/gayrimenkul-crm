@@ -59,26 +59,28 @@ function BuilderContent({ domain, router }: any) {
       const sections = getSaveData();
       const heroData = sections['hero'] || {};
       
+      console.log('Saving data:', heroData);
+      
+      const updateData: any = {};
+      if (heroData.title) updateData.hero_title = heroData.title;
+      if (heroData.subtitle) updateData.hero_subtitle = heroData.subtitle;
+      
       const { error } = await supabase
         .from('agents')
-        .update({
-          hero_title: heroData.title || agent.hero_title,
-          hero_subtitle: heroData.subtitle || agent.hero_subtitle,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', agent.id);
 
       if (error) {
         console.error('Save error:', error);
-        alert('❌ Kaydetme hatası!');
+        alert('❌ Kaydetme hatası: ' + error.message);
       } else {
-        alert('✅ Değişiklikler kaydedildi!');
+        alert('✅ Değişiklikler kaydedildi! Sayfayı yenileyin.');
         // Reload agent data
         loadAgent();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save error:', error);
-      alert('❌ Bir hata oluştu!');
+      alert('❌ Bir hata oluştu: ' + error.message);
     } finally {
       setSaving(false);
     }
