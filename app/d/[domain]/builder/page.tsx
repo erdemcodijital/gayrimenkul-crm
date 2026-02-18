@@ -282,6 +282,14 @@ function BuilderContent({ domain, router }: any) {
       section.id === id ? { ...section, data } : section
     );
 
+    // Update local state immediately for instant UI update
+    setPages(pages.map(p => 
+      p.id === currentPageId 
+        ? { ...p, content: { sections: updatedSections } }
+        : p
+    ));
+
+    // Save to database
     supabase
       .from('pages')
       .update({ content: { sections: updatedSections } })
@@ -294,13 +302,18 @@ function BuilderContent({ domain, router }: any) {
 
     const updatedSections = currentPage.content.sections.filter((section: Section) => section.id !== id);
 
+    // Update local state immediately
+    setPages(pages.map(p => 
+      p.id === currentPageId 
+        ? { ...p, content: { sections: updatedSections } }
+        : p
+    ));
+
+    // Save to database
     supabase
       .from('pages')
       .update({ content: { sections: updatedSections } })
-      .eq('id', currentPageId)
-      .then(() => {
-        loadPages();
-      });
+      .eq('id', currentPageId);
   };
 
   const saveChanges = async () => {
