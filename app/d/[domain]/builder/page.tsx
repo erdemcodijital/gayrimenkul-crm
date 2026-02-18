@@ -135,7 +135,7 @@ function BuilderContent({ domain, router }: any) {
           
           <div className="h-6 w-px bg-gray-700" />
           
-          <div className="text-sm font-semibold text-white">🎨 Sayfa Düzenleyici</div>
+          <div className="text-sm font-semibold text-white">Sayfa Düzenleyici</div>
           
           <div className="flex items-center gap-2 ml-4">
             <button
@@ -146,7 +146,7 @@ function BuilderContent({ domain, router }: any) {
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              ✏️ Düzenle
+              Düzenle
             </button>
             <button
               onClick={() => setMode('preview')}
@@ -156,7 +156,7 @@ function BuilderContent({ domain, router }: any) {
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >
-              👁️ Önizle
+              Önizle
             </button>
           </div>
         </div>
@@ -167,7 +167,7 @@ function BuilderContent({ domain, router }: any) {
             className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition"
           >
             <Eye className="w-4 h-4" />
-            🌐 Canlı Görüntüle
+            Canlı Görüntüle
           </button>
           <button
             onClick={saveChanges}
@@ -175,7 +175,7 @@ function BuilderContent({ domain, router }: any) {
             className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium disabled:opacity-50 transition"
           >
             <Save className="w-4 h-4" />
-            {saving ? '💾 Kaydediliyor...' : '💾 Kaydet'}
+            {saving ? 'Kaydediliyor...' : 'Kaydet'}
           </button>
         </div>
       </div>
@@ -195,16 +195,16 @@ function BuilderContent({ domain, router }: any) {
             <div className="space-y-4">
               {/* Quick Actions */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="text-sm font-semibold text-blue-900 mb-2">💡 İpucu</h4>
+                <h4 className="text-sm font-semibold text-blue-900 mb-2">İpucu</h4>
                 <p className="text-xs text-blue-700">
                   Başlıklara tıklayarak düzenleyebilirsiniz. 
-                  Değişiklikler yapınca "Save" butonuna tıklayın.
+                  Değişiklikler yapınca "Kaydet" butonuna tıklayın.
                 </p>
               </div>
 
               {/* Section Info */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">📄 Bölümler</h4>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">Bölümler</h4>
                 <div className="text-xs text-gray-600 space-y-1">
                   <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
                     <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -223,13 +223,13 @@ function BuilderContent({ domain, router }: any) {
 
               {/* Instructions */}
               <div className="border-t border-gray-200 pt-4">
-                <h4 className="text-sm font-semibold text-gray-900 mb-2">📝 Nasıl Kullanılır?</h4>
+                <h4 className="text-sm font-semibold text-gray-900 mb-2">Nasıl Kullanılır?</h4>
                 <ol className="text-xs text-gray-600 space-y-2 list-decimal list-inside">
                   <li>Düzenlemek istediğiniz metne tıklayın</li>
                   <li>Yeni metni yazın</li>
                   <li>Başka bir yere tıklayın</li>
-                  <li>Save butonuna tıklayın</li>
-                  <li>View Live ile kontrol edin</li>
+                  <li>Kaydet butonuna tıklayın</li>
+                  <li>Canlı Görüntüle ile kontrol edin</li>
                 </ol>
               </div>
             </div>
