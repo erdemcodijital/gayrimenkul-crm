@@ -43,6 +43,8 @@ export default function AgentDashboard() {
   });
   const [savingProperty, setSavingProperty] = useState(false);
   const [editingProperty, setEditingProperty] = useState<any>(null);
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   useEffect(() => {
     // Check if already authenticated
@@ -117,12 +119,47 @@ export default function AgentDashboard() {
     }
   };
 
+  const uploadImages = async (): Promise<string[]> => {
+    if (imageFiles.length === 0) return [];
+    
+    setUploadingImages(true);
+    const uploadedUrls: string[] = [];
+    
+    try {
+      for (const file of imageFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${agent?.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('property-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage
+          .from('property-images')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(data.publicUrl);
+      }
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Fotoğraf yükleme hatası:', error);
+      throw error;
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
   const saveProperty = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agent) return;
     
     setSavingProperty(true);
     try {
+      // Önce fotoğrafları yükle
+      const imageUrls = await uploadImages();
       if (editingProperty) {
         // Update existing
         // @ts-ignore
@@ -137,6 +174,7 @@ export default function AgentDashboard() {
             square_meters: propertyForm.square_meters ? parseInt(propertyForm.square_meters) : null,
             location: propertyForm.location,
             city: propertyForm.city,
+            images: imageUrls.length > 0 ? imageUrls : editingProperty.images,
           })
           .eq('id', editingProperty.id);
 
@@ -157,6 +195,7 @@ export default function AgentDashboard() {
             square_meters: propertyForm.square_meters ? parseInt(propertyForm.square_meters) : null,
             location: propertyForm.location,
             city: propertyForm.city,
+            images: imageUrls,
             status: 'active',
           });
 
