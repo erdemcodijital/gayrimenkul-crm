@@ -4,64 +4,48 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { Save, Eye, X, Settings as SettingsIcon } from 'lucide-react';
-import { EditorProvider, useEditor } from '@/contexts/EditorContext';
+import { Save, Eye, X } from 'lucide-react';
+import { EditorProvider } from '@/contexts/EditorContext';
 import AgentLandingPage from '../AgentLandingPage';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
-type Section = Database['public']['Tables']['page_sections']['Row'];
 
-// Available block types
-const BLOCK_TYPES = [
-  { type: 'hero', label: 'Hero', icon: Layout, color: 'bg-blue-500' },
-  { type: 'text', label: 'Text', icon: Type, color: 'bg-green-500' },
-  { type: 'features', label: 'Features', icon: Check, color: 'bg-purple-500' },
-  { type: 'properties', label: 'Properties', icon: Home, color: 'bg-orange-500' },
-  { type: 'contact', label: 'Contact', icon: Phone, color: 'bg-red-500' },
-  { type: 'image', label: 'Image', icon: ImageIcon, color: 'bg-pink-500' },
-];
-
-export default function VisualBuilder() {
+export default function VisualBuilderPage() {
   const params = useParams();
   const router = useRouter();
   const domain = params.domain as string;
 
+  return (
+    <EditorProvider>
+      <BuilderContent domain={domain} router={router} />
+    </EditorProvider>
+  );
+}
+
+function BuilderContent({ domain, router }: any) {
   const [agent, setAgent] = useState<Agent | null>(null);
-  const [sections, setSections] = useState<Section[]>([]);
-  const [selectedSection, setSelectedSection] = useState<Section | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
 
   useEffect(() => {
-    loadData();
+    loadAgent();
   }, [domain]);
 
-  const loadData = async () => {
-    // Load agent
-    const { data: agentData } = await supabase
+  const loadAgent = async () => {
+    const { data } = await supabase
       .from('agents')
       .select('*')
       .eq('domain', domain)
       .single();
 
-    if (agentData) {
-      setAgent(agentData);
-
-      // Load sections
-      const { data: sectionsData } = await supabase
-        .from('page_sections')
-        .select('*')
-        .eq('agent_id', agentData.id)
-        .order('section_order');
-
-      setSections(sectionsData || []);
+    if (data) {
+      setAgent(data);
     }
-
     setLoading(false);
   };
 
-  const handleDragEnd = (result: any) => {
+  const handleSave = async () => {
     if (!result.destination) return;
 
     const items = Array.from(sections);
