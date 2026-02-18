@@ -9,11 +9,23 @@ import { useEditor } from '@/contexts/EditorContext';
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Property = Database['public']['Tables']['properties']['Row'];
 
-interface Props {
-  agent: Agent;
+interface PageContent {
+  id: string;
+  agent_id: string;
+  title: string;
+  slug: string;
+  is_home: boolean;
+  visible: boolean;
+  order_index: number;
+  content: any;
 }
 
-export default function ClientLandingPage({ agent }: Props) {
+interface Props {
+  agent: Agent;
+  currentPage?: PageContent;
+}
+
+export default function ClientLandingPage({ agent, currentPage }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
@@ -34,6 +46,63 @@ export default function ClientLandingPage({ agent }: Props) {
     { value: '150+', label: 'Başarılı Satış' },
     { value: '10+', label: 'Yıl Tecrübe' }
   ]);
+  
+  // Load content from currentPage when it changes
+  useEffect(() => {
+    if (currentPage && currentPage.content && Object.keys(currentPage.content).length > 0) {
+      console.log('📄 Loading page content into state:', currentPage.content);
+      
+      const content = currentPage.content;
+      
+      // Hero section
+      if (content.hero) {
+        if (content.hero.title) setHeroTitle(content.hero.title);
+        if (content.hero.subtitle) setHeroSubtitle(content.hero.subtitle);
+        if (content.hero.buttonText) setHeroButtonText(content.hero.buttonText);
+        if (content.hero.stats) setStatsList(content.hero.stats);
+      }
+      
+      // Features section
+      if (content.features) {
+        if (content.features.title) setFeaturesTitle(content.features.title);
+        if (content.features.subtitle) setFeaturesSubtitle(content.features.subtitle);
+        if (content.features.list) setFeaturesList(content.features.list);
+      }
+      
+      // Properties section
+      if (content.properties) {
+        if (content.properties.title) setPropertiesTitle(content.properties.title);
+      }
+      
+      // CTA section
+      if (content.cta) {
+        if (content.cta.title) setCtaTitle(content.cta.title);
+        if (content.cta.description) setCtaDescription(content.cta.description);
+      }
+    } else {
+      // Reset to defaults from agent or hardcoded
+      console.log('📄 No page content, using defaults');
+      setHeroTitle(agent.hero_title || 'Hayalinizdeki Evi');
+      setHeroSubtitle(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
+      setHeroButtonText('Ücretsiz Görüşme');
+      setFeaturesTitle('Neden Benimle Çalışmalısınız?');
+      setFeaturesSubtitle('Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
+      setFeaturesList([
+        { title: 'Güvenilir Hizmet', description: 'Şeffaf ve dürüst iletişim' },
+        { title: 'Hızlı Çözümler', description: 'En uygun seçenekleri hızlıca buluyoruz' },
+        { title: 'Rekabetçi Fiyat', description: 'Piyasa koşullarına uygun fiyatlar' },
+        { title: 'Uzman Destek', description: 'Deneyimli danışmanlık ekibi' }
+      ]);
+      setPropertiesTitle('Portföyümden Seçmeler');
+      setCtaTitle('Hayalinizdeki Evi Bulun');
+      setCtaDescription('Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
+      setStatsList([
+        { value: '200+', label: 'Mutlu Müşteri' },
+        { value: '150+', label: 'Başarılı Satış' },
+        { value: '10+', label: 'Yıl Tecrübe' }
+      ]);
+    }
+  }, [currentPage, agent]);
   
   // Editor context
   let editorContext;

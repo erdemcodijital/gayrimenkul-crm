@@ -62,9 +62,25 @@ function BuilderContent({ domain, router }: any) {
         const url = new URL(window.location.href);
         url.searchParams.set('page', currentPage.slug);
         window.history.pushState({}, '', url.toString());
+        
+        // Load page content into editor
+        loadPageContent(currentPage);
       }
     }
   }, [currentPageId, pages]);
+
+  const loadPageContent = (page: Page) => {
+    console.log('📄 Loading page content:', page.title, page.content);
+    
+    // If page has content, we'll use it
+    // Otherwise editor will use default values from ClientLandingPage
+    if (page.content && Object.keys(page.content).length > 0) {
+      console.log('✅ Page has custom content');
+      // Content will be loaded by ClientLandingPage from page prop
+    } else {
+      console.log('ℹ️ Page has no custom content, using defaults');
+    }
+  };
 
   // Sync mode with EditorContext
   useEffect(() => {
@@ -235,8 +251,27 @@ function BuilderContent({ domain, router }: any) {
     try {
       const sections = getSaveData();
       
-      console.log('Saving all sections:', sections);
+      console.log('💾 Saving all sections:', sections);
+
+      // If we have a current page, save to pages.content
+      if (currentPageId && pages.length > 0) {
+        const currentPage = pages.find(p => p.id === currentPageId);
+        if (currentPage) {
+          console.log('💾 Saving to page:', currentPage.title);
+          
+          await supabase
+            .from('pages')
+            .update({ content: sections })
+            .eq('id', currentPageId);
+          
+          alert('✅ Sayfa içeriği kaydedildi!');
+          setSaving(false);
+          return;
+        }
+      }
       
+      // Fallback: save to agents table (for backward compatibility)
+      console.log('💾 Saving to agents table (fallback)');
       const updateData: any = {};
       
       // Hero section
@@ -395,7 +430,12 @@ function BuilderContent({ domain, router }: any) {
 
         {/* Canvas - Landing Page Preview */}
         <div className="flex-1 overflow-y-auto bg-gray-100">
-          {agent && <ClientLandingPage agent={agent} />}
+          {agent && (
+            <ClientLandingPage 
+              agent={agent} 
+              currentPage={currentPageId && pages.length > 0 ? pages.find(p => p.id === currentPageId) : undefined}
+            />
+          )}
         </div>
       </div>
     </div>
