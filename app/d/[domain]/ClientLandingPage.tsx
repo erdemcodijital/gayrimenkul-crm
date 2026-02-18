@@ -84,18 +84,24 @@ export default function ClientLandingPage({ agent }: Props) {
                 {agent.city} Gayrimenkul Danışmanı
               </div>
               
-              <h1 
-                className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 tracking-tight"
-                contentEditable={editMode}
-                suppressContentEditableWarning
-                style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
-                onBlur={(e) => {
-                  const newTitle = e.currentTarget.textContent || '';
-                  setHeroTitle(newTitle);
-                  if (updateSection) updateSection('hero', { title: newTitle });
-                }}
-              >
-                {heroTitle}<br />
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 tracking-tight">
+                <span
+                  contentEditable={editMode}
+                  suppressContentEditableWarning
+                  style={{ 
+                    outline: editMode ? '2px dashed #3b82f6' : 'none',
+                    display: 'inline-block',
+                    minWidth: '200px'
+                  }}
+                  onBlur={(e) => {
+                    const newTitle = e.currentTarget.textContent || '';
+                    setHeroTitle(newTitle);
+                    if (updateSection) updateSection('hero', { title: newTitle });
+                  }}
+                >
+                  {heroTitle}
+                </span>
+                <br />
                 <span className="text-gray-500">Birlikte Bulalım</span>
               </h1>
               
