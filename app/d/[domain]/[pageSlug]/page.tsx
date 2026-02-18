@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import ClientLandingPage from '../ClientLandingPage';
+import ClientPageWrapper from './ClientPageWrapper';
 
 interface PageProps {
   params: {
@@ -36,5 +36,5 @@ export default async function CustomPage({ params }: PageProps) {
     notFound();
   }
 
-  return <ClientLandingPage agent={agent} currentPage={page} />;
+  return <ClientPageWrapper agent={agent} currentPage={page} />;
 }
