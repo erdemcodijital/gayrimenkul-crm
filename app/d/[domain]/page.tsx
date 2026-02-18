@@ -17,10 +17,7 @@ async function getAgent(domain: string): Promise<Agent | null> {
     .eq('domain', domain)
     .single();
 
-  if (error || !data) {
-    return null;
-  }
-
+  if (error || !data) return null;
   return data;
 }
 
@@ -287,34 +284,13 @@ export default async function AgentPage({ params }: PageProps) {
             </p>
           </div>
 
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              const formElement = e.target as HTMLFormElement;
-              const formData = new FormData(formElement);
-              
-              try {
-                const response = await fetch('/api/submit-lead', {
-                  method: 'POST',
-                  body: formData,
-                });
-                
-                if (response.ok) {
-                  formElement.reset();
-                  alert('✅ Talebiniz başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
-                } else {
-                  alert('❌ Bir hata oluştu. Lütfen tekrar deneyin.');
-                }
-              } catch (error) {
-                alert('❌ Bir hata oluştu. Lütfen tekrar deneyin.');
-              }
-            }} 
+          <form 
             action="/api/submit-lead" 
             method="POST"
             className="bg-white rounded-2xl shadow-xl p-8 space-y-6"
           >
-            <input type="hidden" name="agent_domain" value={agent.domain} />
-            <input type="hidden" name="agent_id" value={agent.id} />
+            <input type="hidden" name="agent_domain" value={agent.domain || ''} />
+            <input type="hidden" name="agent_id" value={agent.id || ''} />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -326,7 +302,6 @@ export default async function AgentPage({ params }: PageProps) {
                   name="name"
                   required
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
-                  style={{ focusRingColor: themeColor }}
                   placeholder="Ahmet Yılmaz"
                 />
               </div>

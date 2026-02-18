@@ -25,11 +25,13 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Lead kayıt hatası:', error);
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+      const domain = formData.get('agent_domain') as string;
+      return NextResponse.redirect(new URL(`/d/${domain}?error=true`, request.url));
     }
 
-    // Başarılı
-    return NextResponse.json({ success: true, message: 'Lead başarıyla kaydedildi' });
+    // Başarılı - redirect with success message
+    const domain = formData.get('agent_domain') as string;
+    return NextResponse.redirect(new URL(`/d/${domain}?success=true`, request.url));
     
   } catch (error: any) {
     console.error('API Hatası:', error);
