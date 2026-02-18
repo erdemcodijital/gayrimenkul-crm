@@ -5,11 +5,15 @@ export async function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || '';
   const url = request.nextUrl;
 
-  // Ana domain (Vercel domain)
-  const mainDomain = 'gayrimenkul-crm.vercel.app';
+  // Ana domain'ler (Admin panel için)
+  const mainDomains = [
+    'gayrimenkul-crm.vercel.app',
+    'erdem.network',
+    'www.erdem.network'
+  ];
   
-  // Eğer ana domain ise, normal routing
-  if (hostname.includes(mainDomain) || hostname.includes('localhost')) {
+  // Eğer ana domain ise, normal routing (admin panel erişilebilir)
+  if (mainDomains.some(domain => hostname.includes(domain)) || hostname.includes('localhost')) {
     return NextResponse.next();
   }
 
