@@ -2,16 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Users, FileText, TrendingUp, Building2, ArrowUpRight, ArrowDownRight, Activity, Clock } from 'lucide-react';
-import { Database } from '@/lib/database.types';
-
-type Lead = Database['public']['Tables']['leads']['Row'];
-type Agent = Database['public']['Tables']['agents']['Row'];
+import Link from 'next/link';
+import { 
+  Users, 
+  FileText, 
+  TrendingUp, 
+  Building2, 
+  ArrowUpRight, 
+  Activity, 
+  Clock,
+  Home,
+  Globe,
+  MapPin,
+  UserPlus,
+  Eye,
+  PieChart
+} from 'lucide-react';
 
 interface Stats {
   totalAgents: number;
   activeAgents: number;
   totalLeads: number;
+  totalProperties: number;
+  totalDomains: number;
   newLeadsToday: number;
   weeklyGrowth: number;
 }
@@ -21,16 +34,32 @@ interface DailyLeads {
   count: number;
 }
 
+interface LeadStatus {
+  status: string;
+  count: number;
+  color: string;
+}
+
+interface CityStats {
+  city: string;
+  count: number;
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats>({
     totalAgents: 0,
     activeAgents: 0,
     totalLeads: 0,
+    totalProperties: 0,
+    totalDomains: 0,
     newLeadsToday: 0,
     weeklyGrowth: 0,
   });
-  const [recentLeads, setRecentLeads] = useState<Lead[]>([]);
+  const [recentLeads, setRecentLeads] = useState<any[]>([]);
+  const [recentAgents, setRecentAgents] = useState<any[]>([]);
   const [weeklyData, setWeeklyData] = useState<DailyLeads[]>([]);
+  const [leadStatusData, setLeadStatusData] = useState<LeadStatus[]>([]);
+  const [cityData, setCityData] = useState<CityStats[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +84,17 @@ export default function DashboardPage() {
         .from('leads')
         .select('*', { count: 'exact', head: true });
 
+      // Toplam ilan sayısı
+      const { count: totalProperties } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true });
+
+      // Toplam domain sayısı
+      const { count: totalDomains } = await supabase
+        .from('agents')
+        .select('domain', { count: 'exact', head: true })
+        .not('domain', 'is', null);
+
       // Bugünkü leadler
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -75,18 +115,27 @@ export default function DashboardPage() {
         ? Math.round(((newLeadsToday || 0) / lastWeekLeads) * 100) 
         : 0;
 
-      // Son 10 lead
+      // Son 5 lead
       const { data: leads } = await supabase
         .from('leads')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(5);
 
       setRecentLeads(leads || []);
 
-      // Son 7 gün data
+      // Son 5 agent
+      const { data: agents } = await supabase
+        .from('agents')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      setRecentAgents(agents || []);
+
+      // Son 30 gün lead trend
       const dailyData: DailyLeads[] = [];
-      for (let i = 6; i >= 0; i--) {
+      for (let i = 29; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         date.setHours(0, 0, 0, 0);
@@ -100,17 +149,65 @@ export default function DashboardPage() {
           .lt('created_at', nextDay.toISOString());
 
         dailyData.push({
-          date: date.toLocaleDateString('tr-TR', { weekday: 'short' }),
+          date: date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' }),
           count: count || 0
         });
       }
 
       setWeeklyData(dailyData);
 
+      // Lead status dağılımı
+      const statusMapping: Record<string, {color: string, label: string}> = {
+        'new': { color: '#3B82F6', label: 'Yeni' },
+        'contacted': { color: '#8B5CF6', label: 'İletişimde' },
+        'meeting': { color: '#F59E0B', label: 'Görüşme' },
+        'successful': { color: '#10B981', label: 'Başarılı' },
+        'cancelled': { color: '#EF4444', label: 'İptal' }
+      };
+
+      const statusData: LeadStatus[] = [];
+      for (const [status, info] of Object.entries(statusMapping)) {
+        const { count } = await supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', status);
+
+        if (count && count > 0) {
+          statusData.push({
+            status: info.label,
+            count: count,
+            color: info.color
+          });
+        }
+      }
+
+      setLeadStatusData(statusData);
+
+      // Şehir bazlı dağılım (Top 5)
+      const { data: cityLeads } = await supabase
+        .from('leads')
+        .select('district');
+
+      const cityCounts: Record<string, number> = {};
+      cityLeads?.forEach((lead: any) => {
+        if (lead.district) {
+          cityCounts[lead.district] = (cityCounts[lead.district] || 0) + 1;
+        }
+      });
+
+      const topCities: CityStats[] = Object.entries(cityCounts)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([city, count]) => ({ city, count }));
+
+      setCityData(topCities);
+
       setStats({
         totalAgents: totalAgents || 0,
         activeAgents: activeAgents || 0,
         totalLeads: totalLeads || 0,
+        totalProperties: totalProperties || 0,
+        totalDomains: totalDomains || 0,
         newLeadsToday: newLeadsToday || 0,
         weeklyGrowth,
       });
@@ -125,46 +222,60 @@ export default function DashboardPage() {
     {
       title: 'Toplam Danışman',
       value: stats.totalAgents,
+      subtitle: `${stats.activeAgents} aktif`,
       icon: Users,
-      color: 'bg-blue-500',
       bgColor: 'bg-blue-50',
-      textColor: 'text-blue-600',
-    },
-    {
-      title: 'Aktif Danışman',
-      value: stats.activeAgents,
-      icon: Building2,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-600',
+      iconColor: 'text-blue-600',
+      link: '/admin/agents'
     },
     {
       title: 'Toplam Lead',
       value: stats.totalLeads,
+      subtitle: `${stats.newLeadsToday} bugün`,
       icon: FileText,
-      color: 'bg-purple-500',
       bgColor: 'bg-purple-50',
-      textColor: 'text-purple-600',
+      iconColor: 'text-purple-600',
+      link: '/admin/leads'
     },
     {
-      title: 'Bugünkü Leadler',
-      value: stats.newLeadsToday,
-      icon: TrendingUp,
-      color: 'bg-orange-500',
-      bgColor: 'bg-orange-50',
-      textColor: 'text-orange-600',
+      title: 'Toplam İlan',
+      value: stats.totalProperties,
+      subtitle: 'Aktif ilanlar',
+      icon: Home,
+      bgColor: 'bg-green-50',
+      iconColor: 'text-green-600',
+      link: '#'
     },
+    {
+      title: 'Aktif Domain',
+      value: stats.totalDomains,
+      subtitle: 'Bağlı domainler',
+      icon: Globe,
+      bgColor: 'bg-orange-50',
+      iconColor: 'text-orange-600',
+      link: '/admin/domains'
+    },
+  ];
+
+  const quickActions = [
+    { icon: UserPlus, label: 'Yeni Danışman', link: '/admin/agents', color: 'bg-blue-600 hover:bg-blue-700' },
+    { icon: Eye, label: 'Leadleri Görüntüle', link: '/admin/leads', color: 'bg-purple-600 hover:bg-purple-700' },
+    { icon: Globe, label: 'Domain Yönetimi', link: '/admin/domains', color: 'bg-green-600 hover:bg-green-700' },
   ];
 
   if (loading) {
     return (
-      <div className="p-8">
-        <div className="animate-pulse space-y-4">
+      <div className="space-y-6">
+        <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
             ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 h-96 bg-gray-200 rounded-lg"></div>
+            <div className="h-96 bg-gray-200 rounded-lg"></div>
           </div>
         </div>
       </div>
@@ -172,60 +283,84 @@ export default function DashboardPage() {
   }
 
   const maxLeads = Math.max(...weeklyData.map(d => d.count), 1);
+  const totalLeadStatus = leadStatusData.reduce((sum, item) => sum + item.count, 0);
 
   return (
-    <div className="p-6 max-w-[1400px] mx-auto">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-600 mt-1">Sistem performansı ve son aktiviteler</p>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-2">Hoş geldiniz! İşte sistemin genel durumu.</p>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat) => {
           const Icon = stat.icon;
-          const isGrowth = stat.title === 'Bugünkü Leadler';
           return (
-            <div key={stat.title} className="bg-white border border-gray-200 rounded-lg p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-gray-600">{stat.title}</span>
-                <div className="w-8 h-8 bg-gray-100 rounded flex items-center justify-center">
-                  <Icon className="w-4 h-4 text-gray-600" />
+            <Link key={stat.title} href={stat.link}>
+              <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-gray-300 transition-all duration-200 cursor-pointer group">
+                <div className="flex items-center justify-between mb-4">
+                  <div className={`w-12 h-12 ${stat.bgColor} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                    <Icon className={`w-6 h-6 ${stat.iconColor}`} />
+                  </div>
+                  {stat.title === 'Toplam Lead' && stats.weeklyGrowth > 0 && (
+                    <div className="flex items-center gap-1 text-sm text-green-600 font-medium">
+                      <ArrowUpRight className="w-4 h-4" />
+                      {stats.weeklyGrowth}%
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
+                  <div className="text-sm text-gray-500">{stat.title}</div>
+                  <div className="text-xs text-gray-400">{stat.subtitle}</div>
                 </div>
               </div>
-              <div className="flex items-end justify-between">
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                {isGrowth && stats.weeklyGrowth > 0 && (
-                  <div className="flex items-center text-xs text-green-600">
-                    <ArrowUpRight className="w-3 h-3 mr-1" />
-                    <span>{stats.weeklyGrowth}%</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            </Link>
           );
         })}
       </div>
 
+      {/* Quick Actions */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Hızlı İşlemler</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Link key={action.label} href={action.link}>
+                <button className={`w-full ${action.color} text-white px-6 py-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105 transform shadow-md`}>
+                  <Icon className="w-5 h-5" />
+                  {action.label}
+                </button>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Weekly Trend Chart */}
-        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-lg p-6">
+        {/* Lead Trend Chart */}
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Haftalık Trend</h2>
-            <Activity className="w-4 h-4 text-gray-400" />
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Lead Trend</h2>
+              <p className="text-sm text-gray-500 mt-1">Son 30 günlük lead akışı</p>
+            </div>
+            <TrendingUp className="w-5 h-5 text-gray-400" />
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {weeklyData.map((day, i) => (
-              <div key={i} className="flex items-center">
-                <div className="w-12 text-xs text-gray-600">{day.date}</div>
-                <div className="flex-1 ml-4">
-                  <div className="h-8 bg-gray-100 rounded relative overflow-hidden">
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-16 text-xs text-gray-600 font-medium">{day.date}</div>
+                <div className="flex-1">
+                  <div className="h-10 bg-gray-50 rounded-lg relative overflow-hidden hover:bg-gray-100 transition">
                     <div 
-                      className="h-full bg-gray-900 transition-all duration-500"
-                      style={{ width: `${(day.count / maxLeads) * 100}%` }}
+                      className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-700"
+                      style={{ width: `${Math.max((day.count / maxLeads) * 100, 3)}%` }}
                     ></div>
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-600">
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-700">
                       {day.count}
                     </span>
                   </div>
@@ -235,38 +370,167 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Recent Leads */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
+        {/* Lead Status Distribution */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Son Leadler</h2>
-            <Clock className="w-4 h-4 text-gray-400" />
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Lead Durumları</h2>
+              <p className="text-sm text-gray-500 mt-1">Durum dağılımı</p>
+            </div>
+            <PieChart className="w-5 h-5 text-gray-400" />
           </div>
-          <div className="space-y-3">
-            {recentLeads.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-8">Henüz lead yok</p>
-            ) : (
-              recentLeads.slice(0, 8).map((lead) => (
-                <div key={lead.id} className="pb-3 border-b border-gray-100 last:border-0">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-gray-900 truncate">{lead.name}</div>
-                      <div className="text-xs text-gray-500 mt-0.5">{lead.phone}</div>
+          
+          {leadStatusData.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-8">Henüz veri yok</p>
+          ) : (
+            <div className="space-y-4">
+              {leadStatusData.map((status, i) => {
+                const percentage = totalLeadStatus > 0 ? Math.round((status.count / totalLeadStatus) * 100) : 0;
+                return (
+                  <div key={i}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }}></div>
+                        <span className="text-sm font-medium text-gray-700">{status.status}</span>
+                      </div>
+                      <span className="text-sm font-bold text-gray-900">{status.count}</span>
                     </div>
-                    <div className="ml-2 flex-shrink-0">
-                      <span className="inline-block w-2 h-2 bg-green-500 rounded-full"></span>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${percentage}%`,
+                          backgroundColor: status.color
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* City Distribution */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Şehir Dağılımı</h2>
+              <p className="text-sm text-gray-500 mt-1">Top 5 şehir</p>
+            </div>
+            <MapPin className="w-5 h-5 text-gray-400" />
+          </div>
+          
+          {cityData.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-8">Henüz veri yok</p>
+          ) : (
+            <div className="space-y-4">
+              {cityData.map((city, i) => {
+                const maxCount = Math.max(...cityData.map(c => c.count));
+                const percentage = (city.count / maxCount) * 100;
+                return (
+                  <div key={i}>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700">{city.city}</span>
+                      <span className="text-sm font-bold text-gray-900">{city.count}</span>
+                    </div>
+                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-orange-400 to-orange-600 rounded-full transition-all duration-500"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Recent Leads */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Son Leadler</h2>
+              <p className="text-sm text-gray-500 mt-1">En son 5 lead</p>
+            </div>
+            <Clock className="w-5 h-5 text-gray-400" />
+          </div>
+          
+          {recentLeads.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-8">Henüz lead yok</p>
+          ) : (
+            <div className="space-y-4">
+              {recentLeads.map((lead: any) => (
+                <div key={lead.id} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 truncate">{lead.name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{lead.phone}</div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      {new Date(lead.created_at).toLocaleDateString('tr-TR')}
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
+          
           {recentLeads.length > 0 && (
-            <a 
+            <Link 
               href="/admin/leads"
-              className="mt-4 block text-center text-sm text-gray-600 hover:text-gray-900 font-medium"
+              className="mt-6 block text-center text-sm text-purple-600 hover:text-purple-700 font-semibold"
             >
               Tümünü Görüntüle →
-            </a>
+            </Link>
+          )}
+        </div>
+
+        {/* Recent Agents */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Son Danışmanlar</h2>
+              <p className="text-sm text-gray-500 mt-1">Yeni katılanlar</p>
+            </div>
+            <Users className="w-5 h-5 text-gray-400" />
+          </div>
+          
+          {recentAgents.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-8">Henüz danışman yok</p>
+          ) : (
+            <div className="space-y-4">
+              {recentAgents.map((agent: any) => (
+                <div key={agent.id} className="flex items-start gap-3 pb-4 border-b border-gray-100 last:border-0">
+                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 truncate">{agent.name}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">{agent.email}</div>
+                    <div className="text-xs text-gray-400 mt-1">
+                      {new Date(agent.created_at).toLocaleDateString('tr-TR')}
+                    </div>
+                  </div>
+                  {agent.is_active && (
+                    <div className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0 mt-2"></div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {recentAgents.length > 0 && (
+            <Link 
+              href="/admin/agents"
+              className="mt-6 block text-center text-sm text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              Tümünü Görüntüle →
+            </Link>
           )}
         </div>
       </div>
