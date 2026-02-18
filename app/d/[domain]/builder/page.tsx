@@ -95,7 +95,7 @@ function BuilderContent({ domain, router }: any) {
           data: {
             title: agent.hero_title || 'Hayalinizdeki Evi Bulun',
             subtitle: agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı',
-            buttonText: agent.hero_button_text || 'İletişime Geçin',
+            buttonText: (agent as any).hero_button_text || 'İletişime Geçin',
             buttonLink: `https://wa.me/${agent.whatsapp_number || ''}`,
             stats: (agent as any).stats_list || []
           }
@@ -103,14 +103,18 @@ function BuilderContent({ domain, router }: any) {
         
         const sections = [heroSection];
         
-        // Save to database
-        await supabase
+        // Update local state immediately
+        setPages(pages.map(p => 
+          p.id === page.id 
+            ? { ...p, content: { sections } }
+            : p
+        ));
+        
+        // Save to database in background
+        supabase
           .from('pages')
           .update({ content: { sections } })
           .eq('id', page.id);
-        
-        // Reload pages
-        loadPages();
       }
     }
   };
