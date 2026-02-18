@@ -266,17 +266,19 @@ function BuilderContent({ domain, router }: any) {
 
   return (
     <div className="h-screen flex bg-gray-900">
-      {/* Left Sidebar */}
-      <BuilderSidebar
-        pages={pages}
-        currentPageId={currentPageId}
-        onPageSelect={setCurrentPageId}
-        onNewPage={handleNewPage}
-        onDeletePage={handleDeletePage}
-        onToggleVisibility={handleToggleVisibility}
-        themeColor={agent.theme_color || '#111827'}
-        onThemeColorChange={handleThemeColorChange}
-      />
+      {/* Left Sidebar - Only show if pages system is working */}
+      {pages.length > 0 && (
+        <BuilderSidebar
+          pages={pages}
+          currentPageId={currentPageId}
+          onPageSelect={setCurrentPageId}
+          onNewPage={handleNewPage}
+          onDeletePage={handleDeletePage}
+          onToggleVisibility={handleToggleVisibility}
+          themeColor={agent.theme_color || '#111827'}
+          onThemeColorChange={handleThemeColorChange}
+        />
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
