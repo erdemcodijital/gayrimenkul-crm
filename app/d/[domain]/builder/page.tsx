@@ -60,10 +60,15 @@ function BuilderContent({ domain, router }: any) {
   }, [mode, setEditMode]);
 
   const loadAgent = async () => {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('agents')
+      .select('*')
       .eq('domain', domain)
       .single();
+
+    if (error) {
+      console.error('Agent load error:', error);
+    }
 
     if (data) {
       setAgent(data);
