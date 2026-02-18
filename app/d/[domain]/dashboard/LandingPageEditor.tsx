@@ -42,6 +42,25 @@ export default function LandingPageEditor({ agent, onSave }: Props) {
   });
   const [showPreview, setShowPreview] = useState(true);
 
+  // Listen for messages from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'UPDATE_HERO') {
+        const { field, value } = event.data;
+        if (field === 'title') {
+          setHeroConfig({ ...heroConfig, title: value });
+        } else if (field === 'subtitle') {
+          setHeroConfig({ ...heroConfig, subtitle: value });
+        } else if (field === 'description') {
+          setHeroConfig({ ...heroConfig, description: value });
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [heroConfig]);
+
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
@@ -224,13 +243,16 @@ export default function LandingPageEditor({ agent, onSave }: Props) {
         </div>
 
         {/* Preview iFrame */}
-        <div className="flex-1 overflow-hidden bg-white">
+        <div className="flex-1 overflow-hidden bg-white relative">
           <iframe
             id="preview-iframe"
-            src={`/d/${agent.domain}`}
+            src={`/d/${agent.domain}?edit=true`}
             className="w-full h-full border-0"
             title="Landing Page Preview"
           />
+          <div className="absolute top-4 right-4 bg-yellow-100 border-2 border-yellow-400 rounded-lg px-4 py-2 text-sm font-medium text-yellow-800 shadow-lg">
+            💡 İpucu: Metinlere tıklayarak düzenleyebilirsiniz
+          </div>
         </div>
       </div>
     </div>

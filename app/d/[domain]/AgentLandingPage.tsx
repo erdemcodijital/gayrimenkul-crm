@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Database } from '@/lib/database.types';
 import { Phone, MessageCircle, Building2, MapPin, CheckCircle, Home, Maximize, Bed, ChevronLeft, ChevronRight, Search, SlidersHorizontal } from 'lucide-react';
 import { formatPhone } from '@/lib/utils';
@@ -17,10 +18,16 @@ interface Props {
 }
 
 export default function AgentLandingPage({ agent }: Props) {
+  const searchParams = useSearchParams();
+  const isEditMode = searchParams.get('edit') === 'true';
+  
   const [showForm, setShowForm] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [editableTitle, setEditableTitle] = useState(agent.hero_title || agent.name);
+  const [editableSubtitle, setEditableSubtitle] = useState(agent.hero_subtitle || 'Gayrimenkul Danışmanı');
+  const [editableDescription, setEditableDescription] = useState(agent.about_text || 'Size en uygun gayrimenkul seçeneklerini bulmak için buradayım.');
   const [filters, setFilters] = useState({
     search: '',
     propertyType: 'all',
@@ -169,11 +176,20 @@ export default function AgentLandingPage({ agent }: Props) {
               </motion.div>
               
               <motion.h1 
-                className="text-4xl md:text-6xl font-bold mb-4"
+                className={`text-4xl md:text-6xl font-bold mb-4 ${isEditMode ? 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-yellow-400 rounded px-2 py-1' : ''}`}
                 variants={fadeInUp}
                 transition={{ duration: 0.6 }}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => {
+                  if (isEditMode) {
+                    const newTitle = e.currentTarget.textContent || '';
+                    setEditableTitle(newTitle);
+                    window.parent.postMessage({ type: 'UPDATE_HERO', field: 'title', value: newTitle }, '*');
+                  }
+                }}
               >
-                {agent.hero_title || agent.name}
+                {editableTitle}
               </motion.h1>
               
               <motion.div 
@@ -186,21 +202,39 @@ export default function AgentLandingPage({ agent }: Props) {
               </motion.div>
               
               <motion.p 
-                className="text-xl md:text-2xl mb-8 text-primary-50"
+                className={`text-xl md:text-2xl mb-8 text-primary-50 ${isEditMode ? 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-yellow-400 rounded px-2 py-1' : ''}`}
                 variants={fadeInUp}
                 transition={{ duration: 0.6, delay: 0.2 }}
+                contentEditable={isEditMode}
+                suppressContentEditableWarning
+                onBlur={(e) => {
+                  if (isEditMode) {
+                    const newSubtitle = e.currentTarget.textContent || '';
+                    setEditableSubtitle(newSubtitle);
+                    window.parent.postMessage({ type: 'UPDATE_HERO', field: 'subtitle', value: newSubtitle }, '*');
+                  }
+                }}
               >
-                {agent.hero_subtitle || 'Gayrimenkul Danışmanı'}
+                {editableSubtitle}
               </motion.p>
             </motion.div>
             
             <motion.p 
-              className="text-lg md:text-xl mb-10 text-primary-50 max-w-2xl mx-auto"
+              className={`text-lg md:text-xl mb-10 text-primary-50 max-w-2xl mx-auto ${isEditMode ? 'cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-yellow-400 rounded px-2 py-1' : ''}`}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
+              contentEditable={isEditMode}
+              suppressContentEditableWarning
+              onBlur={(e) => {
+                if (isEditMode) {
+                  const newDescription = e.currentTarget.textContent || '';
+                  setEditableDescription(newDescription);
+                  window.parent.postMessage({ type: 'UPDATE_HERO', field: 'description', value: newDescription }, '*');
+                }
+              }}
             >
-              {agent.about_text || 'Size en uygun gayrimenkul seçeneklerini bulmak için buradayım. Hayalinizdeki evi birlikte bulalım!'}
+              {editableDescription}
             </motion.p>
 
             <motion.div 
