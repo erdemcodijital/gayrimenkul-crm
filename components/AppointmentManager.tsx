@@ -75,6 +75,9 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
       const startOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
       const endOfMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0, 23, 59, 59);
 
+      console.log('Loading appointments for agent:', agentId);
+      console.log('Date range:', startOfMonth.toISOString(), 'to', endOfMonth.toISOString());
+
       const { data, error } = await supabase
         .from('appointments')
         .select('*')
@@ -84,6 +87,10 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
         .order('appointment_date', { ascending: true });
 
       if (error) throw error;
+      
+      console.log('Appointments loaded:', data?.length || 0, 'appointments');
+      console.log('Appointments:', data);
+      
       setAppointments(data || []);
     } catch (error) {
       console.error('Randevular yüklenemedi:', error);
@@ -277,7 +284,8 @@ export default function AppointmentManager({ agentId }: AppointmentManagerProps)
   const upcomingAppointments = appointments.filter(apt => {
     const aptDate = new Date(apt.appointment_date);
     const today = new Date();
-    return aptDate > today && apt.status !== 'cancelled';
+    today.setHours(0, 0, 0, 0); // Bugünün başlangıcı
+    return aptDate >= today && apt.status !== 'cancelled';
   }).slice(0, 5);
 
   return (
