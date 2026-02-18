@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings } from 'lucide-react';
+import { LogOut, TrendingUp, Users, Phone, Mail, MessageCircle, Trash2, Edit2, X, BarChart3, PieChart, TrendingDown, Menu, Home, Briefcase, Settings, QrCode } from 'lucide-react';
 import { Toast, ConfirmModal } from '@/components/Toast';
 import { BarChart, Bar, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import QRCodeGenerator from '@/components/QRCodeGenerator';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Lead = Database['public']['Tables']['leads']['Row'];
@@ -38,7 +39,7 @@ export default function AgentDashboard() {
     weeklyData: [] as { day: string; count: number }[],
   });
   const [properties, setProperties] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'settings'>('leads');
+  const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'qr' | 'settings'>('leads');
   const [expandedLead, setExpandedLead] = useState<string | null>(null);
   const [leadNotes, setLeadNotes] = useState<Record<string, any[]>>({});
   const [newNote, setNewNote] = useState<Record<string, string>>({});
@@ -728,7 +729,16 @@ export default function AgentDashboard() {
                 }`}
               >
                 <Briefcase className="w-5 h-5" />
-                <span className="font-medium">Portföy ({properties.length})</span>
+                <span className="font-medium">Portföy</span>
+              </button>
+              <button
+                onClick={() => { setActiveTab('qr'); setMobileMenuOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition ${
+                  activeTab === 'qr' ? 'bg-gray-900 text-white' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <QrCode className="w-5 h-5" />
+                <span className="font-medium">QR Kod</span>
               </button>
               <button
                 onClick={() => { setActiveTab('settings'); setMobileMenuOpen(false); }}
@@ -775,7 +785,17 @@ export default function AgentDashboard() {
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Portföy ({properties.length})
+              Portföy
+            </button>
+            <button
+              onClick={() => setActiveTab('qr')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition ${
+                activeTab === 'qr'
+                  ? 'border-gray-900 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              QR Kod
             </button>
             <button
               onClick={() => setActiveTab('settings')}
@@ -1261,6 +1281,18 @@ export default function AgentDashboard() {
               </div>
             )}
           </div>
+        )}
+
+        {/* QR Code Tab */}
+        {activeTab === 'qr' && agent && (
+          <QRCodeGenerator 
+            agent={{
+              name: agent.name,
+              domain: agent.domain || '',
+              whatsapp_number: agent.whatsapp_number || ''
+            }}
+            properties={properties.map(p => ({ id: p.id, title: p.title }))}
+          />
         )}
 
         {/* Settings Tab */}
