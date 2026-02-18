@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import { Save, Eye, X } from 'lucide-react';
-import { EditorProvider } from '@/contexts/EditorContext';
+import { EditorProvider, useEditor } from '@/contexts/EditorContext';
 import AgentLandingPage from '../AgentLandingPage';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
@@ -23,6 +23,7 @@ export default function VisualBuilderPage() {
 }
 
 function BuilderContent({ domain, router }: any) {
+  const { setEditMode } = useEditor();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,6 +32,11 @@ function BuilderContent({ domain, router }: any) {
   useEffect(() => {
     loadAgent();
   }, [domain]);
+
+  // Sync mode with EditorContext
+  useEffect(() => {
+    setEditMode(mode === 'edit');
+  }, [mode, setEditMode]);
 
   const loadAgent = async () => {
     const { data } = await supabase
