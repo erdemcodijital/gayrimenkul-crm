@@ -8,6 +8,10 @@ interface PageProps {
   params: {
     domain: string;
   };
+  searchParams: {
+    success?: string;
+    error?: string;
+  };
 }
 
 async function getAgent(domain: string): Promise<Agent | null> {
@@ -39,7 +43,7 @@ export async function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default async function AgentPage({ params }: PageProps) {
+export default async function AgentPage({ params, searchParams }: PageProps) {
   const agent = await getAgent(params.domain);
 
   if (!agent) {
@@ -275,6 +279,24 @@ export default async function AgentPage({ params }: PageProps) {
       {/* Lead Form Section */}
       <section className="py-24 bg-gradient-to-b from-white to-gray-50" id="lead-form">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Success Message */}
+          {searchParams?.success === 'true' && (
+            <div className="mb-8 p-6 bg-green-50 border-2 border-green-500 rounded-xl text-center">
+              <div className="text-4xl mb-2">✅</div>
+              <h3 className="text-xl font-bold text-green-900 mb-2">Talebiniz Başarıyla Gönderildi!</h3>
+              <p className="text-green-700">En kısa sürede size dönüş yapacağız. Teşekkür ederiz.</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {searchParams?.error === 'true' && (
+            <div className="mb-8 p-6 bg-red-50 border-2 border-red-500 rounded-xl text-center">
+              <div className="text-4xl mb-2">❌</div>
+              <h3 className="text-xl font-bold text-red-900 mb-2">Bir Hata Oluştu</h3>
+              <p className="text-red-700">Lütfen tekrar deneyin veya telefon ile iletişime geçin.</p>
+            </div>
+          )}
+
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Ücretsiz Danışmanlık İsteyin
