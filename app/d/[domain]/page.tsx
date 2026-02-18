@@ -275,6 +275,143 @@ export default async function AgentPage({ params }: PageProps) {
         </section>
       )}
 
+      {/* Lead Form Section */}
+      <section className="py-24 bg-gradient-to-b from-white to-gray-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Ücretsiz Danışmanlık İsteyin
+            </h2>
+            <p className="text-lg text-gray-600">
+              Size en uygun gayrimenkul seçeneklerini bulmak için formu doldurun
+            </p>
+          </div>
+
+          <form 
+            action="/api/submit-lead" 
+            method="POST"
+            className="bg-white rounded-2xl shadow-xl p-8 space-y-6"
+          >
+            <input type="hidden" name="agent_domain" value={agent.domain} />
+            <input type="hidden" name="agent_id" value={agent.id} />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Adınız Soyadınız *
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                  style={{ focusRingColor: themeColor }}
+                  placeholder="Ahmet Yılmaz"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Telefon *
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                  placeholder="05XX XXX XX XX"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                E-posta
+              </label>
+              <input
+                type="email"
+                name="email"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                placeholder="ornek@email.com"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bütçeniz
+                </label>
+                <select
+                  name="budget"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="0-1M">0 - 1M TL</option>
+                  <option value="1M-2M">1M - 2M TL</option>
+                  <option value="2M-3M">2M - 3M TL</option>
+                  <option value="3M-5M">3M - 5M TL</option>
+                  <option value="5M+">5M+ TL</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Oda Sayısı
+                </label>
+                <select
+                  name="room_count"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                >
+                  <option value="">Seçiniz</option>
+                  <option value="1+0">1+0</option>
+                  <option value="1+1">1+1</option>
+                  <option value="2+1">2+1</option>
+                  <option value="3+1">3+1</option>
+                  <option value="4+1">4+1</option>
+                  <option value="5+">5+1 ve üzeri</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                İlgilendiğiniz Bölge
+              </label>
+              <input
+                type="text"
+                name="district"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                placeholder="Örn: Kadıköy, Beşiktaş"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mesajınız
+              </label>
+              <textarea
+                name="notes"
+                rows={4}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent"
+                placeholder="İhtiyaçlarınız hakkında detaylı bilgi..."
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full py-4 text-white font-semibold rounded-lg transition shadow-lg hover:shadow-xl"
+              style={{ backgroundColor: themeColor }}
+            >
+              Gönder
+            </button>
+
+            <p className="text-xs text-gray-500 text-center">
+              Formunuzu göndererek, bilgilerinizin iletişim amacıyla kullanılmasını kabul etmiş olursunuz.
+            </p>
+          </form>
+        </div>
+      </section>
+
       <section className="py-24 bg-gray-50 border-y border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
