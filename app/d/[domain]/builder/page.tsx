@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import { Save, Eye, X } from 'lucide-react';
 import { EditorProvider, useEditor } from '@/contexts/EditorContext';
+import ClientLandingPage from '../ClientLandingPage';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 
@@ -134,13 +135,8 @@ function BuilderContent({ domain, router }: any) {
       </div>
 
       {/* Canvas - Landing Page Preview */}
-      <div className="flex-1 overflow-hidden bg-gray-100">
-        <iframe
-          key={mode}
-          src={`/d/${domain}${mode === 'edit' ? '?edit=true' : ''}`}
-          className="w-full h-full border-0"
-          title="Landing Page Preview"
-        />
+      <div className="flex-1 overflow-y-auto bg-gray-100">
+        {agent && <ClientLandingPage agent={agent} />}
       </div>
 
       {/* Right Panel - Properties (when section is selected) */}
