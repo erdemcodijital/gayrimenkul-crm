@@ -8,6 +8,8 @@ import { Save, Eye, X } from 'lucide-react';
 import { EditorProvider, useEditor } from '@/contexts/EditorContext';
 import ClientLandingPage from '../ClientLandingPage';
 import BuilderSidebar from '@/components/BuilderSidebar';
+import SectionAdder from '@/components/SectionAdder';
+import { Section, SectionType, SECTION_TEMPLATES } from '@/types/sections';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 
@@ -244,6 +246,60 @@ function BuilderContent({ domain, router }: any) {
     loadAgent();
   };
 
+  const handleAddSection = (type: SectionType) => {
+    const currentPage = pages.find(p => p.id === currentPageId);
+    if (!currentPage) return;
+
+    const template = SECTION_TEMPLATES[type];
+    const newSection: Section = {
+      ...template,
+      id: `section-${Date.now()}`,
+      order: (currentPage.content?.sections?.length || 0)
+    } as Section;
+
+    const existingSections = currentPage.content?.sections || [];
+    const updatedSections = [...existingSections, newSection];
+
+    // Update page content immediately
+    supabase
+      .from('pages')
+      .update({ content: { sections: updatedSections } })
+      .eq('id', currentPageId)
+      .then(() => {
+        // Reload pages to reflect changes
+        loadPages();
+      });
+  };
+
+  const handleUpdateSection = (id: string, data: any) => {
+    const currentPage = pages.find(p => p.id === currentPageId);
+    if (!currentPage || !currentPage.content?.sections) return;
+
+    const updatedSections = currentPage.content.sections.map((section: Section) =>
+      section.id === id ? { ...section, data } : section
+    );
+
+    supabase
+      .from('pages')
+      .update({ content: { sections: updatedSections } })
+      .eq('id', currentPageId);
+  };
+
+  const handleDeleteSection = (id: string) => {
+    const currentPage = pages.find(p => p.id === currentPageId);
+    if (!currentPage || !currentPage.content?.sections) return;
+
+    const updatedSections = currentPage.content.sections.filter((section: Section) => section.id !== id);
+
+    supabase
+      .from('pages')
+      .update({ content: { sections: updatedSections } })
+      .eq('id', currentPageId)
+      .then(() => {
+        loadPages();
+      });
+  };
+
   const saveChanges = async () => {
     if (!agent) return;
     
@@ -253,11 +309,18 @@ function BuilderContent({ domain, router }: any) {
       
       console.log('💾 Saving all sections:', sections);
 
-      // If we have a current page, save to pages.content
+      // If we have a current page with sections system, already saved via handleUpdateSection
       if (currentPageId && pages.length > 0) {
         const currentPage = pages.find(p => p.id === currentPageId);
+        if (currentPage && currentPage.content?.sections) {
+          alert('✅ Değişiklikler otomatik kaydedildi!');
+          setSaving(false);
+          return;
+        }
+        
+        // Old system: save to pages.content
         if (currentPage) {
-          console.log('💾 Saving to page:', currentPage.title);
+          console.log('💾 Saving to page (old system):', currentPage.title);
           
           await supabase
             .from('pages')
@@ -430,12 +493,38 @@ function BuilderContent({ domain, router }: any) {
 
         {/* Canvas - Landing Page Preview */}
         <div className="flex-1 overflow-y-auto bg-gray-100">
-          {agent && (
-            <ClientLandingPage 
-              agent={agent} 
-              currentPage={currentPageId && pages.length > 0 ? pages.find(p => p.id === currentPageId) : undefined}
-            />
-          )}
+          {agent && currentPageId && pages.length > 0 && (() => {
+            const currentPage = pages.find(p => p.id === currentPageId);
+            const isEmptyPage = currentPage && (!currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0);
+            
+            if (isEmptyPage && mode === 'edit') {
+              return (
+                <div className="flex items-center justify-center min-h-screen p-8">
+                  <div className="max-w-2xl w-full">
+                    <div className="text-center mb-8">
+                      <h2 className="text-3xl font-bold text-gray-900 mb-3">Boş Sayfa</h2>
+                      <p className="text-gray-600">Bu sayfa henüz boş. Aşağıdan bölüm ekleyerek içerik oluşturmaya başlayın.</p>
+                    </div>
+                    <SectionAdder onAddSection={handleAddSection} />
+                  </div>
+                </div>
+              );
+            }
+            
+            return (
+              <>
+                <ClientLandingPage 
+                  agent={agent} 
+                  currentPage={currentPage}
+                />
+                {mode === 'edit' && currentPage?.content?.sections && (
+                  <div className="p-8 bg-gray-100">
+                    <SectionAdder onAddSection={handleAddSection} />
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

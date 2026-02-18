@@ -5,6 +5,8 @@ import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 import EditableSectionWrapper from '@/components/EditableSectionWrapper';
 import { useEditor } from '@/contexts/EditorContext';
+import SectionRenderer from '@/components/SectionRenderer';
+import { Section } from '@/types/sections';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 type Property = Database['public']['Tables']['properties']['Row'];
@@ -134,6 +136,32 @@ export default function ClientLandingPage({ agent, currentPage }: Props) {
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Merhaba ${agent.name}, gayrimenkul danışmanlığı hakkında bilgi almak istiyorum.`)}`;
   const themeColor = agent.theme_color || '#111827';
 
+  // Check if page uses new sections system
+  const useSectionsSystem = currentPage?.content?.sections && Array.isArray(currentPage.content.sections);
+
+  const handleUpdateSection = (id: string, data: any) => {
+    if (updateSection) {
+      updateSection(id, data);
+    }
+  };
+
+  // NEW SECTIONS SYSTEM
+  if (useSectionsSystem) {
+    return (
+      <div className="min-h-screen bg-white">
+        <SectionRenderer 
+          sections={currentPage.content.sections as Section[]}
+          onUpdateSection={handleUpdateSection}
+          onDeleteSection={editMode ? (id) => {
+            // This will be handled by builder's handleDeleteSection
+            console.log('Delete section:', id);
+          } : undefined}
+        />
+      </div>
+    );
+  }
+
+  // OLD STATE-BASED SYSTEM (Backward compatibility)
   return (
     <div className="min-h-screen bg-white antialiased">
       {/* Navbar */}

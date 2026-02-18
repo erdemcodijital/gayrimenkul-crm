@@ -38,7 +38,7 @@ export default function CTASection({ section, onUpdate }: Props) {
             }}
           >
             {section.data.description}
-          </span>
+          </p>
         )}
         {section.data.buttonText && (
           <button className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
