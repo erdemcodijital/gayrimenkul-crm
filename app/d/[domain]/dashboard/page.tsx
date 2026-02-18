@@ -280,6 +280,7 @@ export default function AgentDashboard() {
     try {
       const { error } = await supabase
         .from('leads')
+        // @ts-ignore
         .update({ status: newStatus })
         .eq('id', id);
 
@@ -291,17 +292,16 @@ export default function AgentDashboard() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig: Record<string, { label: string; color: string }> = {
-      new: { label: '🆕 Yeni', color: 'bg-green-100 text-green-800' },
-      contacted: { label: '📞 İletişimde', color: 'bg-blue-100 text-blue-800' },
-      meeting: { label: '🤝 Görüşme', color: 'bg-yellow-100 text-yellow-800' },
-      closed_success: { label: '✅ Başarılı', color: 'bg-green-600 text-white' },
-      closed_cancelled: { label: '❌ İptal', color: 'bg-red-100 text-red-800' },
+  const getStatusConfig = (status: string) => {
+    const statusConfig: Record<string, { label: string; bgColor: string; textColor: string }> = {
+      new: { label: 'Yeni', bgColor: 'bg-blue-50', textColor: 'text-blue-700' },
+      contacted: { label: 'İletişimde', bgColor: 'bg-indigo-50', textColor: 'text-indigo-700' },
+      meeting: { label: 'Görüşme Yapıldı', bgColor: 'bg-amber-50', textColor: 'text-amber-700' },
+      closed_success: { label: 'Başarılı', bgColor: 'bg-green-50', textColor: 'text-green-700' },
+      closed_cancelled: { label: 'İptal Edildi', bgColor: 'bg-gray-50', textColor: 'text-gray-700' },
     };
     
-    const config = statusConfig[status] || statusConfig.new;
-    return `inline-block px-3 py-1 text-xs font-medium rounded-full ${config.color}`;
+    return statusConfig[status] || statusConfig.new;
   };
 
   const handleLogin = (e: React.FormEvent) => {
@@ -520,18 +520,23 @@ export default function AgentDashboard() {
                 <div key={lead.id} className="px-6 py-4 hover:bg-gray-50 transition">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-base font-semibold text-gray-900">{lead.name}</h3>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-3">
+                          <h3 className="text-base font-semibold text-gray-900">{lead.name}</h3>
+                          <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${getStatusConfig(lead.status).bgColor} ${getStatusConfig(lead.status).textColor}`}>
+                            {getStatusConfig(lead.status).label}
+                          </span>
+                        </div>
                         <select
                           value={lead.status}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                          className={`${getStatusBadge(lead.status)} border-none cursor-pointer`}
+                          className="text-sm border border-gray-300 rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent cursor-pointer bg-white"
                         >
-                          <option value="new">🆕 Yeni</option>
-                          <option value="contacted">📞 İletişimde</option>
-                          <option value="meeting">🤝 Görüşme</option>
-                          <option value="closed_success">✅ Başarılı</option>
-                          <option value="closed_cancelled">❌ İptal</option>
+                          <option value="new">Yeni</option>
+                          <option value="contacted">İletişimde</option>
+                          <option value="meeting">Görüşme Yapıldı</option>
+                          <option value="closed_success">Başarılı</option>
+                          <option value="closed_cancelled">İptal Edildi</option>
                         </select>
                       </div>
                       
