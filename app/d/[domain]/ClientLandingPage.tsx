@@ -35,6 +35,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
+  const [heroSecondaryTitle, setHeroSecondaryTitle] = useState((agent as any).hero_secondary_title || 'Birlikte Bulalım');
   const [heroButtonText, setHeroButtonText] = useState('Ücretsiz Görüşme');
   const [featuresTitle, setFeaturesTitle] = useState('Neden Benimle Çalışmalısınız?');
   const [featuresSubtitle, setFeaturesSubtitle] = useState('Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
@@ -217,7 +218,25 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                   {heroTitle}
                 </span>
                 <br />
-                <span className="text-gray-500">Birlikte Bulalım</span>
+                <span 
+                  className="text-gray-500"
+                  contentEditable={editMode}
+                  suppressContentEditableWarning
+                  style={{ 
+                    outline: editMode ? '2px dashed #3b82f6' : 'none',
+                    display: 'inline-block',
+                    minWidth: '200px'
+                  }}
+                  onBlur={(e) => {
+                    const newSecondary = e.currentTarget.textContent || '';
+                    setHeroSecondaryTitle(newSecondary);
+                    if (onUpdateAgent) {
+                      onUpdateAgent({ hero_secondary_title: newSecondary });
+                    }
+                  }}
+                >
+                  {heroSecondaryTitle}
+                </span>
               </h1>
               
               <p 
