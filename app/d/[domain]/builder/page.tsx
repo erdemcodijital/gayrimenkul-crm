@@ -489,7 +489,7 @@ function BuilderContent({ domain, router }: any) {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Components Panel - Show in edit mode */}
-        <div className="flex flex-1 h-full">
+        <div className="flex flex-1 h-full min-h-0">
           {mode === 'edit' && currentPageId && pages.length > 0 && (() => {
             const currentPage = pages.find(p => p.id === currentPageId);
             // Show components panel for ALL pages (including home)
@@ -498,9 +498,9 @@ function BuilderContent({ domain, router }: any) {
           })()}
           
           {/* Canvas Area + Properties Panel Wrapper */}
-          <div className="flex-1 flex">
+          <div className="flex-1 flex min-h-0">
             {/* Canvas Area */}
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-h-0">
         {/* Toolbar */}
         <div className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between shadow-lg">
           <div className="flex items-center gap-4">
@@ -568,7 +568,7 @@ function BuilderContent({ domain, router }: any) {
       </div>
 
         {/* Canvas - Landing Page Preview */}
-        <div className="flex-1 overflow-y-auto bg-gray-100">
+        <div className="flex-1 overflow-y-auto bg-gray-100 min-h-0">
           {agent && currentPageId && pages.length > 0 && (() => {
             const currentPage = pages.find(p => p.id === currentPageId);
             const isEmptyPage = currentPage && (!currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0);
