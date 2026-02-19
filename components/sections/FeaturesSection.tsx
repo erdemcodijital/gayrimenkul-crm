@@ -44,7 +44,7 @@ export default function FeaturesSection({ section, onUpdate }: Props) {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {section.data.items.map((item, i) => (
+          {((section.data as any).items || (section.data as any).list || []).map((item: any, i: number) => (
             <div key={i} className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition">
               <h3 
                 className="text-xl font-semibold text-gray-900 mb-2"
@@ -52,9 +52,10 @@ export default function FeaturesSection({ section, onUpdate }: Props) {
                 suppressContentEditableWarning
                 style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
                 onBlur={(e) => {
-                  const newItems = [...section.data.items];
+                  const currentItems = (section.data as any).items || (section.data as any).list || [];
+                  const newItems = [...currentItems];
                   newItems[i] = { ...newItems[i], title: e.currentTarget.textContent || '' };
-                  onUpdate({ ...section.data, items: newItems });
+                  onUpdate({ ...section.data, items: newItems, list: newItems } as any);
                 }}
               >
                 {item.title}
@@ -65,9 +66,10 @@ export default function FeaturesSection({ section, onUpdate }: Props) {
                 suppressContentEditableWarning
                 style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
                 onBlur={(e) => {
-                  const newItems = [...section.data.items];
+                  const currentItems = (section.data as any).items || (section.data as any).list || [];
+                  const newItems = [...currentItems];
                   newItems[i] = { ...newItems[i], description: e.currentTarget.textContent || '' };
-                  onUpdate({ ...section.data, items: newItems });
+                  onUpdate({ ...section.data, items: newItems, list: newItems } as any);
                 }}
               >
                 {item.description}
