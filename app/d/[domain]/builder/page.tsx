@@ -73,86 +73,16 @@ function BuilderContent({ domain, router }: any) {
     }
   }, [currentPageId, pages]);
 
-  const loadPageContent = async (page: Page) => {
+  const loadPageContent = (page: Page) => {
     console.log('📄 Loading page content:', page.title, page.content);
     
-    // AUTO-MIGRATION: Create full sections for home page if Hero section is missing
-    if (page.is_home && agent) {
-      const hasHeroSection = page.content?.sections?.some((s: Section) => s.type === 'hero');
-      
-      if (!hasHeroSection) {
-        console.log('ℹ️ Hero section missing, running full migration...');
-        console.log('🔄 Auto-creating full sections for home page...');
-        
-        // Keep existing sections (like text blocks user already added)
-        const existingSections = (page.content?.sections || []) as Section[];
-        const sections: Section[] = [];
-        let order = 0;
-        
-        // Hero Section (always first)
-        sections.push({
-          id: `hero-${Date.now()}`,
-          type: 'hero',
-          order: order++,
-          data: {
-            title: agent.hero_title || 'Hayalinizdeki Evi Bulun',
-            subtitle: agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı',
-            buttonText: (agent as any).hero_button_text || 'İletişime Geçin',
-            buttonLink: `https://wa.me/${agent.whatsapp_number || ''}`,
-            stats: (agent as any).stats_list || []
-          }
-        });
-        
-        // Features Section
-        if ((agent as any).features_list && (agent as any).features_list.length > 0) {
-          sections.push({
-            id: `features-${Date.now()}`,
-            type: 'features',
-            order: order++,
-            data: {
-              title: (agent as any).features_title || 'Neden Benimle Çalışmalısınız?',
-              subtitle: (agent as any).features_subtitle || '',
-              list: (agent as any).features_list
-            } as any
-          } as Section);
-        }
-        
-        // CTA Section
-        if ((agent as any).cta_title) {
-          sections.push({
-            id: `cta-${Date.now()}`,
-            type: 'cta',
-            order: order++,
-            data: {
-              title: (agent as any).cta_title,
-              description: (agent as any).cta_description || '',
-              buttonText: 'İletişime Geçin',
-              buttonLink: `https://wa.me/${agent.whatsapp_number || ''}`
-            }
-          });
-        }
-        
-        // Add existing user-created sections (like text blocks) AFTER Hero/Features/CTA
-        existingSections.forEach(existingSection => {
-          sections.push({
-            ...existingSection,
-            order: order++
-          });
-        });
-        
-        // Update local state immediately
-        setPages(pages.map(p => 
-          p.id === page.id 
-            ? { ...p, content: { sections } }
-            : p
-        ));
-        
-        // Save to database in background
-        supabase
-          .from('pages')
-          .update({ content: { sections } })
-          .eq('id', page.id);
-      }
+    // If page has content, we'll use it
+    // Otherwise editor will use default values from ClientLandingPage
+    if (page.content && Object.keys(page.content).length > 0) {
+      console.log('✅ Page has custom content');
+      // Content will be loaded by ClientLandingPage from page prop
+    } else {
+      console.log('ℹ️ Page has no custom content, using defaults');
     }
   };
 
@@ -545,12 +475,12 @@ function BuilderContent({ domain, router }: any) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Components Panel - Show in edit mode for all pages */}
+        {/* Components Panel - Show in edit mode for new pages only (NOT home page) */}
         <div className="flex flex-1 overflow-hidden">
           {mode === 'edit' && currentPageId && pages.length > 0 && (() => {
             const currentPage = pages.find(p => p.id === currentPageId);
-            // Show components panel for all pages (including home page)
-            const showComponentsPanel = !!currentPage;
+            // Show components panel ONLY for custom pages (NOT home page)
+            const showComponentsPanel = currentPage && !currentPage.is_home;
             return showComponentsPanel ? <ComponentsPanel onAddComponent={handleAddSection} /> : null;
           })()}
           
