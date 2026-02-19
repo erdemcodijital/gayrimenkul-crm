@@ -28,9 +28,10 @@ interface Props {
   onUpdateSection?: (id: string, data: any) => void;
   onDeleteSection?: (id: string) => void;
   onSectionClick?: (section: Section) => void;
+  onUpdateAgent?: (updates: any) => void;
 }
 
-export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection, onSectionClick }: Props) {
+export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection, onSectionClick, onUpdateAgent }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
@@ -206,7 +207,11 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                   onBlur={(e) => {
                     const newTitle = e.currentTarget.textContent || '';
                     setHeroTitle(newTitle);
-                    if (updateSection) updateSection('hero', { title: newTitle });
+                    if (onUpdateAgent) {
+                      onUpdateAgent({ hero_title: newTitle });
+                    } else if (updateSection) {
+                      updateSection('hero', { title: newTitle });
+                    }
                   }}
                 >
                   {heroTitle}
@@ -223,7 +228,11 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                 onBlur={(e) => {
                   const newSubtitle = e.currentTarget.textContent || '';
                   setHeroSubtitle(newSubtitle);
-                  if (updateSection) updateSection('hero', { subtitle: newSubtitle });
+                  if (onUpdateAgent) {
+                    onUpdateAgent({ hero_subtitle: newSubtitle });
+                  } else if (updateSection) {
+                    updateSection('hero', { subtitle: newSubtitle });
+                  }
                 }}
               >
                 {heroSubtitle}

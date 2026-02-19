@@ -11,7 +11,6 @@ import BuilderSidebar from '@/components/BuilderSidebar';
 import PropertiesPanel from '@/components/PropertiesPanel';
 import ComponentsPanel from '@/components/ComponentsPanel';
 import SectionAdder from '@/components/SectionAdder';
-import HomePageEditor from '@/components/builder/HomePageEditor';
 import { Section, SectionType, SECTION_TEMPLATES } from '@/types/sections';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
@@ -89,7 +88,7 @@ function BuilderContent({ domain, router }: any) {
 
   // Sync mode with EditorContext
   useEffect(() => {
-    // For home page, always keep edit mode OFF (show normal landing)
+    // For home page, enable edit mode for contentEditable
     // For custom pages, enable edit mode in edit mode
     const currentPage = pages.find(p => p.id === currentPageId);
     const isHomePage = currentPage?.is_home ?? false;
@@ -97,8 +96,8 @@ function BuilderContent({ domain, router }: any) {
     console.log('🔄 Edit mode sync:', { isHomePage, mode, currentPageId });
     
     if (isHomePage) {
-      console.log('🏠 Home page detected - DISABLING edit mode');
-      setEditMode(false); // Always OFF for home page
+      console.log('🏠 Home page - ENABLING edit mode for contentEditable');
+      setEditMode(mode === 'edit'); // ON for contentEditable
     } else {
       console.log('📄 Custom page - edit mode:', mode === 'edit');
       setEditMode(mode === 'edit'); // ON for custom pages in edit mode
@@ -580,6 +579,20 @@ function BuilderContent({ domain, router }: any) {
                 <ClientLandingPage 
                   agent={agent} 
                   currentPage={undefined}
+                  onUpdateAgent={async (updates: any) => {
+                    // Update agent immediately for preview
+                    setAgent({ ...agent, ...updates });
+                    
+                    // Save to database
+                    const { error } = await supabase
+                      .from('agents')
+                      .update(updates)
+                      .eq('id', agent.id);
+                    
+                    if (error) {
+                      console.error('Failed to update agent:', error);
+                    }
+                  }}
                 />
               );
             }
@@ -618,34 +631,13 @@ function BuilderContent({ domain, router }: any) {
         </div>
             </div>
             
-            {/* Properties Panel - Right Side */}
+            {/* Properties Panel - Right Side - Only for custom pages */}
             {mode === 'edit' && (() => {
               const currentPage = pages.find(p => p.id === currentPageId);
               
-              // Show HomePageEditor for home page
+              // NO panel for home page - use contentEditable instead
               if (currentPage?.is_home) {
-                return (
-                  <HomePageEditor
-                    agent={agent}
-                    onChange={(updates: any) => {
-                      // Live preview - update agent state immediately
-                      setAgent({ ...agent, ...updates });
-                    }}
-                    onUpdate={async (updates: any) => {
-                      // Save to database
-                      const { error } = await supabase
-                        .from('agents')
-                        .update(updates)
-                        .eq('id', agent.id);
-                      
-                      if (!error) {
-                        alert('Değişiklikler kaydedildi!');
-                        loadAgent();
-                      }
-                    }}
-                    onClose={() => {}}
-                  />
-                );
+                return null;
               }
               
               // Show PropertiesPanel for custom pages when section selected
