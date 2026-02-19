@@ -16,16 +16,20 @@ export default function HomePageEditor({ agent, onUpdate, onChange, onClose }: P
   const [ctaTitle, setCTATitle] = useState((agent as any).cta_title || '');
   const [ctaDescription, setCTADescription] = useState((agent as any).cta_description || '');
 
-  // Live preview - update agent immediately
+  // Live preview - debounced update (500ms delay)
   useEffect(() => {
-    if (onChange) {
+    if (!onChange) return;
+    
+    const timeoutId = setTimeout(() => {
       onChange({
         hero_title: heroTitle,
         hero_subtitle: heroSubtitle,
         cta_title: ctaTitle,
         cta_description: ctaDescription,
       });
-    }
+    }, 500); // 500ms debounce
+    
+    return () => clearTimeout(timeoutId);
   }, [heroTitle, heroSubtitle, ctaTitle, ctaDescription, onChange]);
 
   const handleSave = () => {
