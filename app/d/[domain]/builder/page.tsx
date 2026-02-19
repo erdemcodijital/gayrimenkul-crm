@@ -93,9 +93,13 @@ function BuilderContent({ domain, router }: any) {
     const currentPage = pages.find(p => p.id === currentPageId);
     const isHomePage = currentPage?.is_home ?? false;
     
+    console.log('🔄 Edit mode sync:', { isHomePage, mode, currentPageId });
+    
     if (isHomePage) {
+      console.log('🏠 Home page detected - DISABLING edit mode');
       setEditMode(false); // Always OFF for home page
     } else {
+      console.log('📄 Custom page - edit mode:', mode === 'edit');
       setEditMode(mode === 'edit'); // ON for custom pages in edit mode
     }
   }, [mode, setEditMode, currentPageId, pages]);

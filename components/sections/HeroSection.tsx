@@ -14,7 +14,6 @@ export default function HeroSection({ section, onUpdate }: Props) {
 
   return (
     <section className="min-h-[600px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">
-      <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center relative z-10">
         <h1 className="text-5xl sm:text-6xl font-bold mb-6">
