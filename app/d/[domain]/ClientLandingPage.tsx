@@ -144,9 +144,11 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
 
   // Check if page uses new sections system
   const useSectionsSystem = currentPage?.content?.sections && Array.isArray(currentPage.content.sections);
+  const hasCustomSections = useSectionsSystem && currentPage.content.sections.length > 0;
+  const isHomePage = currentPage?.is_home;
 
-  // NEW SECTIONS SYSTEM
-  if (useSectionsSystem) {
+  // CUSTOM PAGE (NON-HOME) - Only sections system
+  if (useSectionsSystem && !isHomePage) {
     return (
       <div className="min-h-screen bg-white">
         <SectionRenderer 
@@ -566,6 +568,18 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
           </div>
         </section>
       </EditableSectionWrapper>
+
+      {/* CUSTOM SECTIONS - For home page with added sections */}
+      {hasCustomSections && (
+        <div className="bg-white">
+          <SectionRenderer 
+            sections={currentPage!.content.sections as Section[]}
+            onUpdateSection={onUpdateSection || (() => {})}
+            onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
+            onSectionClick={onSectionClick}
+          />
+        </div>
+      )}
     </div>
   );
 }

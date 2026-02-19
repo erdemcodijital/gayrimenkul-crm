@@ -573,12 +573,15 @@ function BuilderContent({ domain, router }: any) {
             const currentPage = pages.find(p => p.id === currentPageId);
             const isEmptyPage = currentPage && (!currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0);
             
-            // Ana sayfa için özel durum - agent datasından render et (sections değil)
+            // Ana sayfa - agent data + sections render
             if (currentPage?.is_home) {
               return (
                 <ClientLandingPage 
                   agent={agent} 
-                  currentPage={undefined}
+                  currentPage={currentPage}
+                  onUpdateSection={handleUpdateSection}
+                  onDeleteSection={handleDeleteSection}
+                  onSectionClick={setSelectedSection}
                   onUpdateAgent={async (updates: any) => {
                     // Update agent immediately for preview
                     setAgent({ ...agent, ...updates });
