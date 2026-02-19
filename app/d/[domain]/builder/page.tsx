@@ -341,7 +341,7 @@ function BuilderContent({ domain, router }: any) {
       if (currentPageId && pages.length > 0) {
         const currentPage = pages.find(p => p.id === currentPageId);
         
-        // Ana sayfa (is_home) için agents tablosuna kaydet
+        // Ana sayfa (is_home) için hem agents hem pages kaydet
         if (currentPage?.is_home) {
           console.log('💾 Saving home page to agents table:', sections);
           
@@ -365,10 +365,23 @@ function BuilderContent({ domain, router }: any) {
           if (sections['cta']?.title) updateData.cta_title = sections['cta'].title;
           if (sections['cta']?.description) updateData.cta_description = sections['cta'].description;
           
+          // Save agent data
           await supabase
             .from('agents')
             .update(updateData)
             .eq('id', agent.id);
+          
+          // ALSO save custom sections to pages table
+          if (currentPage.content?.sections) {
+            await supabase
+              .from('pages')
+              .update({ 
+                content: { 
+                  sections: currentPage.content.sections 
+                } 
+              })
+              .eq('id', currentPageId);
+          }
           
           alert('✅ Ana sayfa kaydedildi!');
           setSaving(false);
