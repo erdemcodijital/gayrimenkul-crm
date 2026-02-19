@@ -487,9 +487,9 @@ function BuilderContent({ domain, router }: any) {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Components Panel - Show in edit mode */}
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 h-full">
           {mode === 'edit' && currentPageId && pages.length > 0 && (() => {
             const currentPage = pages.find(p => p.id === currentPageId);
             // Show components panel for ALL pages (including home)
