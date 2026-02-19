@@ -5,7 +5,12 @@ export type SectionType =
   | 'properties'
   | 'gallery'
   | 'contact'
-  | 'cta';
+  | 'cta'
+  | 'testimonials'
+  | 'stats'
+  | 'faq'
+  | 'video'
+  | 'team';
 
 export interface BaseSection {
   id: string;
@@ -81,6 +86,64 @@ export interface CTASection extends BaseSection {
   };
 }
 
+export interface TestimonialsSection extends BaseSection {
+  type: 'testimonials';
+  data: {
+    title: string;
+    subtitle?: string;
+    testimonials: Array<{
+      name: string;
+      role: string;
+      content: string;
+      rating?: number;
+    }>;
+  };
+}
+
+export interface StatsSection extends BaseSection {
+  type: 'stats';
+  data: {
+    title?: string;
+    stats: Array<{
+      value: string;
+      label: string;
+    }>;
+  };
+}
+
+export interface FAQSection extends BaseSection {
+  type: 'faq';
+  data: {
+    title: string;
+    questions: Array<{
+      question: string;
+      answer: string;
+    }>;
+  };
+}
+
+export interface VideoSection extends BaseSection {
+  type: 'video';
+  data: {
+    title?: string;
+    videoUrl: string;
+    description?: string;
+  };
+}
+
+export interface TeamSection extends BaseSection {
+  type: 'team';
+  data: {
+    title: string;
+    members: Array<{
+      name: string;
+      role: string;
+      image?: string;
+      bio?: string;
+    }>;
+  };
+}
+
 export type Section =
   | HeroSection
   | TextSection
@@ -88,7 +151,12 @@ export type Section =
   | PropertiesSection
   | GallerySection
   | ContactSection
-  | CTASection;
+  | CTASection
+  | TestimonialsSection
+  | StatsSection
+  | FAQSection
+  | VideoSection
+  | TeamSection;
 
 export const SECTION_TEMPLATES: Record<SectionType, Partial<Section>> = {
   hero: {
@@ -145,6 +213,56 @@ export const SECTION_TEMPLATES: Record<SectionType, Partial<Section>> = {
       title: 'Hemen Başlayın',
       description: 'Size yardımcı olmak için buradayız',
       buttonText: 'İletişime Geçin'
+    }
+  },
+  testimonials: {
+    type: 'testimonials',
+    data: {
+      title: 'Müşteri Yorumları',
+      subtitle: 'Müşterilerimiz ne diyor',
+      testimonials: [
+        { name: 'Müşteri 1', role: 'Ev Sahibi', content: 'Harika bir deneyimdi!', rating: 5 },
+        { name: 'Müşteri 2', role: 'Kiracı', content: 'Çok memnun kaldım', rating: 5 }
+      ]
+    }
+  },
+  stats: {
+    type: 'stats',
+    data: {
+      title: 'Rakamlarla Biz',
+      stats: [
+        { value: '100+', label: 'Mutlu Müşteri' },
+        { value: '50+', label: 'Satılan Gayrimenkul' },
+        { value: '10+', label: 'Yıllık Deneyim' }
+      ]
+    }
+  },
+  faq: {
+    type: 'faq',
+    data: {
+      title: 'Sık Sorulan Sorular',
+      questions: [
+        { question: 'Nasıl başvurabilirim?', answer: 'Formu doldurun veya bizi arayın.' },
+        { question: 'Hizmet ücretiniz nedir?', answer: 'Detaylı bilgi için bizimle iletişime geçin.' }
+      ]
+    }
+  },
+  video: {
+    type: 'video',
+    data: {
+      title: 'Tanıtım Videosu',
+      videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+      description: 'Hizmetlerimiz hakkında daha fazla bilgi'
+    }
+  },
+  team: {
+    type: 'team',
+    data: {
+      title: 'Ekibimiz',
+      members: [
+        { name: 'Danışman 1', role: 'Gayrimenkul Uzmanı', bio: 'Uzman danışman' },
+        { name: 'Danışman 2', role: 'Satış Müdürü', bio: 'Deneyimli satış uzmanı' }
+      ]
     }
   }
 };

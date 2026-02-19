@@ -1,6 +1,6 @@
 'use client';
 
-import { Layout, Type, Grid, Image, Mail, Megaphone, Home, Star, FileText, GripVertical } from 'lucide-react';
+import { Layout, Type, Grid, Image, Mail, Megaphone, Home, Star, FileText, GripVertical, MessageSquare, BarChart3, HelpCircle, Video, Users } from 'lucide-react';
 import { SectionType } from '@/types/sections';
 import { useState } from 'react';
 
@@ -64,6 +64,46 @@ const COMPONENTS = [
     description: 'Ziyaretçileri yönlendirin',
     details: 'Başlık, açıklama ve eylem butonu',
     category: 'Pazarlama'
+  },
+  {
+    type: 'testimonials' as SectionType,
+    icon: MessageSquare,
+    label: 'Müşteri Yorumları',
+    description: 'Müşteri referansları gösterin',
+    details: 'İsim, rol, yorum ve puanlama',
+    category: 'Sosyal Kanıt'
+  },
+  {
+    type: 'stats' as SectionType,
+    icon: BarChart3,
+    label: 'İstatistikler',
+    description: 'Rakamlarla başarınızı gösterin',
+    details: 'Değer ve etiket çiftleri',
+    category: 'Sosyal Kanıt'
+  },
+  {
+    type: 'faq' as SectionType,
+    icon: HelpCircle,
+    label: 'Sık Sorulan Sorular',
+    description: 'Soru ve cevaplar ekleyin',
+    details: 'Accordion tarzı S.S.S. bölümü',
+    category: 'Bilgi'
+  },
+  {
+    type: 'video' as SectionType,
+    icon: Video,
+    label: 'Video',
+    description: 'YouTube veya Vimeo videosu',
+    details: 'Video URL ve başlık eklenebilir',
+    category: 'Medya'
+  },
+  {
+    type: 'team' as SectionType,
+    icon: Users,
+    label: 'Ekip',
+    description: 'Ekip üyelerinizi tanıtın',
+    details: 'İsim, rol, fotoğraf ve bio',
+    category: 'Bilgi'
   }
 ];
 
