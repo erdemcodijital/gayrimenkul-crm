@@ -488,12 +488,12 @@ function BuilderContent({ domain, router }: any) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Components Panel - Show in edit mode for new pages only (NOT home page) */}
+        {/* Components Panel - Show in edit mode */}
         <div className="flex flex-1 overflow-hidden">
           {mode === 'edit' && currentPageId && pages.length > 0 && (() => {
             const currentPage = pages.find(p => p.id === currentPageId);
-            // Show components panel ONLY for custom pages (NOT home page)
-            const showComponentsPanel = currentPage && !currentPage.is_home;
+            // Show components panel for ALL pages (including home)
+            const showComponentsPanel = !!currentPage;
             return showComponentsPanel ? <ComponentsPanel onAddComponent={handleAddSection} /> : null;
           })()}
           
