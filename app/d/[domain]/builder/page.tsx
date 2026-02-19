@@ -88,8 +88,17 @@ function BuilderContent({ domain, router }: any) {
 
   // Sync mode with EditorContext
   useEffect(() => {
-    setEditMode(mode === 'edit');
-  }, [mode, setEditMode]);
+    // For home page, always keep edit mode OFF (show normal landing)
+    // For custom pages, enable edit mode in edit mode
+    const currentPage = pages.find(p => p.id === currentPageId);
+    const isHomePage = currentPage?.is_home ?? false;
+    
+    if (isHomePage) {
+      setEditMode(false); // Always OFF for home page
+    } else {
+      setEditMode(mode === 'edit'); // ON for custom pages in edit mode
+    }
+  }, [mode, setEditMode, currentPageId, pages]);
 
   const loadAgent = async () => {
     const { data, error } = await supabase
