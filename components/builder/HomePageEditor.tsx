@@ -1,19 +1,32 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface Props {
   agent: any;
   onUpdate: (updates: any) => void;
+  onChange?: (updates: any) => void; // Live preview
   onClose: () => void;
 }
 
-export default function HomePageEditor({ agent, onUpdate, onClose }: Props) {
+export default function HomePageEditor({ agent, onUpdate, onChange, onClose }: Props) {
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || '');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || '');
   const [ctaTitle, setCTATitle] = useState((agent as any).cta_title || '');
   const [ctaDescription, setCTADescription] = useState((agent as any).cta_description || '');
+
+  // Live preview - update agent immediately
+  useEffect(() => {
+    if (onChange) {
+      onChange({
+        hero_title: heroTitle,
+        hero_subtitle: heroSubtitle,
+        cta_title: ctaTitle,
+        cta_description: ctaDescription,
+      });
+    }
+  }, [heroTitle, heroSubtitle, ctaTitle, ctaDescription, onChange]);
 
   const handleSave = () => {
     onUpdate({

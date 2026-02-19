@@ -627,17 +627,20 @@ function BuilderContent({ domain, router }: any) {
                 return (
                   <HomePageEditor
                     agent={agent}
+                    onChange={(updates: any) => {
+                      // Live preview - update agent state immediately
+                      setAgent({ ...agent, ...updates });
+                    }}
                     onUpdate={async (updates: any) => {
-                      // Update agent in database
+                      // Save to database
                       const { error } = await supabase
                         .from('agents')
                         .update(updates)
                         .eq('id', agent.id);
                       
                       if (!error) {
-                        // Reload agent data
-                        loadAgent();
                         alert('Değişiklikler kaydedildi!');
+                        loadAgent();
                       }
                     }}
                     onClose={() => {}}
