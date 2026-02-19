@@ -573,21 +573,13 @@ function BuilderContent({ domain, router }: any) {
             const currentPage = pages.find(p => p.id === currentPageId);
             const isEmptyPage = currentPage && (!currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0);
             
-            // Ana sayfa için özel durum - production landing'i iframe ile göster
+            // Ana sayfa için özel durum - agent datasından render et (sections değil)
             if (currentPage?.is_home) {
               return (
-                <div className="flex-1 flex flex-col">
-                  <div className="bg-blue-50 border-b border-blue-200 p-3 text-center">
-                    <p className="text-sm text-blue-800">
-                      ℹ️ Ana Sayfa önizleme modunda - Düzenlemek için sidebar'dan bölüm görünürlüğünü ayarlayın
-                    </p>
-                  </div>
-                  <iframe 
-                    src={`/d/${domain}`}
-                    className="flex-1 w-full border-0"
-                    style={{ height: 'calc(100vh - 200px)' }}
-                  />
-                </div>
+                <ClientLandingPage 
+                  agent={agent} 
+                  currentPage={undefined}
+                />
               );
             }
             
