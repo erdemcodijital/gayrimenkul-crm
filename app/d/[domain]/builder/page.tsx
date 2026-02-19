@@ -8,9 +8,10 @@ import { Save, Eye, X } from 'lucide-react';
 import { EditorProvider, useEditor } from '@/contexts/EditorContext';
 import ClientLandingPage from '../ClientLandingPage';
 import BuilderSidebar from '@/components/BuilderSidebar';
-import SectionAdder from '@/components/SectionAdder';
-import ComponentsPanel from '@/components/ComponentsPanel';
 import PropertiesPanel from '@/components/PropertiesPanel';
+import ComponentsPanel from '@/components/ComponentsPanel';
+import SectionAdder from '@/components/SectionAdder';
+import HomePageEditor from '@/components/builder/HomePageEditor';
 import { Section, SectionType, SECTION_TEMPLATES } from '@/types/sections';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
@@ -617,20 +618,51 @@ function BuilderContent({ domain, router }: any) {
         </div>
             </div>
             
-            {/* Properties Panel - Right Side - Only show when section selected */}
-            {mode === 'edit' && selectedSection && (
-              <PropertiesPanel
-                selectedSection={selectedSection}
-                onUpdate={(data) => {
-                  if (selectedSection) {
-                    handleUpdateSection(selectedSection.id, data);
-                    // Update selectedSection state to reflect changes
-                    setSelectedSection({ ...selectedSection, data });
-                  }
-                }}
-                onClose={() => setSelectedSection(null)}
-              />
-            )}
+            {/* Properties Panel - Right Side */}
+            {mode === 'edit' && (() => {
+              const currentPage = pages.find(p => p.id === currentPageId);
+              
+              // Show HomePageEditor for home page
+              if (currentPage?.is_home) {
+                return (
+                  <HomePageEditor
+                    agent={agent}
+                    onUpdate={async (updates: any) => {
+                      // Update agent in database
+                      const { error } = await supabase
+                        .from('agents')
+                        .update(updates)
+                        .eq('id', agent.id);
+                      
+                      if (!error) {
+                        // Reload agent data
+                        loadAgent();
+                        alert('Değişiklikler kaydedildi!');
+                      }
+                    }}
+                    onClose={() => {}}
+                  />
+                );
+              }
+              
+              // Show PropertiesPanel for custom pages when section selected
+              if (selectedSection) {
+                return (
+                  <PropertiesPanel
+                    selectedSection={selectedSection}
+                    onUpdate={(data: any) => {
+                      if (selectedSection) {
+                        handleUpdateSection(selectedSection.id, data);
+                        setSelectedSection({ ...selectedSection, data });
+                      }
+                    }}
+                    onClose={() => setSelectedSection(null)}
+                  />
+                );
+              }
+              
+              return null;
+            })()}
           </div>
         </div>
       </div>
