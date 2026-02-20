@@ -328,6 +328,29 @@ function BuilderContent({ domain, router }: any) {
       .eq('id', currentPageId);
   };
 
+  const handleReorderSections = (reorderedSections: Section[]) => {
+    const currentPage = pages.find(p => p.id === currentPageId);
+    if (!currentPage) return;
+
+    console.log('🔄 Reordering sections:', reorderedSections.map(s => ({ id: s.id, order: s.order })));
+
+    // Update local state immediately
+    setPages(pages.map(p => 
+      p.id === currentPageId 
+        ? { ...p, content: { sections: reorderedSections } }
+        : p
+    ));
+
+    // Save to database
+    supabase
+      .from('pages')
+      .update({ content: { sections: reorderedSections } })
+      .eq('id', currentPageId)
+      .then(() => {
+        console.log('✅ Section order saved to database');
+      });
+  };
+
   const saveChanges = async () => {
     if (!agent) return;
     
@@ -595,6 +618,7 @@ function BuilderContent({ domain, router }: any) {
                   onUpdateSection={handleUpdateSection}
                   onDeleteSection={handleDeleteSection}
                   onSectionClick={setSelectedSection}
+                  onReorderSections={handleReorderSections}
                   onUpdateAgent={async (updates: any) => {
                     // Update agent immediately for preview
                     setAgent({ ...agent, ...updates });
@@ -635,6 +659,7 @@ function BuilderContent({ domain, router }: any) {
                   onUpdateSection={handleUpdateSection}
                   onDeleteSection={handleDeleteSection}
                   onSectionClick={(section) => mode === 'edit' && setSelectedSection(section)}
+                  onReorderSections={handleReorderSections}
                 />
                 {mode === 'edit' && currentPage?.content?.sections && (
                   <div className="p-8 bg-gray-100">
