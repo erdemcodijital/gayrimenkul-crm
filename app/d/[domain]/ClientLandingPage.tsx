@@ -38,18 +38,18 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
   const [heroSecondaryTitle, setHeroSecondaryTitle] = useState((agent as any).hero_secondary_title || 'Birlikte Bulalım');
   const [heroButtonText, setHeroButtonText] = useState('Ücretsiz Görüşme');
-  const [featuresTitle, setFeaturesTitle] = useState('Neden Benimle Çalışmalısınız?');
-  const [featuresSubtitle, setFeaturesSubtitle] = useState('Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
-  const [featuresList, setFeaturesList] = useState([
+  const [featuresTitle, setFeaturesTitle] = useState((agent as any).features_title || 'Neden Benimle Çalışmalısınız?');
+  const [featuresSubtitle, setFeaturesSubtitle] = useState((agent as any).features_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
+  const [featuresList, setFeaturesList] = useState((agent as any).features_list || [
     { title: 'Güvenilir Hizmet', description: 'Şeffaf ve dürüst iletişim' },
     { title: 'Hızlı Çözümler', description: 'En uygun seçenekleri hızlıca buluyoruz' },
     { title: 'Rekabetçi Fiyat', description: 'Piyasa koşullarına uygun fiyatlar' },
     { title: 'Uzman Destek', description: 'Deneyimli danışmanlık ekibi' }
   ]);
   const [propertiesTitle, setPropertiesTitle] = useState('Portföyümden Seçmeler');
-  const [ctaTitle, setCtaTitle] = useState('Hayalinizdeki Evi Bulun');
-  const [ctaDescription, setCtaDescription] = useState('Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
-  const [statsList, setStatsList] = useState([
+  const [ctaTitle, setCtaTitle] = useState((agent as any).cta_title || 'Hayalinizdeki Evi Bulun');
+  const [ctaDescription, setCtaDescription] = useState((agent as any).cta_description || 'Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
+  const [statsList, setStatsList] = useState((agent as any).stats_list || [
     { value: '200+', label: 'Mutlu Müşteri' },
     { value: '150+', label: 'Başarılı Satış' },
     { value: '10+', label: 'Yıl Tecrübe' }
@@ -89,22 +89,22 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       }
     } else {
       // Reset to defaults from agent or hardcoded
-      console.log('📄 No page content, using defaults');
+      console.log('📄 No page content, using agent data or defaults');
       setHeroTitle(agent.hero_title || 'Hayalinizdeki Evi');
       setHeroSubtitle(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
       setHeroButtonText('Ücretsiz Görüşme');
-      setFeaturesTitle('Neden Benimle Çalışmalısınız?');
-      setFeaturesSubtitle('Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
-      setFeaturesList([
+      setFeaturesTitle((agent as any).features_title || 'Neden Benimle Çalışmalısınız?');
+      setFeaturesSubtitle((agent as any).features_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile hedeflerinize ulaşın');
+      setFeaturesList((agent as any).features_list || [
         { title: 'Güvenilir Hizmet', description: 'Şeffaf ve dürüst iletişim' },
         { title: 'Hızlı Çözümler', description: 'En uygun seçenekleri hızlıca buluyoruz' },
         { title: 'Rekabetçi Fiyat', description: 'Piyasa koşullarına uygun fiyatlar' },
         { title: 'Uzman Destek', description: 'Deneyimli danışmanlık ekibi' }
       ]);
       setPropertiesTitle('Portföyümden Seçmeler');
-      setCtaTitle('Hayalinizdeki Evi Bulun');
-      setCtaDescription('Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
-      setStatsList([
+      setCtaTitle((agent as any).cta_title || 'Hayalinizdeki Evi Bulun');
+      setCtaDescription((agent as any).cta_description || 'Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
+      setStatsList((agent as any).stats_list || [
         { value: '200+', label: 'Mutlu Müşteri' },
         { value: '150+', label: 'Başarılı Satış' },
         { value: '10+', label: 'Yıl Tecrübe' }
