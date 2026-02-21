@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 import EditableSectionWrapper from '@/components/EditableSectionWrapper';
-import { useEditor } from '@/contexts/EditorContext';
 import SectionRenderer from '@/components/SectionRenderer';
 import { Section } from '@/types/sections';
 
@@ -34,9 +33,10 @@ interface Props {
     success?: string;
     error?: string;
   };
+  editMode?: boolean; // Edit mode for builder, false for landing page
 }
 
-export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection, onSectionClick, onUpdateAgent, onReorderSections, searchParams }: Props) {
+export default function ClientLandingPage({ agent, currentPage, onUpdateSection, onDeleteSection, onSectionClick, onUpdateAgent, onReorderSections, searchParams, editMode = false }: Props) {
   const [properties, setProperties] = useState<Property[]>([]);
   const [heroTitle, setHeroTitle] = useState(agent.hero_title || 'Hayalinizdeki Evi');
   const [heroSubtitle, setHeroSubtitle] = useState(agent.hero_subtitle || 'Profesyonel gayrimenkul danışmanlığı ile size en uygun satılık ve kiralık seçenekleri sunuyoruz.');
@@ -127,16 +127,8 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
     }
   }, [currentPage, agent]);
   
-  // Editor context for old system
-  let editorContext;
-  try {
-    editorContext = useEditor();
-  } catch {
-    editorContext = null;
-  }
-  
-  const updateSection = onUpdateSection || editorContext?.updateSection;
-  const editMode = editorContext?.editMode || false;
+  // updateSection from props
+  const updateSection = onUpdateSection;
 
   useEffect(() => {
     loadProperties();

@@ -537,6 +537,7 @@ function BuilderContent({ domain, router }: any) {
                   onDeleteSection={handleDeleteSection}
                   onSectionClick={setSelectedSection}
                   onReorderSections={handleReorderSections}
+                  editMode={mode === 'edit'}
                   onUpdateAgent={async (updates: any) => {
                     // Update agent immediately for preview
                     setAgent({ ...agent, ...updates });
@@ -578,6 +579,7 @@ function BuilderContent({ domain, router }: any) {
                   onDeleteSection={handleDeleteSection}
                   onSectionClick={(section) => mode === 'edit' && setSelectedSection(section)}
                   onReorderSections={handleReorderSections}
+                  editMode={mode === 'edit'}
                 />
                 {mode === 'edit' && currentPage?.content?.sections && (
                   <div className="p-8 bg-gray-100">
