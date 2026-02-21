@@ -596,12 +596,7 @@ function BuilderContent({ domain, router }: any) {
             {mode === 'edit' && (() => {
               const currentPage = pages.find(p => p.id === currentPageId);
               
-              // NO panel for home page - use contentEditable instead
-              if (currentPage?.is_home) {
-                return null;
-              }
-              
-              // Show PropertiesPanel for custom pages when section selected
+              // Show PropertiesPanel when section selected
               if (selectedSection) {
                 return (
                   <PropertiesPanel

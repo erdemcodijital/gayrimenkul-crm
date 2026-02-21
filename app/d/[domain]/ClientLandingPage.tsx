@@ -239,7 +239,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       </nav>
 
       {/* Hero Section */}
-      <EditableSectionWrapper sectionId="hero" sectionType="hero">
+      <EditableSectionWrapper sectionId="hero" sectionType="hero" editMode={editMode}>
         <section className="relative pt-20 pb-32 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-4xl mx-auto">
@@ -386,7 +386,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       </EditableSectionWrapper>
 
       {/* Features Section */}
-      <EditableSectionWrapper sectionId="features" sectionType="features">
+      <EditableSectionWrapper sectionId="features" sectionType="features" editMode={editMode}>
         <section className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
@@ -504,7 +504,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
 
       {/* Properties Section */}
       {properties && properties.length > 0 && (
-        <EditableSectionWrapper sectionId="properties" sectionType="properties">
+        <EditableSectionWrapper sectionId="properties" sectionType="properties" editMode={editMode}>
           <section className="py-24 bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
@@ -581,7 +581,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       )}
 
       {/* CTA Section */}
-      <EditableSectionWrapper sectionId="cta" sectionType="cta">
+      <EditableSectionWrapper sectionId="cta" sectionType="cta" editMode={editMode}>
         <section className="py-24 bg-gray-50 border-y border-gray-200">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
