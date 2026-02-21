@@ -9,4 +9,7 @@ ADD COLUMN IF NOT EXISTS footer_contact_title TEXT,
 ADD COLUMN IF NOT EXISTS footer_links_title TEXT,
 ADD COLUMN IF NOT EXISTS footer_whatsapp_text TEXT,
 ADD COLUMN IF NOT EXISTS footer_phone_text TEXT,
-ADD COLUMN IF NOT EXISTS footer_email_text TEXT;
+ADD COLUMN IF NOT EXISTS footer_email_text TEXT,
+ADD COLUMN IF NOT EXISTS footer_contact_phone TEXT,
+ADD COLUMN IF NOT EXISTS footer_contact_email TEXT,
+ADD COLUMN IF NOT EXISTS footer_contact_city TEXT;

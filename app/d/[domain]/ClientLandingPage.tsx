@@ -72,6 +72,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const [footerWhatsAppText, setFooterWhatsAppText] = useState((agent as any).footer_whatsapp_text || 'WhatsApp');
   const [footerPhoneText, setFooterPhoneText] = useState((agent as any).footer_phone_text || 'Telefon');
   const [footerEmailText, setFooterEmailText] = useState((agent as any).footer_email_text || 'E-posta');
+  const [footerContactPhone, setFooterContactPhone] = useState((agent as any).footer_contact_phone || agent.phone || '');
+  const [footerContactEmail, setFooterContactEmail] = useState((agent as any).footer_contact_email || agent.email || '');
+  const [footerContactCity, setFooterContactCity] = useState((agent as any).footer_contact_city || agent.city || '');
   
   // Load content from currentPage when it changes
   useEffect(() => {
@@ -122,6 +125,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
         if (content.footer.whatsappText) setFooterWhatsAppText(content.footer.whatsappText);
         if (content.footer.phoneText) setFooterPhoneText(content.footer.phoneText);
         if (content.footer.emailText) setFooterEmailText(content.footer.emailText);
+        if (content.footer.contactPhone) setFooterContactPhone(content.footer.contactPhone);
+        if (content.footer.contactEmail) setFooterContactEmail(content.footer.contactEmail);
+        if (content.footer.contactCity) setFooterContactCity(content.footer.contactCity);
       }
     } else {
       // Reset to defaults from agent or hardcoded
@@ -156,6 +162,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       setFooterWhatsAppText((agent as any).footer_whatsapp_text || 'WhatsApp');
       setFooterPhoneText((agent as any).footer_phone_text || 'Telefon');
       setFooterEmailText((agent as any).footer_email_text || 'E-posta');
+      setFooterContactPhone((agent as any).footer_contact_phone || agent.phone || '');
+      setFooterContactEmail((agent as any).footer_contact_email || agent.email || '');
+      setFooterContactCity((agent as any).footer_contact_city || agent.city || '');
     }
   }, [currentPage, agent]);
   
@@ -899,9 +908,48 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                 </span>
               </h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li>{agent.phone}</li>
-                <li>{agent.email}</li>
-                <li>{agent.city}</li>
+                <li>
+                  <span
+                    contentEditable={editMode}
+                    suppressContentEditableWarning
+                    style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block', minWidth: '100px' }}
+                    onBlur={(e) => {
+                      const newText = e.currentTarget.textContent || '';
+                      setFooterContactPhone(newText);
+                      if (onUpdateAgent) onUpdateAgent({ footer_contact_phone: newText });
+                    }}
+                  >
+                    {footerContactPhone}
+                  </span>
+                </li>
+                <li>
+                  <span
+                    contentEditable={editMode}
+                    suppressContentEditableWarning
+                    style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block', minWidth: '100px' }}
+                    onBlur={(e) => {
+                      const newText = e.currentTarget.textContent || '';
+                      setFooterContactEmail(newText);
+                      if (onUpdateAgent) onUpdateAgent({ footer_contact_email: newText });
+                    }}
+                  >
+                    {footerContactEmail}
+                  </span>
+                </li>
+                <li>
+                  <span
+                    contentEditable={editMode}
+                    suppressContentEditableWarning
+                    style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block', minWidth: '100px' }}
+                    onBlur={(e) => {
+                      const newText = e.currentTarget.textContent || '';
+                      setFooterContactCity(newText);
+                      if (onUpdateAgent) onUpdateAgent({ footer_contact_city: newText });
+                    }}
+                  >
+                    {footerContactCity}
+                  </span>
+                </li>
               </ul>
             </div>
             
