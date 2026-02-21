@@ -46,7 +46,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
     { title: 'Rekabetçi Fiyat', description: 'Piyasa koşullarına uygun fiyatlar' },
     { title: 'Uzman Destek', description: 'Deneyimli danışmanlık ekibi' }
   ]);
-  const [propertiesTitle, setPropertiesTitle] = useState('Portföyümden Seçmeler');
+  const [propertiesTitle, setPropertiesTitle] = useState((agent as any).properties_title || 'Portföyümden Seçmeler');
   const [ctaTitle, setCtaTitle] = useState((agent as any).cta_title || 'Hayalinizdeki Evi Bulun');
   const [ctaDescription, setCtaDescription] = useState((agent as any).cta_description || 'Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
   const [statsList, setStatsList] = useState((agent as any).stats_list || [
@@ -101,7 +101,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
         { title: 'Rekabetçi Fiyat', description: 'Piyasa koşullarına uygun fiyatlar' },
         { title: 'Uzman Destek', description: 'Deneyimli danışmanlık ekibi' }
       ]);
-      setPropertiesTitle('Portföyümden Seçmeler');
+      setPropertiesTitle((agent as any).properties_title || 'Portföyümden Seçmeler');
       setCtaTitle((agent as any).cta_title || 'Hayalinizdeki Evi Bulun');
       setCtaDescription((agent as any).cta_description || 'Size özel gayrimenkul danışmanlığı için hemen iletişime geçin');
       setStatsList((agent as any).stats_list || [
@@ -354,7 +354,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                   onBlur={(e) => {
                     const newTitle = e.currentTarget.textContent || '';
                     setFeaturesTitle(newTitle);
-                    if (updateSection) updateSection('features', { title: newTitle });
+                    if (onUpdateAgent) onUpdateAgent({ features_title: newTitle });
                   }}
                 >
                   {featuresTitle}
@@ -368,7 +368,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                 onBlur={(e) => {
                   const newSubtitle = e.currentTarget.textContent || '';
                   setFeaturesSubtitle(newSubtitle);
-                  if (updateSection) updateSection('features', { subtitle: newSubtitle });
+                  if (onUpdateAgent) onUpdateAgent({ features_subtitle: newSubtitle });
                 }}
               >
                 {featuresSubtitle}
@@ -472,7 +472,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                     onBlur={(e) => {
                       const newTitle = e.currentTarget.textContent || '';
                       setPropertiesTitle(newTitle);
-                      if (updateSection) updateSection('properties', { title: newTitle });
+                      if (onUpdateAgent) onUpdateAgent({ properties_title: newTitle });
                     }}
                   >
                     {propertiesTitle}
@@ -548,7 +548,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                 onBlur={(e) => {
                   const newTitle = e.currentTarget.textContent || '';
                   setCtaTitle(newTitle);
-                  if (updateSection) updateSection('cta', { title: newTitle });
+                  if (onUpdateAgent) onUpdateAgent({ cta_title: newTitle });
                 }}
               >
                 {ctaTitle}
@@ -562,7 +562,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
               onBlur={(e) => {
                 const newDesc = e.currentTarget.textContent || '';
                 setCtaDescription(newDesc);
-                if (updateSection) updateSection('cta', { description: newDesc });
+                if (onUpdateAgent) onUpdateAgent({ cta_description: newDesc });
               }}
             >
               {ctaDescription}
