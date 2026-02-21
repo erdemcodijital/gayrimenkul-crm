@@ -309,7 +309,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                         const updatedList = [...statsList];
                         updatedList[i] = { ...updatedList[i], value: newValue };
                         setStatsList(updatedList);
-                        if (updateSection) updateSection('hero', { stats: updatedList });
+                        if (onUpdateAgent) onUpdateAgent({ stats_list: updatedList });
                       }}
                     >
                       {stat.value}
@@ -324,7 +324,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                         const updatedList = [...statsList];
                         updatedList[i] = { ...updatedList[i], label: newLabel };
                         setStatsList(updatedList);
-                        if (updateSection) updateSection('hero', { stats: updatedList });
+                        if (onUpdateAgent) onUpdateAgent({ stats_list: updatedList });
                       }}
                     >
                       {stat.label}
@@ -383,7 +383,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                       onClick={() => {
                         const updatedList = featuresList.filter((_, index) => index !== i);
                         setFeaturesList(updatedList);
-                        if (updateSection) updateSection('features', { list: updatedList });
+                        if (onUpdateAgent) onUpdateAgent({ features_list: updatedList });
                       }}
                       className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
                       title="Sil"
@@ -408,7 +408,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                       const updatedList = [...featuresList];
                       updatedList[i] = { ...updatedList[i], title: newTitle };
                       setFeaturesList(updatedList);
-                      if (updateSection) updateSection('features', { list: updatedList });
+                      if (onUpdateAgent) onUpdateAgent({ features_list: updatedList });
                     }}
                   >
                     {feature.title}
@@ -423,7 +423,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                       const updatedList = [...featuresList];
                       updatedList[i] = { ...updatedList[i], description: newDesc };
                       setFeaturesList(updatedList);
-                      if (updateSection) updateSection('features', { list: updatedList });
+                      if (onUpdateAgent) onUpdateAgent({ features_list: updatedList });
                     }}
                   >
                     {feature.description}

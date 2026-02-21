@@ -356,9 +356,7 @@ function BuilderContent({ domain, router }: any) {
     
     setSaving(true);
     try {
-      const sections = getSaveData();
-      
-      console.log('💾 Saving all sections:', sections);
+      console.log('💾 Saving changes...');
 
       // If we have a current page with sections system, already saved via handleUpdateSection
       if (currentPageId && pages.length > 0) {
@@ -366,35 +364,10 @@ function BuilderContent({ domain, router }: any) {
         
         // Ana sayfa (is_home) için hem agents hem pages kaydet
         if (currentPage?.is_home) {
-          console.log('💾 Saving home page to agents table:', sections);
+          console.log('💾 Saving home page - Agent state:', agent);
           
-          const updateData: any = {};
-          
-          // Hero section
-          if (sections['hero']?.title) updateData.hero_title = sections['hero'].title;
-          if (sections['hero']?.subtitle) updateData.hero_subtitle = sections['hero'].subtitle;
-          if (sections['hero']?.buttonText) updateData.hero_button_text = sections['hero'].buttonText;
-          if (sections['hero']?.stats) updateData.stats_list = sections['hero'].stats;
-          
-          // Features section
-          if (sections['features']?.title) updateData.features_title = sections['features'].title;
-          if (sections['features']?.subtitle) updateData.features_subtitle = sections['features'].subtitle;
-          if (sections['features']?.list) updateData.features_list = sections['features'].list;
-          
-          // Properties section
-          if (sections['properties']?.title) updateData.properties_title = sections['properties'].title;
-          
-          // CTA section
-          if (sections['cta']?.title) updateData.cta_title = sections['cta'].title;
-          if (sections['cta']?.description) updateData.cta_description = sections['cta'].description;
-          
-          // Save agent data
-          await supabase
-            .from('agents')
-            .update(updateData)
-            .eq('id', agent.id);
-          
-          // ALSO save custom sections to pages table
+          // For home page, agent state is already updated via onUpdateAgent callbacks
+          // Just save custom sections to pages table
           if (currentPage.content?.sections) {
             await supabase
               .from('pages')
@@ -411,70 +384,15 @@ function BuilderContent({ domain, router }: any) {
           return;
         }
         
+        // Custom page - sections already auto-saved via handleUpdateSection
         if (currentPage && currentPage.content?.sections) {
           alert('✅ Değişiklikler otomatik kaydedildi!');
           setSaving(false);
           return;
         }
-        
-        // Old system: save to pages.content
-        if (currentPage) {
-          console.log('💾 Saving to page (old system):', currentPage.title);
-          
-          await supabase
-            .from('pages')
-            .update({ content: sections })
-            .eq('id', currentPageId);
-          
-          alert('✅ Sayfa içeriği kaydedildi!');
-          setSaving(false);
-          return;
-        }
       }
       
-      // Fallback: save to agents table (for backward compatibility)
-      console.log('💾 Saving to agents table (fallback)');
-      const updateData: any = {};
-      
-      // Hero section
-      if (sections['hero']?.title) updateData.hero_title = sections['hero'].title;
-      if (sections['hero']?.subtitle) updateData.hero_subtitle = sections['hero'].subtitle;
-      if (sections['hero']?.buttonText) updateData.hero_button_text = sections['hero'].buttonText;
-      if (sections['hero']?.stats) updateData.stats_list = sections['hero'].stats;
-      
-      // Features section
-      if (sections['features']?.title) updateData.features_title = sections['features'].title;
-      if (sections['features']?.subtitle) updateData.features_subtitle = sections['features'].subtitle;
-      if (sections['features']?.list) updateData.features_list = sections['features'].list;
-      
-      // Properties section
-      if (sections['properties']?.title) updateData.properties_title = sections['properties'].title;
-      
-      // CTA section
-      if (sections['cta']?.title) updateData.cta_title = sections['cta'].title;
-      if (sections['cta']?.description) updateData.cta_description = sections['cta'].description;
-      
-      if (Object.keys(updateData).length === 0) {
-        alert('⚠️ Değişiklik yapılmadı!');
-        setSaving(false);
-        return;
-      }
-      
-      console.log('Updating with:', updateData);
-      
-      const { error } = await supabase
-        .from('agents')
-        .update(updateData)
-        .eq('id', agent.id);
-
-      if (error) {
-        console.error('Save error:', error);
-        alert('❌ Kaydetme hatası: ' + error.message);
-      } else {
-        alert('✅ Tüm değişiklikler kaydedildi!');
-        // Reload agent data
-        loadAgent();
-      }
+      alert('⚠️ Kaydedilecek değişiklik bulunamadı!');
     } catch (error: any) {
       console.error('Save error:', error);
       alert('❌ Bir hata oluştu: ' + error.message);
