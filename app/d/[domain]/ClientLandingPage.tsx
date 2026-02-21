@@ -102,6 +102,21 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
         if (content.cta.title) setCtaTitle(content.cta.title);
         if (content.cta.description) setCtaDescription(content.cta.description);
       }
+      
+      // Contact Form section
+      if (content.contactForm) {
+        if (content.contactForm.title) setFormTitle(content.contactForm.title);
+        if (content.contactForm.subtitle) setFormSubtitle(content.contactForm.subtitle);
+        if (content.contactForm.buttonText) setFormButtonText(content.contactForm.buttonText);
+        if (content.contactForm.privacyText) setFormPrivacyText(content.contactForm.privacyText);
+      }
+      
+      // Footer section
+      if (content.footer) {
+        if (content.footer.description) setFooterDescription(content.footer.description);
+        if (content.footer.contactTitle) setFooterContactTitle(content.footer.contactTitle);
+        if (content.footer.linksTitle) setFooterLinksTitle(content.footer.linksTitle);
+      }
     } else {
       // Reset to defaults from agent or hardcoded
       console.log('📄 No page content, using agent data or defaults');
@@ -124,6 +139,14 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
         { value: '150+', label: 'Başarılı Satış' },
         { value: '10+', label: 'Yıl Tecrübe' }
       ]);
+      // Form and Footer from agent
+      setFormTitle((agent as any).form_title || 'Ücretsiz Danışmanlık İsteyin');
+      setFormSubtitle((agent as any).form_subtitle || 'Size en uygun gayrimenkul seçeneklerini bulmak için formu doldurun');
+      setFormButtonText((agent as any).form_button_text || 'Gönder');
+      setFormPrivacyText((agent as any).form_privacy_text || 'Formunuzu göndererek, bilgilerinizin iletişim amacıyla kullanılmasını kabul etmiş olursunuz.');
+      setFooterDescription((agent as any).footer_description || 'Profesyonel Gayrimenkul Danışmanlığı');
+      setFooterContactTitle((agent as any).footer_contact_title || 'İletişim');
+      setFooterLinksTitle((agent as any).footer_links_title || 'Bağlantılar');
     }
   }, [currentPage, agent]);
   
