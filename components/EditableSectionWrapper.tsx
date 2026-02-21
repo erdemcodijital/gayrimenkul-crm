@@ -1,7 +1,6 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { useEditor } from '@/contexts/EditorContext';
 import { GripVertical, Settings, Trash2, Eye, EyeOff } from 'lucide-react';
 
 interface Props {
@@ -11,6 +10,9 @@ interface Props {
   onDelete?: () => void;
   onToggleVisibility?: () => void;
   isVisible?: boolean;
+  editMode?: boolean;
+  selectedSectionId?: string;
+  onSectionClick?: (id: string) => void;
 }
 
 export default function EditableSectionWrapper({
@@ -20,10 +22,11 @@ export default function EditableSectionWrapper({
   onDelete,
   onToggleVisibility,
   isVisible = true,
+  editMode = false,
+  selectedSectionId,
+  onSectionClick,
 }: Props) {
-  const { editMode, selectedSectionId, setSelectedSectionId } = useEditor();
-
-  // Preview mode - just render children
+  // Preview mode or landing page - just render children
   if (!editMode) {
     return <>{children}</>;
   }
@@ -40,7 +43,7 @@ export default function EditableSectionWrapper({
       } ${!isVisible ? 'opacity-50' : ''}`}
       onClick={(e) => {
         e.stopPropagation();
-        setSelectedSectionId(sectionId);
+        if (onSectionClick) onSectionClick(sectionId);
       }}
     >
       {/* Edit Toolbar */}
@@ -71,7 +74,7 @@ export default function EditableSectionWrapper({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedSectionId(sectionId);
+              if (onSectionClick) onSectionClick(sectionId);
             }}
             className="p-1 hover:bg-gray-700 rounded"
             title="Settings"
