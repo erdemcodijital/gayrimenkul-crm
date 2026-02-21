@@ -59,6 +59,17 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
     { value: '10+', label: 'Yıl Tecrübe' }
   ]);
   
+  // Contact Form texts
+  const [formTitle, setFormTitle] = useState((agent as any).form_title || 'Ücretsiz Danışmanlık İsteyin');
+  const [formSubtitle, setFormSubtitle] = useState((agent as any).form_subtitle || 'Size en uygun gayrimenkul seçeneklerini bulmak için formu doldurun');
+  const [formButtonText, setFormButtonText] = useState((agent as any).form_button_text || 'Gönder');
+  const [formPrivacyText, setFormPrivacyText] = useState((agent as any).form_privacy_text || 'Formunuzu göndererek, bilgilerinizin iletişim amacıyla kullanılmasını kabul etmiş olursunuz.');
+  
+  // Footer texts
+  const [footerDescription, setFooterDescription] = useState((agent as any).footer_description || 'Profesyonel Gayrimenkul Danışmanlığı');
+  const [footerContactTitle, setFooterContactTitle] = useState((agent as any).footer_contact_title || 'İletişim');
+  const [footerLinksTitle, setFooterLinksTitle] = useState((agent as any).footer_links_title || 'Bağlantılar');
+  
   // Load content from currentPage when it changes
   useEffect(() => {
     if (currentPage && currentPage.content && Object.keys(currentPage.content).length > 0) {
@@ -646,10 +657,31 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
 
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Ücretsiz Danışmanlık İsteyin
+              <span
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block', minWidth: '200px' }}
+                onBlur={(e) => {
+                  const newTitle = e.currentTarget.textContent || '';
+                  setFormTitle(newTitle);
+                  if (onUpdateAgent) onUpdateAgent({ form_title: newTitle });
+                }}
+              >
+                {formTitle}
+              </span>
             </h2>
-            <p className="text-lg text-gray-600">
-              Size en uygun gayrimenkul seçeneklerini bulmak için formu doldurun
+            <p 
+              className="text-lg text-gray-600"
+              contentEditable={editMode}
+              suppressContentEditableWarning
+              style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+              onBlur={(e) => {
+                const newSubtitle = e.currentTarget.textContent || '';
+                setFormSubtitle(newSubtitle);
+                if (onUpdateAgent) onUpdateAgent({ form_subtitle: newSubtitle });
+              }}
+            >
+              {formSubtitle}
             </p>
           </div>
 
@@ -767,11 +799,33 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
               className="w-full py-4 text-white font-semibold rounded-lg transition shadow-lg hover:shadow-xl"
               style={{ backgroundColor: themeColor }}
             >
-              Gönder
+              <span
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                style={{ outline: editMode ? '2px dashed #fff' : 'none', display: 'inline-block', minWidth: '50px' }}
+                onBlur={(e) => {
+                  const newText = e.currentTarget.textContent || '';
+                  setFormButtonText(newText);
+                  if (onUpdateAgent) onUpdateAgent({ form_button_text: newText });
+                }}
+                onClick={(e) => editMode && e.stopPropagation()}
+              >
+                {formButtonText}
+              </span>
             </button>
 
-            <p className="text-xs text-gray-500 text-center">
-              Formunuzu göndererek, bilgilerinizin iletişim amacıyla kullanılmasını kabul etmiş olursunuz.
+            <p 
+              className="text-xs text-gray-500 text-center"
+              contentEditable={editMode}
+              suppressContentEditableWarning
+              style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+              onBlur={(e) => {
+                const newText = e.currentTarget.textContent || '';
+                setFormPrivacyText(newText);
+                if (onUpdateAgent) onUpdateAgent({ form_privacy_text: newText });
+              }}
+            >
+              {formPrivacyText}
             </p>
           </form>
         </div>
@@ -790,13 +844,36 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
                 </div>
                 <span className="font-bold text-gray-900">{agent.name}</span>
               </div>
-              <p className="text-sm text-gray-600">
-                {(agent as any).description || 'Profesyonel Gayrimenkul Danışmanlığı'}
+              <p 
+                className="text-sm text-gray-600"
+                contentEditable={editMode}
+                suppressContentEditableWarning
+                style={{ outline: editMode ? '2px dashed #3b82f6' : 'none' }}
+                onBlur={(e) => {
+                  const newDesc = e.currentTarget.textContent || '';
+                  setFooterDescription(newDesc);
+                  if (onUpdateAgent) onUpdateAgent({ footer_description: newDesc });
+                }}
+              >
+                {footerDescription}
               </p>
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">İletişim</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">
+                <span
+                  contentEditable={editMode}
+                  suppressContentEditableWarning
+                  style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block', minWidth: '50px' }}
+                  onBlur={(e) => {
+                    const newTitle = e.currentTarget.textContent || '';
+                    setFooterContactTitle(newTitle);
+                    if (onUpdateAgent) onUpdateAgent({ footer_contact_title: newTitle });
+                  }}
+                >
+                  {footerContactTitle}
+                </span>
+              </h3>
               <ul className="space-y-2 text-sm text-gray-600">
                 <li>{agent.phone}</li>
                 <li>{agent.email}</li>
@@ -805,7 +882,20 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
             </div>
             
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Bağlantılar</h3>
+              <h3 className="font-semibold text-gray-900 mb-4">
+                <span
+                  contentEditable={editMode}
+                  suppressContentEditableWarning
+                  style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block', minWidth: '50px' }}
+                  onBlur={(e) => {
+                    const newTitle = e.currentTarget.textContent || '';
+                    setFooterLinksTitle(newTitle);
+                    if (onUpdateAgent) onUpdateAgent({ footer_links_title: newTitle });
+                  }}
+                >
+                  {footerLinksTitle}
+                </span>
+              </h3>
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-900">
