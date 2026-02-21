@@ -69,6 +69,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const [footerDescription, setFooterDescription] = useState((agent as any).footer_description || 'Profesyonel Gayrimenkul Danışmanlığı');
   const [footerContactTitle, setFooterContactTitle] = useState((agent as any).footer_contact_title || 'İletişim');
   const [footerLinksTitle, setFooterLinksTitle] = useState((agent as any).footer_links_title || 'Bağlantılar');
+  const [footerWhatsAppText, setFooterWhatsAppText] = useState((agent as any).footer_whatsapp_text || 'WhatsApp');
+  const [footerPhoneText, setFooterPhoneText] = useState((agent as any).footer_phone_text || 'Telefon');
+  const [footerEmailText, setFooterEmailText] = useState((agent as any).footer_email_text || 'E-posta');
   
   // Load content from currentPage when it changes
   useEffect(() => {
@@ -116,6 +119,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
         if (content.footer.description) setFooterDescription(content.footer.description);
         if (content.footer.contactTitle) setFooterContactTitle(content.footer.contactTitle);
         if (content.footer.linksTitle) setFooterLinksTitle(content.footer.linksTitle);
+        if (content.footer.whatsappText) setFooterWhatsAppText(content.footer.whatsappText);
+        if (content.footer.phoneText) setFooterPhoneText(content.footer.phoneText);
+        if (content.footer.emailText) setFooterEmailText(content.footer.emailText);
       }
     } else {
       // Reset to defaults from agent or hardcoded
@@ -147,6 +153,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       setFooterDescription((agent as any).footer_description || 'Profesyonel Gayrimenkul Danışmanlığı');
       setFooterContactTitle((agent as any).footer_contact_title || 'İletişim');
       setFooterLinksTitle((agent as any).footer_links_title || 'Bağlantılar');
+      setFooterWhatsAppText((agent as any).footer_whatsapp_text || 'WhatsApp');
+      setFooterPhoneText((agent as any).footer_phone_text || 'Telefon');
+      setFooterEmailText((agent as any).footer_email_text || 'E-posta');
     }
   }, [currentPage, agent]);
   
@@ -914,17 +923,53 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
               <ul className="space-y-2 text-sm">
                 <li>
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-gray-600 hover:text-gray-900">
-                    WhatsApp
+                    <span
+                      contentEditable={editMode}
+                      suppressContentEditableWarning
+                      style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block' }}
+                      onBlur={(e) => {
+                        const newText = e.currentTarget.textContent || '';
+                        setFooterWhatsAppText(newText);
+                        if (onUpdateAgent) onUpdateAgent({ footer_whatsapp_text: newText });
+                      }}
+                      onClick={(e) => editMode && e.preventDefault()}
+                    >
+                      {footerWhatsAppText}
+                    </span>
                   </a>
                 </li>
                 <li>
                   <a href={`tel:${agent.phone}`} className="text-gray-600 hover:text-gray-900">
-                    Telefon
+                    <span
+                      contentEditable={editMode}
+                      suppressContentEditableWarning
+                      style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block' }}
+                      onBlur={(e) => {
+                        const newText = e.currentTarget.textContent || '';
+                        setFooterPhoneText(newText);
+                        if (onUpdateAgent) onUpdateAgent({ footer_phone_text: newText });
+                      }}
+                      onClick={(e) => editMode && e.preventDefault()}
+                    >
+                      {footerPhoneText}
+                    </span>
                   </a>
                 </li>
                 <li>
                   <a href={`mailto:${agent.email}`} className="text-gray-600 hover:text-gray-900">
-                    E-posta
+                    <span
+                      contentEditable={editMode}
+                      suppressContentEditableWarning
+                      style={{ outline: editMode ? '2px dashed #3b82f6' : 'none', display: 'inline-block' }}
+                      onBlur={(e) => {
+                        const newText = e.currentTarget.textContent || '';
+                        setFooterEmailText(newText);
+                        if (onUpdateAgent) onUpdateAgent({ footer_email_text: newText });
+                      }}
+                      onClick={(e) => editMode && e.preventDefault()}
+                    >
+                      {footerEmailText}
+                    </span>
                   </a>
                 </li>
               </ul>
