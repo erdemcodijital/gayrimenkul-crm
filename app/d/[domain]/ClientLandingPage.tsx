@@ -166,7 +166,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       setFooterContactEmail((agent as any).footer_contact_email || agent.email || '');
       setFooterContactCity((agent as any).footer_contact_city || agent.city || '');
     }
-  }, [currentPage, agent]);
+  }, [currentPage?.id, agent.id]); // Only reload when page/agent ID changes, not when content updates
   
   // updateSection from props
   const updateSection = onUpdateSection;
