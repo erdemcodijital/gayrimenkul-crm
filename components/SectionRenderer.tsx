@@ -104,13 +104,13 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
           onDrop={(e) => handleDrop(e, index)}
           onDragEnd={handleDragEnd}
           className={`relative group transition-all ${
-            editMode && onSectionClick ? 'cursor-move hover:ring-2 hover:ring-blue-400' : ''
+            editMode && onReorderSections ? 'cursor-move hover:ring-2 hover:ring-blue-400' : ''
           } ${
             draggedIndex === index ? 'opacity-50 scale-95' : ''
           } ${
             dragOverIndex === index && draggedIndex !== index ? 'border-t-4 border-blue-500' : ''
           }`}
-          onClick={() => editMode && onSectionClick && onSectionClick(section)}
+          onDoubleClick={() => editMode && onSectionClick && onSectionClick(section)}
         >
           {/* Delete Button */}
           {editMode && (
