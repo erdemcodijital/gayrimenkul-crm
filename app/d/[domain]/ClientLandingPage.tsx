@@ -200,8 +200,8 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const hasCustomSections = useSectionsSystem && sections.length > 0;
   const isHomePage = currentPage?.is_home;
 
-  // CUSTOM PAGE (NON-HOME) - Only sections system
-  if (useSectionsSystem && !isHomePage) {
+  // ALL PAGES NOW USE SECTIONS SYSTEM - No more hardcoded sections!
+  if (useSectionsSystem && hasCustomSections) {
     return (
       <div className="min-h-screen bg-white">
         <SectionRenderer 
