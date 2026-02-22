@@ -75,8 +75,8 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
       {displaySections.map((section, index) => (
         <div 
           key={`${section.id}-${index}`}
-          className="relative group hover:ring-2 hover:ring-blue-400 transition-all"
-          onDoubleClick={() => editMode && onSectionClick && onSectionClick(section)}
+          className="relative group"
+          onDoubleClick={() => false}
         >
           {/* Control Buttons - UNDER MAINTENANCE */}
           {editMode && false && (

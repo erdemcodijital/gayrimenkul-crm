@@ -634,8 +634,8 @@ function BuilderContent({ domain, router }: any) {
         </div>
             </div>
             
-            {/* Properties Panel - Right Side - Only for custom pages */}
-            {mode === 'edit' && (() => {
+            {/* Properties Panel - DISABLED IN MAINTENANCE MODE */}
+            {mode === 'edit' && false && (() => {
               const currentPage = pages.find(p => p.id === currentPageId);
               
               // Show PropertiesPanel when section selected
