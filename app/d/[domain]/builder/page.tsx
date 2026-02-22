@@ -546,9 +546,8 @@ function BuilderContent({ domain, router }: any) {
 
         {/* Canvas - Landing Page Preview */}
         <div className="flex-1 overflow-y-auto bg-gray-100 min-h-0">
-          {agent && currentPageId && pages.length > 0 && (() => {
-            const currentPage = pages.find(p => p.id === currentPageId);
-            const isEmptyPage = currentPage && (!currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0);
+          {agent && currentPageId && pages.length > 0 && currentPage && (() => {
+            const isEmptyPage = !currentPage.content || !currentPage.content.sections || currentPage.content.sections.length === 0;
             
             // Ana sayfa - agent data + sections render
             if (currentPage?.is_home) {
