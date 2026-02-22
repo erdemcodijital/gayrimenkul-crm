@@ -46,8 +46,19 @@ export default function LicensesPage() {
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showRenewModal, setShowRenewModal] = useState(false);
   const [editingLicense, setEditingLicense] = useState<License | null>(null);
+  const [renewingLicense, setRenewingLicense] = useState<License | null>(null);
+  const [renewMonths, setRenewMonths] = useState(1);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [editForm, setEditForm] = useState({
+    license_type: 'basic',
+    end_date: '',
+    price: '',
+    billing_cycle: 'monthly',
+    status: 'active',
+    notes: ''
+  });
 
   useEffect(() => {
     loadLicenses();
@@ -135,11 +146,19 @@ export default function LicensesPage() {
     return 'Bilinmiyor';
   };
 
-  const renewLicense = async (license: License, months: number) => {
+  const openRenewModal = (license: License) => {
+    setRenewingLicense(license);
+    setRenewMonths(1);
+    setShowRenewModal(true);
+  };
+
+  const confirmRenewal = async () => {
+    if (!renewingLicense) return;
+
     try {
-      const currentEndDate = new Date(license.end_date);
+      const currentEndDate = new Date(renewingLicense.end_date);
       const newEndDate = new Date(currentEndDate);
-      newEndDate.setMonth(newEndDate.getMonth() + months);
+      newEndDate.setMonth(newEndDate.getMonth() + renewMonths);
 
       const { error } = await supabase
         .from('licenses')
@@ -147,15 +166,58 @@ export default function LicensesPage() {
           end_date: newEndDate.toISOString(),
           status: 'active'
         })
-        .eq('id', license.id);
+        .eq('id', renewingLicense.id);
 
       if (error) throw error;
       
-      alert(`Lisans ${months} ay uzatıldı`);
+      setShowRenewModal(false);
+      setRenewingLicense(null);
       await loadLicenses();
+      alert(`Lisans başarıyla ${renewMonths} ay uzatıldı`);
     } catch (error) {
       console.error('Renew error:', error);
       alert('Lisans yenilenemedi');
+    }
+  };
+
+  const openEditModal = (license: License) => {
+    setEditingLicense(license);
+    setEditForm({
+      license_type: license.license_type,
+      end_date: license.end_date.split('T')[0],
+      price: license.price?.toString() || '',
+      billing_cycle: license.billing_cycle,
+      status: license.status,
+      notes: license.notes || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editingLicense) return;
+
+    try {
+      const { error } = await supabase
+        .from('licenses')
+        .update({
+          license_type: editForm.license_type,
+          end_date: new Date(editForm.end_date).toISOString(),
+          price: editForm.price ? parseFloat(editForm.price) : null,
+          billing_cycle: editForm.billing_cycle,
+          status: editForm.status,
+          notes: editForm.notes
+        })
+        .eq('id', editingLicense.id);
+
+      if (error) throw error;
+      
+      setShowEditModal(false);
+      setEditingLicense(null);
+      await loadLicenses();
+      alert('Lisans başarıyla güncellendi');
+    } catch (error) {
+      console.error('Update error:', error);
+      alert('Lisans güncellenemedi');
     }
   };
 
@@ -347,17 +409,14 @@ export default function LicensesPage() {
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
-                            onClick={() => renewLicense(license, 1)}
+                            onClick={() => openRenewModal(license)}
                             className="p-1 text-green-600 hover:bg-green-50 rounded transition"
-                            title="1 ay yenile"
+                            title="Lisans yenile"
                           >
                             <RefreshCw className="w-4 h-4" />
                           </button>
                           <button
-                            onClick={() => {
-                              setEditingLicense(license);
-                              setShowEditModal(true);
-                            }}
+                            onClick={() => openEditModal(license)}
                             className="p-1 text-gray-600 hover:bg-gray-100 rounded transition"
                             title="Düzenle"
                           >
@@ -373,6 +432,222 @@ export default function LicensesPage() {
           </table>
         </div>
       </div>
+
+      {/* Renew License Modal */}
+      {showRenewModal && renewingLicense && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Lisans Yenileme</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {renewingLicense.agents?.name} - {renewingLicense.license_type.toUpperCase()}
+              </p>
+            </div>
+
+            <div className="px-6 py-6 space-y-6">
+              {/* Current Info */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-gray-600">Mevcut Bitiş:</span>
+                    <div className="font-medium text-gray-900">
+                      {new Date(renewingLicense.end_date).toLocaleDateString('tr-TR')}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Kalan Gün:</span>
+                    <div className="font-medium text-orange-600">
+                      {getDaysRemaining(renewingLicense.end_date)} gün
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Duration Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-3">
+                  Yenileme Süresi
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  {[1, 3, 6, 12].map(months => {
+                    const price = (renewingLicense.price || 99) * months;
+                    const newEndDate = new Date(renewingLicense.end_date);
+                    newEndDate.setMonth(newEndDate.getMonth() + months);
+                    
+                    return (
+                      <button
+                        key={months}
+                        onClick={() => setRenewMonths(months)}
+                        className={`p-4 border-2 rounded-lg text-left transition ${
+                          renewMonths === months
+                            ? 'border-green-500 bg-green-50'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="font-bold text-lg text-gray-900">{months} Ay</div>
+                        <div className="text-sm text-gray-600 mt-1">₺{price}</div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {newEndDate.toLocaleDateString('tr-TR')} bitiş
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-blue-900">Toplam Tutar:</span>
+                  <span className="text-2xl font-bold text-blue-600">
+                    ₺{((renewingLicense.price || 99) * renewMonths).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRenewModal(false);
+                  setRenewingLicense(null);
+                }}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                İptal
+              </button>
+              <button
+                onClick={confirmRenewal}
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition shadow-lg"
+              >
+                Yenilemeyi Onayla
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit License Modal */}
+      {showEditModal && editingLicense && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Lisans Düzenle</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {editingLicense.agents?.name}
+              </p>
+            </div>
+
+            <div className="px-6 py-6 space-y-5">
+              {/* License Type */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Lisans Tipi
+                </label>
+                <select
+                  value={editForm.license_type}
+                  onChange={(e) => setEditForm({ ...editForm, license_type: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="basic">Basic</option>
+                  <option value="pro">Pro</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+
+              {/* End Date */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Bitiş Tarihi
+                </label>
+                <input
+                  type="date"
+                  value={editForm.end_date}
+                  onChange={(e) => setEditForm({ ...editForm, end_date: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                />
+              </div>
+
+              {/* Price & Billing */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Fiyat (₺)
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.price}
+                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="99.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Fatura Döngüsü
+                  </label>
+                  <select
+                    value={editForm.billing_cycle}
+                    onChange={(e) => setEditForm({ ...editForm, billing_cycle: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  >
+                    <option value="monthly">Aylık</option>
+                    <option value="yearly">Yıllık</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Durum
+                </label>
+                <select
+                  value={editForm.status}
+                  onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="active">Aktif</option>
+                  <option value="expired">Süresi Dolmuş</option>
+                  <option value="suspended">Askıda</option>
+                </select>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Notlar
+                </label>
+                <textarea
+                  value={editForm.notes}
+                  onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                  placeholder="Ek notlar..."
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingLicense(null);
+                }}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                İptal
+              </button>
+              <button
+                onClick={saveEdit}
+                className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg"
+              >
+                Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
