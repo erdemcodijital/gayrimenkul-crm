@@ -128,11 +128,11 @@ export default function LicensesPage() {
   const getStatusText = (license: License): string => {
     const daysRemaining = getDaysRemaining(license.end_date);
     
-    if (license.status === 'expired' || daysRemaining < 0) return 'Expired';
-    if (daysRemaining <= 7) return `Expiring in ${daysRemaining}d`;
-    if (license.status === 'active') return 'Active';
-    if (license.status === 'suspended') return 'Suspended';
-    return 'Unknown';
+    if (license.status === 'expired' || daysRemaining < 0) return 'Süresi Doldu';
+    if (daysRemaining <= 7) return `${daysRemaining} gün kaldı`;
+    if (license.status === 'active') return 'Aktif';
+    if (license.status === 'suspended') return 'Askıda';
+    return 'Bilinmiyor';
   };
 
   const renewLicense = async (license: License, months: number) => {
@@ -151,11 +151,11 @@ export default function LicensesPage() {
 
       if (error) throw error;
       
-      alert(`License renewed for ${months} month(s)`);
+      alert(`Lisans ${months} ay uzatıldı`);
       await loadLicenses();
     } catch (error) {
       console.error('Renew error:', error);
-      alert('Failed to renew license');
+      alert('Lisans yenilenemedi');
     }
   };
 
@@ -188,15 +188,15 @@ export default function LicensesPage() {
       <div className="mb-8">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">License Management</h1>
-            <p className="text-sm text-gray-600 mt-1">Manage agent licenses and subscriptions</p>
+            <h1 className="text-2xl font-bold text-gray-900">Lisans Yönetimi</h1>
+            <p className="text-sm text-gray-600 mt-1">Danışman lisanslarını ve aboneliklerini yönetin</p>
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
             className="inline-flex items-center px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition shadow-sm"
           >
             <Plus className="w-4 h-4 mr-2" />
-            New License
+            Yeni Lisans
           </button>
         </div>
 
@@ -205,71 +205,76 @@ export default function LicensesPage() {
           {/* Total Licenses */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Total Licenses</span>
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Toplam Lisans</span>
               <Key className="w-5 h-5 text-gray-400" />
             </div>
             <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
-            <div className="text-xs text-gray-500 mt-1">All license records</div>
+            <div className="text-xs text-gray-500 mt-1">Tüm kayıtlar</div>
           </div>
 
           {/* Active Licenses */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Active</span>
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Aktif</span>
               <CheckCircle className="w-5 h-5 text-green-500" />
             </div>
             <div className="text-3xl font-bold text-green-600">{stats.active}</div>
             <div className="flex items-center text-xs text-gray-500 mt-1">
-              <span>{stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}% of total</span>
+              <span>Toplam {stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}%</span>
             </div>
           </div>
 
           {/* Expiring Soon */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Expiring Soon</span>
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Yakında Bitenler</span>
               <AlertCircle className="w-5 h-5 text-orange-500" />
             </div>
             <div className="text-3xl font-bold text-orange-600">{stats.expiring_soon}</div>
-            <div className="text-xs text-gray-500 mt-1">Within 7 days</div>
+            <div className="text-xs text-gray-500 mt-1">7 gün içinde</div>
           </div>
 
           {/* Expired */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Expired</span>
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Süresi Dolmuş</span>
               <XCircle className="w-5 h-5 text-red-500" />
             </div>
             <div className="text-3xl font-bold text-red-600">{stats.expired}</div>
-            <div className="text-xs text-gray-500 mt-1">Needs renewal</div>
+            <div className="text-xs text-gray-500 mt-1">Yenileme gerekli</div>
           </div>
 
           {/* Monthly Revenue */}
           <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">MRR</span>
+              <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Aylık Gelir</span>
               <DollarSign className="w-5 h-5 text-blue-500" />
             </div>
             <div className="text-3xl font-bold text-blue-600">₺{stats.revenue_monthly.toFixed(0)}</div>
-            <div className="text-xs text-gray-500 mt-1">Monthly recurring</div>
+            <div className="text-xs text-gray-500 mt-1">Tekrarlayan</div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="mb-6 flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-700">Filter:</span>
-        {['all', 'active', 'expiring', 'expired'].map(status => (
+        <span className="text-sm font-medium text-gray-700">Filtrele:</span>
+        {[
+          { key: 'all', label: 'Tümü' },
+          { key: 'active', label: 'Aktif' },
+          { key: 'expiring', label: 'Yakında Bitenler' },
+          { key: 'expired', label: 'Süresi Dolmuş' }
+        ].map(({ key, label }) => (
           <button
-            key={status}
-            onClick={() => setFilterStatus(status)}
+            key={key}
+            onClick={() => setFilterStatus(key)}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-              filterStatus === status
+              filterStatus === key
                 ? 'bg-gray-900 text-white'
                 : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
             }`}
           >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {label}
           </button>
         ))}
       </div>
@@ -280,21 +285,21 @@ export default function LicensesPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Agent</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Type</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Start Date</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">End Date</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Days Left</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Status</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Price</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wide">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Danışman</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Tip</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Başlangıç</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Bitiş</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Kalan Gün</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Durum</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wide">Fiyat</th>
+                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wide">İşlemler</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredLicenses.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center text-sm text-gray-500">
-                    No licenses found
+                    Lisans bulunamadı
                   </td>
                 </tr>
               ) : (
@@ -344,7 +349,7 @@ export default function LicensesPage() {
                           <button
                             onClick={() => renewLicense(license, 1)}
                             className="p-1 text-green-600 hover:bg-green-50 rounded transition"
-                            title="Renew 1 month"
+                            title="1 ay yenile"
                           >
                             <RefreshCw className="w-4 h-4" />
                           </button>
@@ -354,7 +359,7 @@ export default function LicensesPage() {
                               setShowEditModal(true);
                             }}
                             className="p-1 text-gray-600 hover:bg-gray-100 rounded transition"
-                            title="Edit"
+                            title="Düzenle"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
