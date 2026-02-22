@@ -113,7 +113,7 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
         >
           {/* Drag Handle & Delete Button */}
           {editMode && (
-            <div className="absolute top-2 left-2 right-2 z-50 flex justify-between opacity-0 group-hover:opacity-100 transition">
+            <div className="absolute top-2 left-2 right-2 z-50 flex justify-between opacity-100 transition">
               {/* Drag Handle */}
               {onReorderSections && (
                 <div 
