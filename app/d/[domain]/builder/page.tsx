@@ -337,14 +337,15 @@ function BuilderContent({ domain, router }: any) {
     // Update local state immediately
     setPages(pages.map(p => 
       p.id === currentPageId 
-        ? { ...p, content: { sections: reorderedSections } }
+        ? { ...p, content: { ...p.content, sections: reorderedSections } }
         : p
     ));
 
     // Save to database
+    const updatedContent = { ...currentPage.content, sections: reorderedSections };
     supabase
       .from('pages')
-      .update({ content: { sections: reorderedSections } })
+      .update({ content: updatedContent })
       .eq('id', currentPageId)
       .then(() => {
         console.log('✅ Section order saved to database');
