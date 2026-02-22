@@ -6,6 +6,7 @@ import TextSection from './sections/TextSection';
 import FeaturesSection from './sections/FeaturesSection';
 import CTASection from './sections/CTASection';
 import { Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface Props {
   sections: Section[];
@@ -65,7 +66,10 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
     }
   };
 
-  const sortedSections = (sections || []).sort((a, b) => a.order - b.order);
+  const sortedSections = useMemo(() => {
+    console.log('🔄 SectionRenderer: Recalculating sorted sections', sections.map(s => s.id));
+    return [...(sections || [])].sort((a, b) => a.order - b.order);
+  }, [sections]);
 
   return (
     <>

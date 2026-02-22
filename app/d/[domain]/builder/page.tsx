@@ -334,12 +334,21 @@ function BuilderContent({ domain, router }: any) {
 
     console.log('🔄 Reordering sections:', reorderedSections.map(s => ({ id: s.id, order: s.order })));
 
-    // Update local state immediately
-    setPages(pages.map(p => 
-      p.id === currentPageId 
-        ? { ...p, content: { ...p.content, sections: reorderedSections } }
-        : p
-    ));
+    // Update local state immediately with DEEP COPY to force React re-render
+    const newPages = pages.map(p => {
+      if (p.id === currentPageId) {
+        return {
+          ...p,
+          content: {
+            ...p.content,
+            sections: [...reorderedSections] // NEW array reference
+          }
+        };
+      }
+      return p;
+    });
+    
+    setPages([...newPages]); // NEW pages array reference
 
     // Save to database
     const updatedContent = { ...currentPage.content, sections: reorderedSections };
@@ -532,7 +541,6 @@ function BuilderContent({ domain, router }: any) {
             if (currentPage?.is_home) {
               return (
                 <ClientLandingPage 
-                  key={JSON.stringify(currentPage?.content?.sections?.map(s => s.id))}
                   agent={agent} 
                   currentPage={currentPage}
                   onUpdateSection={handleUpdateSection}
@@ -575,7 +583,6 @@ function BuilderContent({ domain, router }: any) {
             return (
               <>
                 <ClientLandingPage 
-                  key={JSON.stringify(currentPage?.content?.sections?.map(s => s.id))}
                   agent={agent} 
                   currentPage={currentPage}
                   onUpdateSection={handleUpdateSection}
