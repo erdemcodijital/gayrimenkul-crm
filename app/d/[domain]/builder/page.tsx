@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
@@ -337,29 +337,30 @@ function BuilderContent({ domain, router }: any) {
       .eq('id', currentPageId);
   };
 
-  const handleReorderSections = (reorderedSections: Section[]) => {
+  const handleReorderSections = useCallback((reorderedSections: Section[]) => {
     if (!currentPage) return;
 
     console.log('🔄 Reordering sections BEFORE:', currentPage.content.sections.map((s: any) => `${s.id} (order: ${s.order})`));
     console.log('🔄 Reordering sections AFTER:', reorderedSections.map(s => `${s.id} (order: ${s.order})`));
 
     // Update local state immediately with DEEP COPY to force React re-render
-    const newPages = pages.map(p => {
-      if (p.id === currentPageId) {
-        return {
-          ...p,
-          content: {
-            ...p.content,
-            sections: [...reorderedSections] // NEW array reference
-          }
-        };
-      }
-      return p;
+    setPages(prevPages => {
+      const newPages = prevPages.map(p => {
+        if (p.id === currentPageId) {
+          return {
+            ...p,
+            content: {
+              ...p.content,
+              sections: [...reorderedSections] // NEW array reference
+            }
+          };
+        }
+        return p;
+      });
+      
+      console.log('🔄 NEW PAGES sections:', newPages.find(p => p.id === currentPageId)?.content.sections.map((s: any) => `${s.id} (order: ${s.order})`));
+      return [...newPages];
     });
-    
-    console.log('🔄 NEW PAGES sections:', newPages.find(p => p.id === currentPageId)?.content.sections.map((s: any) => `${s.id} (order: ${s.order})`));
-    
-    setPages([...newPages]); // NEW pages array reference
 
     // Save to database
     const updatedContent = { ...currentPage.content, sections: reorderedSections };
@@ -371,7 +372,7 @@ function BuilderContent({ domain, router }: any) {
       .then(() => {
         console.log('✅ Section order saved to database');
       });
-  };
+  }, [currentPage, currentPageId]);
 
   const saveChanges = async () => {
     if (!agent) return;
