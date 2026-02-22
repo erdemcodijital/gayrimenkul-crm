@@ -149,6 +149,10 @@ function BuilderContent({ domain, router }: any) {
       }
 
       if (data && data.length > 0) {
+        console.log('📥 LOADED FROM DATABASE:', data.map((p: any) => ({
+          title: p.title,
+          sections: p.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`)
+        })));
         setPages(data as Page[]);
         
         // Check if there's a page in URL
