@@ -5,7 +5,7 @@ import HeroSection from './sections/HeroSection';
 import TextSection from './sections/TextSection';
 import FeaturesSection from './sections/FeaturesSection';
 import CTASection from './sections/CTASection';
-import { Trash2, GripVertical } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
 interface Props {
@@ -96,12 +96,14 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
       {sortedSections.map((section, index) => (
         <div 
           key={section.id} 
-          draggable={false}
+          draggable={editMode && !!onReorderSections}
+          onDragStart={(e) => handleDragStart(e, index)}
           onDragOver={(e) => handleDragOver(e, index)}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, index)}
+          onDragEnd={handleDragEnd}
           className={`relative group transition-all ${
-            editMode && onSectionClick ? 'cursor-pointer hover:ring-2 hover:ring-blue-400' : ''
+            editMode && onSectionClick ? 'cursor-move hover:ring-2 hover:ring-blue-400' : ''
           } ${
             draggedIndex === index ? 'opacity-50 scale-95' : ''
           } ${
@@ -109,26 +111,9 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
           }`}
           onClick={() => editMode && onSectionClick && onSectionClick(section)}
         >
-          {/* Drag Handle & Delete Button */}
+          {/* Delete Button */}
           {editMode && (
-            <div className="absolute top-2 left-2 right-2 z-50 flex justify-between opacity-100 transition">
-              {/* Drag Handle */}
-              {onReorderSections && (
-                <div 
-                  draggable={true}
-                  onDragStart={(e) => {
-                    e.stopPropagation();
-                    handleDragStart(e, index);
-                  }}
-                  onDragEnd={handleDragEnd}
-                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-lg cursor-grab active:cursor-grabbing"
-                  title="Sürükle & Taşı"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <GripVertical className="w-4 h-4" />
-                </div>
-              )}
-              
+            <div className="absolute top-2 right-2 z-50 flex gap-2">
               {/* Delete Button */}
               {onDeleteSection && (
                 <button
