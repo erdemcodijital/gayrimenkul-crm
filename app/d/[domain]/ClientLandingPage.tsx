@@ -191,13 +191,9 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Merhaba ${agent.name}, gayrimenkul danışmanlığı hakkında bilgi almak istiyorum.`)}`;
   const themeColor = agent.theme_color || '#111827';
 
-  // Memoize sections to ensure React sees changes
-  // Use JSON.stringify to detect deep changes in sections array
-  const sections = useMemo(() => {
-    const sectionData = currentPage?.content?.sections;
-    console.log('📦 ClientLandingPage: Memoizing sections', sectionData?.map((s: any) => `${s.id} (order: ${s.order})`));
-    return sectionData ? [...sectionData] : [];
-  }, [JSON.stringify(currentPage?.content?.sections)]);
+  // Create NEW array reference on EVERY render to force React update
+  const sections = currentPage?.content?.sections ? [...currentPage.content.sections] : [];
+  console.log('📦 ClientLandingPage: Sections array', sections.map((s: any) => `${s.id} (order: ${s.order})`));
 
   // Check if page uses new sections system
   const useSectionsSystem = sections && Array.isArray(sections);
