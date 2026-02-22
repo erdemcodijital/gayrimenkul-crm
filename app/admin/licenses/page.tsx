@@ -470,7 +470,8 @@ export default function LicensesPage() {
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   {[1, 3, 6, 12].map(months => {
-                    const price = (renewingLicense.price || 99) * months;
+                    const monthlyPrice = renewingLicense.price || 5000;
+                    const totalPrice = monthlyPrice * months;
                     const newEndDate = new Date(renewingLicense.end_date);
                     newEndDate.setMonth(newEndDate.getMonth() + months);
                     
@@ -485,7 +486,7 @@ export default function LicensesPage() {
                         }`}
                       >
                         <div className="font-bold text-lg text-gray-900">{months} Ay</div>
-                        <div className="text-sm text-gray-600 mt-1">₺{price}</div>
+                        <div className="text-sm text-gray-600 mt-1">₺{totalPrice.toLocaleString('tr-TR')}</div>
                         <div className="text-xs text-gray-500 mt-1">
                           {newEndDate.toLocaleDateString('tr-TR')} bitiş
                         </div>
@@ -495,13 +496,34 @@ export default function LicensesPage() {
                 </div>
               </div>
 
-              {/* Summary */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-blue-900">Toplam Tutar:</span>
-                  <span className="text-2xl font-bold text-blue-600">
-                    ₺{((renewingLicense.price || 99) * renewMonths).toFixed(2)}
-                  </span>
+              {/* Summary with KDV */}
+              <div className="space-y-2">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600">Aylık Ücret:</span>
+                    <span className="font-medium text-gray-900">₺{(renewingLicense.price || 5000).toLocaleString('tr-TR')}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-600">Süre:</span>
+                    <span className="font-medium text-gray-900">{renewMonths} Ay</span>
+                  </div>
+                  <div className="border-t border-gray-300 pt-2 mt-2">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">Ara Toplam:</span>
+                      <span className="font-medium text-gray-900">₺{((renewingLicense.price || 5000) * renewMonths).toLocaleString('tr-TR')}</span>
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500">
+                      <span>KDV %20 Dahil</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-blue-900">Toplam Tutar (KDV Dahil):</span>
+                    <span className="text-2xl font-bold text-blue-600">
+                      ₺{((renewingLicense.price || 5000) * renewMonths).toLocaleString('tr-TR')}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -572,15 +594,16 @@ export default function LicensesPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Fiyat (₺)
+                    Fiyat (₺) - KDV Dahil
                   </label>
                   <input
                     type="number"
                     value={editForm.price}
                     onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
-                    placeholder="99.00"
+                    placeholder="5000.00"
                   />
+                  <p className="text-xs text-gray-500 mt-1">KDV %20 dahil fiyat</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-900 mb-2">

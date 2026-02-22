@@ -55,11 +55,11 @@ create trigger handle_licenses_updated_at
 insert into public.licenses (agent_id, license_type, start_date, end_date, status, price, billing_cycle)
 select 
   id,
-  'basic',
+  'pro',
   now(),
   now() + interval '30 days',
   'active',
-  99.00,
+  5000.00,
   'monthly'
 from public.agents
 where not exists (
