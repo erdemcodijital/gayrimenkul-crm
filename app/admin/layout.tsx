@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { LayoutDashboard, Users, FileText, LogOut, Building2, Globe, Settings, Key, Receipt, Activity } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Building2, Globe, Settings, Key, Receipt, Activity, Shield, UserCog } from 'lucide-react';
 import NotificationCenter from '@/components/NotificationCenter';
 
 export default function AdminLayout({
@@ -89,6 +89,8 @@ export default function AdminLayout({
     { href: '/admin/activity', icon: Activity, label: 'Aktivite Logları' },
     { href: '/admin/domains', icon: Globe, label: 'Domain Yönetimi' },
     { href: '/admin/leads', icon: FileText, label: 'Leadler' },
+    { href: '/admin/users', icon: UserCog, label: 'Kullanıcı Yönetimi' },
+    { href: '/admin/roles', icon: Shield, label: 'Rol & Yetki Yönetimi' },
     { href: '/admin/settings', icon: Settings, label: 'Sistem Ayarları' },
   ];
 
