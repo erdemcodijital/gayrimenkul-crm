@@ -50,6 +50,14 @@ export default function InvoicesPage() {
     due_days: '30',
     notes: ''
   });
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [paymentForm, setPaymentForm] = useState({
+    payment_method: 'bank_transfer',
+    transaction_id: '',
+    notes: ''
+  });
   const [stats, setStats] = useState<InvoiceStats>({
     total: 0,
     pending: 0,
@@ -130,6 +138,66 @@ export default function InvoicesPage() {
     const due = new Date(dueDate);
     const diff = due.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const viewInvoice = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setShowViewModal(true);
+  };
+
+  const downloadPDF = (invoice: Invoice) => {
+    // PDF generation will be implemented later
+    toast.success(`${invoice.invoice_number} PDF indirme hazırlanıyor...`);
+  };
+
+  const openPaymentModal = (invoice: Invoice) => {
+    setSelectedInvoice(invoice);
+    setPaymentForm({
+      payment_method: 'bank_transfer',
+      transaction_id: '',
+      notes: ''
+    });
+    setShowPaymentModal(true);
+  };
+
+  const recordPayment = async () => {
+    if (!selectedInvoice) return;
+
+    try {
+      // Create payment record
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .insert({
+          invoice_id: selectedInvoice.id,
+          agent_id: selectedInvoice.agent_id,
+          payment_date: new Date().toISOString(),
+          amount: selectedInvoice.total_amount,
+          payment_method: paymentForm.payment_method,
+          transaction_id: paymentForm.transaction_id || null,
+          notes: paymentForm.notes || null
+        });
+
+      if (paymentError) throw paymentError;
+
+      // Update invoice status to paid
+      const { error: updateError } = await supabase
+        .from('invoices')
+        .update({ 
+          status: 'paid',
+          payment_method: paymentForm.payment_method
+        })
+        .eq('id', selectedInvoice.id);
+
+      if (updateError) throw updateError;
+
+      toast.success('Ödeme başarıyla kaydedildi');
+      setShowPaymentModal(false);
+      setSelectedInvoice(null);
+      await loadInvoices();
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      toast.error('Ödeme kaydedilemedi: ' + (error.message || ''));
+    }
   };
 
   const createInvoice = async () => {
@@ -373,12 +441,14 @@ export default function InvoicesPage() {
                       <td className="px-4 py-3 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button
+                            onClick={() => viewInvoice(invoice)}
                             className="p-1 text-blue-600 hover:bg-blue-50 rounded transition"
                             title="Görüntüle"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
                           <button
+                            onClick={() => downloadPDF(invoice)}
                             className="p-1 text-gray-600 hover:bg-gray-100 rounded transition"
                             title="PDF İndir"
                           >
@@ -386,6 +456,7 @@ export default function InvoicesPage() {
                           </button>
                           {invoice.status === 'pending' && (
                             <button
+                              onClick={() => openPaymentModal(invoice)}
                               className="p-1 text-green-600 hover:bg-green-50 rounded transition"
                               title="Ödeme Kaydet"
                             >
@@ -539,6 +610,216 @@ export default function InvoicesPage() {
                 className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg"
               >
                 Fatura Oluştur
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && selectedInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Ödeme Kaydet</h3>
+              <p className="text-sm text-gray-600 mt-1">{selectedInvoice.invoice_number}</p>
+            </div>
+
+            <div className="px-6 py-6 space-y-5">
+              {/* Invoice Summary */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-gray-600">Danışman:</span>
+                  <span className="text-sm font-medium text-gray-900">{selectedInvoice.agents?.name}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm text-gray-600">Fatura Tutarı:</span>
+                  <span className="text-sm font-medium text-gray-900">₺{selectedInvoice.total_amount.toLocaleString('tr-TR')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Vade Tarihi:</span>
+                  <span className="text-sm font-medium text-gray-900">
+                    {new Date(selectedInvoice.due_date).toLocaleDateString('tr-TR')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Ödeme Yöntemi
+                </label>
+                <select
+                  value={paymentForm.payment_method}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, payment_method: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="bank_transfer">Banka Havalesi</option>
+                  <option value="credit_card">Kredi Kartı</option>
+                  <option value="cash">Nakit</option>
+                </select>
+              </div>
+
+              {/* Transaction ID */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  İşlem Numarası
+                </label>
+                <input
+                  type="text"
+                  value={paymentForm.transaction_id}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, transaction_id: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  placeholder="Opsiyonel"
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Notlar
+                </label>
+                <textarea
+                  value={paymentForm.notes}
+                  onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                  placeholder="Ödeme ile ilgili notlar..."
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => {
+                  setShowPaymentModal(false);
+                  setSelectedInvoice(null);
+                }}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                İptal
+              </button>
+              <button
+                onClick={recordPayment}
+                className="flex-1 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition shadow-lg"
+              >
+                Ödemeyi Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Invoice Modal */}
+      {showViewModal && selectedInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Fatura Detayı</h3>
+                <p className="text-sm text-gray-600 mt-1">{selectedInvoice.invoice_number}</p>
+              </div>
+              <span className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium rounded-md border ${getStatusConfig(selectedInvoice.status).bg} ${getStatusConfig(selectedInvoice.status).color}`}>
+                {getStatusConfig(selectedInvoice.status).label}
+              </span>
+            </div>
+
+            <div className="px-6 py-6 space-y-6">
+              {/* Customer Info */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Danışman Bilgileri</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">İsim:</span>
+                    <span className="font-medium text-gray-900">{selectedInvoice.agents?.name}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Domain:</span>
+                    <span className="font-medium text-gray-900">{selectedInvoice.agents?.domain}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Email:</span>
+                    <span className="font-medium text-gray-900">{selectedInvoice.agents?.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Invoice Details */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Fatura Bilgileri</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Fatura Tarihi:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(selectedInvoice.issue_date).toLocaleDateString('tr-TR')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Vade Tarihi:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(selectedInvoice.due_date).toLocaleDateString('tr-TR')}
+                    </span>
+                  </div>
+                  {selectedInvoice.description && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Açıklama:</span>
+                      <span className="font-medium text-gray-900">{selectedInvoice.description}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Amount Breakdown */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Tutar Detayı</h4>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Tutar (KDV Hariç):</span>
+                    <span className="font-medium text-gray-900">₺{selectedInvoice.amount.toLocaleString('tr-TR')}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">KDV ({selectedInvoice.tax_rate}%):</span>
+                    <span className="font-medium text-gray-900">
+                      ₺{(selectedInvoice.tax_amount || 0).toLocaleString('tr-TR')}
+                    </span>
+                  </div>
+                  <div className="border-t border-gray-200 pt-3">
+                    <div className="flex justify-between">
+                      <span className="text-base font-semibold text-gray-900">Toplam Tutar:</span>
+                      <span className="text-2xl font-bold text-blue-600">
+                        ₺{selectedInvoice.total_amount.toLocaleString('tr-TR')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {selectedInvoice.notes && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-2">Notlar</h4>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-700">{selectedInvoice.notes}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => {
+                  setShowViewModal(false);
+                  setSelectedInvoice(null);
+                }}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                Kapat
+              </button>
+              <button
+                onClick={() => downloadPDF(selectedInvoice)}
+                className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg inline-flex items-center justify-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                PDF İndir
               </button>
             </div>
           </div>
