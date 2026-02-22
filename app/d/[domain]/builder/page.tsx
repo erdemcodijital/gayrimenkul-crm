@@ -532,6 +532,7 @@ function BuilderContent({ domain, router }: any) {
             if (currentPage?.is_home) {
               return (
                 <ClientLandingPage 
+                  key={JSON.stringify(currentPage?.content?.sections?.map(s => s.id))}
                   agent={agent} 
                   currentPage={currentPage}
                   onUpdateSection={handleUpdateSection}
@@ -574,6 +575,7 @@ function BuilderContent({ domain, router }: any) {
             return (
               <>
                 <ClientLandingPage 
+                  key={JSON.stringify(currentPage?.content?.sections?.map(s => s.id))}
                   agent={agent} 
                   currentPage={currentPage}
                   onUpdateSection={handleUpdateSection}
