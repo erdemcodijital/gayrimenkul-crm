@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Users, Shield, Mail, Calendar, Check, X, AlertCircle } from 'lucide-react';
+import { Users, Shield, Mail, Calendar, Check, X, AlertCircle, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { assignRoleToUser, removeRoleFromUser } from '@/lib/permissions';
 import { usePermissions } from '@/hooks/usePermissions';
 import { PERMISSIONS } from '@/lib/permissions';
@@ -37,6 +37,16 @@ export default function UsersPage() {
   const [userRoles, setUserRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [assigningRole, setAssigningRole] = useState<string | null>(null);
+  
+  // Create user modal
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    email: '',
+    password: '',
+    role: 'agent'
+  });
 
   useEffect(() => {
     loadData();
@@ -95,6 +105,49 @@ export default function UsersPage() {
 
   const hasRole = (userId: string, roleId: string): boolean => {
     return userRoles.some(ur => ur.user_id === userId && ur.role_id === roleId);
+  };
+
+  const createUser = async () => {
+    if (!createForm.email || !createForm.password) {
+      toast.error('Email ve şifre gerekli');
+      return;
+    }
+
+    if (createForm.password.length < 6) {
+      toast.error('Şifre en az 6 karakter olmalı');
+      return;
+    }
+
+    setCreating(true);
+    try {
+      // Create user with Supabase Auth Admin API
+      const { data, error } = await supabase.auth.admin.createUser({
+        email: createForm.email,
+        password: createForm.password,
+        email_confirm: true
+      });
+
+      if (error) throw error;
+      if (!data.user) throw new Error('Kullanıcı oluşturulamadı');
+
+      // Assign selected role
+      const success = await assignRoleToUser(data.user.id, createForm.role);
+      if (!success) {
+        console.warn('Rol atanamadı ama kullanıcı oluşturuldu');
+      }
+
+      toast.success('Kullanıcı başarıyla oluşturuldu!');
+      setShowCreateModal(false);
+      setCreateForm({ email: '', password: '', role: 'agent' });
+      
+      // Reload data
+      await loadData();
+    } catch (error: any) {
+      console.error('Error creating user:', error);
+      toast.error(error.message || 'Kullanıcı oluşturulamadı');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const toggleRole = async (userId: string, roleName: string) => {
@@ -174,9 +227,20 @@ export default function UsersPage() {
           <h1 className="text-2xl font-bold text-gray-900">Kullanıcı Yönetimi</h1>
           <p className="text-gray-600 mt-1">Kullanıcıları ve rollerini yönetin</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Users className="w-5 h-5" />
-          <span className="font-medium">{users.length} Kullanıcı</span>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Users className="w-5 h-5" />
+            <span className="font-medium">{users.length} Kullanıcı</span>
+          </div>
+          {can(PERMISSIONS.USERS_EDIT) && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
+            >
+              <UserPlus className="w-5 h-5" />
+              Yeni Kullanıcı
+            </button>
+          )}
         </div>
       </div>
 
@@ -295,6 +359,106 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      {/* Create User Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900">Yeni Kullanıcı Oluştur</h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={createForm.email}
+                  onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="kullanici@example.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Şifre
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={createForm.password}
+                    onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-10"
+                    placeholder="En az 6 karakter"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Minimum 6 karakter</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Başlangıç Rolü
+                </label>
+                <select
+                  value={createForm.role}
+                  onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  {roles.map(role => (
+                    <option key={role.id} value={role.name}>
+                      {role.display_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
+              >
+                İptal
+              </button>
+              <button
+                onClick={createUser}
+                disabled={creating}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {creating ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Oluşturuluyor...
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-5 h-5" />
+                    Oluştur
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
