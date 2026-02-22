@@ -71,7 +71,7 @@ function BuilderContent({ domain, router }: any) {
         loadPageContent(currentPage);
       }
     }
-  }, [currentPageId, pages]);
+  }, [currentPageId]); // Only reload when page ID changes, NOT when pages array updates
 
   const loadPageContent = (page: Page) => {
     console.log('📄 Loading page content:', page.title, page.content);
