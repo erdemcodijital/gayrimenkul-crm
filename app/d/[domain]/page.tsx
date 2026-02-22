@@ -86,7 +86,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
   return (
     <ClientLandingPage 
       agent={agent} 
-      currentPage={homePage as any}
+      currentPage={homePage ? homePage as any : undefined}
       searchParams={searchParams}
     />
   );
