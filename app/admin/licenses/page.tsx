@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import { Key, Calendar, AlertCircle, CheckCircle, Clock, TrendingUp, RefreshCw, Plus, Edit, XCircle, DollarSign } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import toast, { Toaster } from 'react-hot-toast';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 
@@ -173,10 +174,16 @@ export default function LicensesPage() {
       setShowRenewModal(false);
       setRenewingLicense(null);
       await loadLicenses();
-      alert(`Lisans başarıyla ${renewMonths} ay uzatıldı`);
+      toast.success(`Lisans başarıyla ${renewMonths} ay uzatıldı`, {
+        duration: 4000,
+        position: 'top-right',
+      });
     } catch (error) {
       console.error('Renew error:', error);
-      alert('Lisans yenilenemedi');
+      toast.error('Lisans yenilenemedi', {
+        duration: 4000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -214,10 +221,16 @@ export default function LicensesPage() {
       setShowEditModal(false);
       setEditingLicense(null);
       await loadLicenses();
-      alert('Lisans başarıyla güncellendi');
+      toast.success('Lisans başarıyla güncellendi', {
+        duration: 4000,
+        position: 'top-right',
+      });
     } catch (error) {
       console.error('Update error:', error);
-      alert('Lisans güncellenemedi');
+      toast.error('Lisans güncellenemedi', {
+        duration: 4000,
+        position: 'top-right',
+      });
     }
   };
 
@@ -671,6 +684,35 @@ export default function LicensesPage() {
           </div>
         </div>
       )}
+
+      {/* Toast Container */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#1f2937',
+            padding: '16px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+          success: {
+            iconTheme: {
+              primary: '#10b981',
+              secondary: '#fff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff',
+            },
+          },
+        }}
+      />
     </div>
   );
 }
