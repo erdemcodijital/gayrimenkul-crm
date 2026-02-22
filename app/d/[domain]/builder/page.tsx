@@ -332,7 +332,8 @@ function BuilderContent({ domain, router }: any) {
     const currentPage = pages.find(p => p.id === currentPageId);
     if (!currentPage) return;
 
-    console.log('🔄 Reordering sections:', reorderedSections.map(s => ({ id: s.id, order: s.order })));
+    console.log('🔄 Reordering sections BEFORE:', currentPage.content.sections.map((s: any) => `${s.id} (order: ${s.order})`));
+    console.log('🔄 Reordering sections AFTER:', reorderedSections.map(s => `${s.id} (order: ${s.order})`));
 
     // Update local state immediately with DEEP COPY to force React re-render
     const newPages = pages.map(p => {
@@ -348,10 +349,13 @@ function BuilderContent({ domain, router }: any) {
       return p;
     });
     
+    console.log('🔄 NEW PAGES sections:', newPages.find(p => p.id === currentPageId)?.content.sections.map((s: any) => `${s.id} (order: ${s.order})`));
+    
     setPages([...newPages]); // NEW pages array reference
 
     // Save to database
     const updatedContent = { ...currentPage.content, sections: reorderedSections };
+    console.log('💾 SAVING TO DATABASE:', updatedContent.sections.map((s: any) => `${s.id} (order: ${s.order})`));
     supabase
       .from('pages')
       .update({ content: updatedContent })
