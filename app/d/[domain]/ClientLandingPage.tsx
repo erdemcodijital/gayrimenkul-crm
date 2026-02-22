@@ -205,6 +205,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
     return (
       <div className="min-h-screen bg-white">
         <SectionRenderer 
+          key={sections.map(s => s.id).join('-')}
           sections={sections as Section[]}
           onUpdateSection={onUpdateSection || (() => {})}
           onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
@@ -663,6 +664,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       {hasCustomSections && (
         <div className="bg-white">
           <SectionRenderer 
+            key={sections.map(s => s.id).join('-')}
             sections={sections as Section[]}
             onUpdateSection={onUpdateSection || (() => {})}
             onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
