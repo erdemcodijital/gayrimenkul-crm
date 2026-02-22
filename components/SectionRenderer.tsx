@@ -5,8 +5,7 @@ import HeroSection from './sections/HeroSection';
 import TextSection from './sections/TextSection';
 import FeaturesSection from './sections/FeaturesSection';
 import CTASection from './sections/CTASection';
-import { Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface Props {
   sections: Section[];
@@ -18,38 +17,13 @@ interface Props {
 }
 
 export default function SectionRenderer({ sections, onUpdateSection, onDeleteSection, onSectionClick, onReorderSections, editMode = false }: Props) {
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', index.toString());
-    setDraggedIndex(index);
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverIndex(index);
-  };
-
-  const handleDragLeave = () => {
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    
-    if (draggedIndex === null || draggedIndex === dropIndex || !onReorderSections) {
-      setDraggedIndex(null);
-      setDragOverIndex(null);
-      return;
-    }
+  const moveSection = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || !onReorderSections) return;
 
     const sortedSections = [...sections].sort((a, b) => a.order - b.order);
     const newSections = [...sortedSections];
-    const [removed] = newSections.splice(draggedIndex, 1);
-    newSections.splice(dropIndex, 0, removed);
+    const [removed] = newSections.splice(fromIndex, 1);
+    newSections.splice(toIndex, 0, removed);
 
     // Update order values
     const reorderedSections = newSections.map((section, idx) => ({
@@ -58,13 +32,6 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
     }));
 
     onReorderSections(reorderedSections);
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
   };
 
   const renderSection = (section: Section) => {
@@ -96,25 +63,41 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
     <>
       {sortedSections.map((section, index) => (
         <div 
-          key={section.id} 
-          draggable={editMode && !!onReorderSections}
-          onDragStart={(e) => handleDragStart(e, index)}
-          onDragOver={(e) => handleDragOver(e, index)}
-          onDragLeave={handleDragLeave}
-          onDrop={(e) => handleDrop(e, index)}
-          onDragEnd={handleDragEnd}
-          className={`relative group transition-all ${
-            editMode && onReorderSections ? 'cursor-move hover:ring-2 hover:ring-blue-400' : ''
-          } ${
-            draggedIndex === index ? 'opacity-50 scale-95' : ''
-          } ${
-            dragOverIndex === index && draggedIndex !== index ? 'border-t-4 border-blue-500' : ''
-          }`}
+          key={section.id}
+          className="relative group hover:ring-2 hover:ring-blue-400 transition-all"
           onDoubleClick={() => editMode && onSectionClick && onSectionClick(section)}
         >
-          {/* Delete Button */}
+          {/* Control Buttons */}
           {editMode && (
             <div className="absolute top-2 right-2 z-50 flex gap-2">
+              {/* Move Up Button */}
+              {onReorderSections && index > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveSection(index, index - 1);
+                  }}
+                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-lg"
+                  title="Yukarı Taşı"
+                >
+                  <ArrowUp className="w-4 h-4" />
+                </button>
+              )}
+              
+              {/* Move Down Button */}
+              {onReorderSections && index < sortedSections.length - 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveSection(index, index + 1);
+                  }}
+                  className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-lg"
+                  title="Aşağı Taşı"
+                >
+                  <ArrowDown className="w-4 h-4" />
+                </button>
+              )}
+              
               {/* Delete Button */}
               {onDeleteSection && (
                 <button
