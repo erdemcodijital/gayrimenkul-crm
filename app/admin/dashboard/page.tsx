@@ -9,6 +9,7 @@ import {
   TrendingUp, 
   Building2, 
   ArrowUpRight, 
+  ArrowDownRight,
   Activity, 
   Clock,
   Home,
@@ -16,8 +17,13 @@ import {
   MapPin,
   UserPlus,
   Eye,
-  PieChart
+  PieChart,
+  DollarSign,
+  Award,
+  Target
 } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, FunnelChart, Funnel, LabelList } from 'recharts';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Stats {
   totalAgents: number;
@@ -60,6 +66,13 @@ export default function DashboardPage() {
   const [weeklyData, setWeeklyData] = useState<DailyLeads[]>([]);
   const [leadStatusData, setLeadStatusData] = useState<LeadStatus[]>([]);
   const [cityData, setCityData] = useState<CityStats[]>([]);
+  const [topPerformers, setTopPerformers] = useState<any[]>([]);
+  const [conversionFunnel, setConversionFunnel] = useState<any[]>([]);
+  const [revenueData, setRevenueData] = useState({
+    monthly: 0,
+    yearly: 0,
+    growth: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -202,6 +215,64 @@ export default function DashboardPage() {
 
       setCityData(topCities);
 
+      // Top 5 Performers (Agent'lara göre lead sayısı)
+      const { data: agentLeads } = await supabase
+        .from('leads')
+        .select('agent_id, agents(name, domain)');
+
+      const agentCounts: Record<string, {name: string, domain: string, count: number}> = {};
+      agentLeads?.forEach((lead: any) => {
+        if (lead.agent_id && lead.agents) {
+          const key = lead.agent_id;
+          if (!agentCounts[key]) {
+            agentCounts[key] = {
+              name: lead.agents.name,
+              domain: lead.agents.domain,
+              count: 0
+            };
+          }
+          agentCounts[key].count++;
+        }
+      });
+
+      const topPerformersData = Object.values(agentCounts)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      setTopPerformers(topPerformersData);
+
+      // Conversion Funnel
+      const newCount = leadStatusData.find(s => s.status === 'Yeni')?.count || 0;
+      const contactedCount = leadStatusData.find(s => s.status === 'İletişimde')?.count || 0;
+      const meetingCount = leadStatusData.find(s => s.status === 'Görüşme')?.count || 0;
+      const successfulCount = leadStatusData.find(s => s.status === 'Başarılı')?.count || 0;
+
+      setConversionFunnel([
+        { stage: 'Yeni Leadler', value: newCount, fill: '#3b82f6' },
+        { stage: 'İletişimde', value: contactedCount, fill: '#8b5cf6' },
+        { stage: 'Görüşme', value: meetingCount, fill: '#f59e0b' },
+        { stage: 'Başarılı', value: successfulCount, fill: '#10b981' },
+      ]);
+
+      // Revenue Data (Licenses'tan)
+      const { data: licenses } = await supabase
+        .from('licenses')
+        .select('price, billing_cycle, status')
+        .eq('status', 'active');
+
+      const monthlyRevenue = licenses?.reduce((sum, lic) => {
+        const price = lic.price || 0;
+        return sum + (lic.billing_cycle === 'monthly' ? price : price / 12);
+      }, 0) || 0;
+
+      const yearlyRevenue = monthlyRevenue * 12;
+
+      setRevenueData({
+        monthly: monthlyRevenue,
+        yearly: yearlyRevenue,
+        growth: stats.weeklyGrowth
+      });
+
       setStats({
         totalAgents: totalAgents || 0,
         activeAgents: activeAgents || 0,
@@ -254,6 +325,27 @@ export default function DashboardPage() {
       bgColor: 'bg-orange-50',
       iconColor: 'text-orange-600',
       link: '/admin/domains'
+    },
+  ];
+
+  const revenueCards = [
+    {
+      title: 'Aylık Gelir (MRR)',
+      value: `₺${revenueData.monthly.toLocaleString('tr-TR')}`,
+      subtitle: 'Tekrarlayan',
+      icon: DollarSign,
+      bgColor: 'bg-emerald-50',
+      iconColor: 'text-emerald-600',
+      change: revenueData.growth,
+      changeType: revenueData.growth > 0 ? 'up' : 'down'
+    },
+    {
+      title: 'Yıllık Gelir Projesi',
+      value: `₺${revenueData.yearly.toLocaleString('tr-TR')}`,
+      subtitle: 'Tahmini',
+      icon: TrendingUp,
+      bgColor: 'bg-indigo-50',
+      iconColor: 'text-indigo-600',
     },
   ];
 
@@ -534,6 +626,139 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      {/* Revenue Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {revenueCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div key={card.title} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-shadow">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`w-12 h-12 ${card.bgColor} rounded-lg flex items-center justify-center`}>
+                  <Icon className={`w-6 h-6 ${card.iconColor}`} />
+                </div>
+                {card.change !== undefined && (
+                  <div className={`flex items-center gap-1 text-sm font-medium ${card.changeType === 'up' ? 'text-green-600' : 'text-red-600'}`}>
+                    {card.changeType === 'up' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                    {Math.abs(card.change)}%
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <div className="text-3xl font-bold text-gray-900">{card.value}</div>
+                <div className="text-sm text-gray-500">{card.title}</div>
+                <div className="text-xs text-gray-400">{card.subtitle}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Advanced Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Performers Table */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Top Performers</h2>
+              <p className="text-sm text-gray-500 mt-1">En çok lead alan danışmanlar</p>
+            </div>
+            <Award className="w-5 h-5 text-gray-400" />
+          </div>
+          
+          {topPerformers.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-8">Henüz veri yok</p>
+          ) : (
+            <div className="space-y-3">
+              {topPerformers.map((performer, index) => (
+                <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 text-white font-bold text-sm">
+                    #{index + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-gray-900 truncate">{performer.name}</div>
+                    <div className="text-xs text-gray-500 truncate">{performer.domain}</div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Target className="w-4 h-4 text-blue-500" />
+                    <span className="text-lg font-bold text-gray-900">{performer.count}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Conversion Funnel */}
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Lead Dönüşüm Hunisi</h2>
+              <p className="text-sm text-gray-500 mt-1">Satış hunisi analizi</p>
+            </div>
+            <Activity className="w-5 h-5 text-gray-400" />
+          </div>
+          
+          {conversionFunnel.every(item => item.value === 0) ? (
+            <p className="text-sm text-gray-500 text-center py-8">Henüz veri yok</p>
+          ) : (
+            <div className="space-y-3">
+              {conversionFunnel.map((stage, index) => {
+                const total = conversionFunnel[0].value || 1;
+                const percentage = ((stage.value / total) * 100).toFixed(0);
+                const prevValue = index > 0 ? conversionFunnel[index - 1].value : stage.value;
+                const dropoff = prevValue > 0 ? ((prevValue - stage.value) / prevValue * 100).toFixed(0) : 0;
+                
+                return (
+                  <div key={stage.stage}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-700">{stage.stage}</span>
+                        {index > 0 && dropoff > 0 && (
+                          <span className="text-xs text-red-600 font-medium">-{dropoff}%</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900">{stage.value}</span>
+                        <span className="text-xs text-gray-500">({percentage}%)</span>
+                      </div>
+                    </div>
+                    <div className="h-10 rounded-lg overflow-hidden bg-gray-100">
+                      <div
+                        className="h-full flex items-center justify-center text-white text-sm font-semibold transition-all duration-500"
+                        style={{
+                          width: `${percentage}%`,
+                          backgroundColor: stage.fill,
+                          minWidth: stage.value > 0 ? '40px' : '0'
+                        }}
+                      >
+                        {stage.value > 0 && stage.value}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Toast Container */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#1f2937',
+            padding: '16px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        }}
+      />
     </div>
   );
 }
