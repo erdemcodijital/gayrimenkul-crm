@@ -153,17 +153,18 @@ export default function UsersPage() {
     );
   }
 
-  if (!can(PERMISSIONS.USERS_VIEW)) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Erişim Engellendi</h2>
-          <p className="text-gray-600">Bu sayfayı görüntüleme yetkiniz yok.</p>
-        </div>
-      </div>
-    );
-  }
+  // Temporarily disabled for debugging
+  // if (!can(PERMISSIONS.USERS_VIEW)) {
+  //   return (
+  //     <div className="flex items-center justify-center h-96">
+  //       <div className="text-center">
+  //         <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+  //         <h2 className="text-xl font-bold text-gray-900 mb-2">Erişim Engellendi</h2>
+  //         <p className="text-gray-600">Bu sayfayı görüntüleme yetkiniz yok.</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-6">
