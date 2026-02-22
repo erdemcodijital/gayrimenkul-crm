@@ -76,11 +76,11 @@ create trigger handle_notification_settings_updated_at
 
 /* Function to create notification */
 create or replace function create_notification(
-  p_user_id uuid default null,
-  p_agent_id uuid default null,
   p_type text,
   p_title text,
   p_message text,
+  p_user_id uuid default null,
+  p_agent_id uuid default null,
   p_action_url text default null,
   p_action_label text default null,
   p_priority text default 'normal',
@@ -206,11 +206,11 @@ begin
       )
   loop
     perform create_notification(
-      null,
-      v_license.agent_id,
       'license_expiry',
       'Lisans Süresi Dolmak Üzere',
       format('Lisansınız %s tarihinde sona erecek. Lütfen yenileyin.', v_license.end_date::date),
+      null,
+      v_license.agent_id,
       '/admin/licenses',
       'Lisansları Görüntüle',
       'high',
