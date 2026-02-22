@@ -154,28 +154,22 @@ function BuilderContent({ domain, router }: any) {
           sections: p.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`)
         })));
         
-        // Add default sections to home page if missing (ONLY save to database, don't modify state)
+        // Add default sections ONLY if home page is completely empty (no sections at all)
         const pagesWithDefaults = await Promise.all(data.map(async (p: any) => {
           if (p.is_home) {
             const existingSections = p.content?.sections || [];
             
-            // Check if default sections already exist
-            const hasHero = existingSections.some((s: any) => s.type === 'hero');
-            const hasFeatures = existingSections.some((s: any) => s.type === 'features');
-            const hasProperties = existingSections.some((s: any) => s.type === 'properties');
-            const hasCTA = existingSections.some((s: any) => s.type === 'cta');
-            
-            // Add missing default sections
-            const defaultSections = [];
-            if (!hasHero) defaultSections.push({ id: `section-hero-${Date.now()}`, type: 'hero', order: existingSections.length, data: {} });
-            if (!hasFeatures) defaultSections.push({ id: `section-features-${Date.now() + 1}`, type: 'features', order: existingSections.length + defaultSections.length, data: {} });
-            if (!hasProperties) defaultSections.push({ id: `section-properties-${Date.now() + 2}`, type: 'properties', order: existingSections.length + defaultSections.length, data: {} });
-            if (!hasCTA) defaultSections.push({ id: `section-cta-${Date.now() + 3}`, type: 'cta', order: existingSections.length + defaultSections.length, data: {} });
-            
-            if (defaultSections.length > 0) {
-              console.log('🏠 Adding missing default sections to database:', defaultSections.map(s => s.type));
-              const updatedSections = [...existingSections, ...defaultSections];
-              const updatedContent = { ...p.content, sections: updatedSections };
+            // ONLY add default sections if page is COMPLETELY EMPTY
+            if (existingSections.length === 0) {
+              console.log('🏠 Home page is empty - adding default sections to database');
+              const defaultSections = [
+                { id: `section-hero-${Date.now()}`, type: 'hero', order: 0, data: {} },
+                { id: `section-features-${Date.now() + 1}`, type: 'features', order: 1, data: {} },
+                { id: `section-properties-${Date.now() + 2}`, type: 'properties', order: 2, data: {} },
+                { id: `section-cta-${Date.now() + 3}`, type: 'cta', order: 3, data: {} }
+              ];
+              
+              const updatedContent = { ...p.content, sections: defaultSections };
               
               // Save to database and return updated page
               await supabase
