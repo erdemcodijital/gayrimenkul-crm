@@ -351,9 +351,10 @@ function BuilderContent({ domain, router }: any) {
     const updatedSections = [...existingSections, newSection];
 
     // Update page content immediately
+    const updatedContent = { ...currentPage.content, sections: updatedSections };
     supabase
       .from('pages')
-      .update({ content: { sections: updatedSections } })
+      .update({ content: updatedContent })
       .eq('id', currentPageId)
       .then(() => {
         // Reload pages to reflect changes
@@ -372,14 +373,15 @@ function BuilderContent({ domain, router }: any) {
     // Update local state immediately for instant UI update
     setPages(pages.map(p => 
       p.id === currentPageId 
-        ? { ...p, content: { sections: updatedSections } }
+        ? { ...p, content: { ...p.content, sections: updatedSections } }
         : p
     ));
 
     // Save to database
+    const updatedContent = { ...currentPage.content, sections: updatedSections };
     supabase
       .from('pages')
-      .update({ content: { sections: updatedSections } })
+      .update({ content: updatedContent })
       .eq('id', currentPageId);
   };
 
