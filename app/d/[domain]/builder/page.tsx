@@ -461,8 +461,8 @@ function BuilderContent({ domain, router }: any) {
 
   return (
     <div className="h-screen flex bg-gray-900">
-      {/* Left Sidebar - DISABLED IN MAINTENANCE MODE */}
-      {pages.length > 0 && false && (
+      {/* Left Sidebar - Back online, only Sections tab disabled */}
+      {pages.length > 0 && (
         <BuilderSidebar
           pages={pages}
           currentPageId={currentPageId}
@@ -486,9 +486,9 @@ function BuilderContent({ domain, router }: any) {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Components Panel - Show in edit mode */}
         <div className="flex flex-1 h-full min-h-0">
-          {mode === 'edit' && currentPageId && pages.length > 0 && (() => {
+          {mode === 'edit' && currentPageId && pages.length > 0 && false && (() => {
             const currentPage = pages.find(p => p.id === currentPageId);
-            // Show components panel for ALL pages (including home)
+            // COMPONENTS PANEL - DISABLED IN MAINTENANCE MODE
             const showComponentsPanel = !!currentPage;
             return showComponentsPanel ? <ComponentsPanel onAddComponent={handleAddSection} /> : null;
           })()}
