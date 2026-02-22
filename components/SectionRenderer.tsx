@@ -18,9 +18,16 @@ interface Props {
 
 export default function SectionRenderer({ sections, onUpdateSection, onDeleteSection, onSectionClick, onReorderSections, editMode = false }: Props) {
   const moveSection = (fromIndex: number, toIndex: number) => {
-    if (fromIndex === toIndex || !onReorderSections) return;
+    console.log('🔄 MOVE SECTION:', { fromIndex, toIndex, hasCallback: !!onReorderSections });
+    
+    if (fromIndex === toIndex || !onReorderSections) {
+      console.log('❌ BLOCKED - same index or no callback');
+      return;
+    }
 
     const sortedSections = [...sections].sort((a, b) => a.order - b.order);
+    console.log('📋 Sorted sections:', sortedSections.map(s => s.id));
+    
     const newSections = [...sortedSections];
     const [removed] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, removed);
@@ -31,6 +38,7 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
       order: idx
     }));
 
+    console.log('✅ NEW ORDER:', reorderedSections.map(s => s.id));
     onReorderSections(reorderedSections);
   };
 
