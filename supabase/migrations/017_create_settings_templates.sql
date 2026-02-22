@@ -1,7 +1,7 @@
 /* Create settings table for system configuration */
 create table if not exists public.settings (
   id uuid default gen_random_uuid() primary key,
-  key text unique not null,
+  "key" text unique not null,
   value jsonb,
   category text not null, /* general, email, whatsapp, sms, appearance */
   description text,
@@ -36,7 +36,7 @@ create table if not exists public.whatsapp_templates (
 );
 
 /* Create indexes */
-create index if not exists settings_key_idx on public.settings(key);
+create index if not exists settings_key_idx on public.settings("key");
 create index if not exists settings_category_idx on public.settings(category);
 create index if not exists email_templates_category_idx on public.email_templates(category);
 create index if not exists whatsapp_templates_category_idx on public.whatsapp_templates(category);
@@ -100,7 +100,7 @@ declare
 begin
   select value into v_value
   from public.settings
-  where key = p_key;
+  where "key" = p_key;
   
   return v_value;
 end;
@@ -118,9 +118,9 @@ returns uuid as $$
 declare
   v_setting_id uuid;
 begin
-  insert into public.settings (key, value, category, description, is_public)
+  insert into public.settings ("key", value, category, description, is_public)
   values (p_key, p_value, p_category, p_description, p_is_public)
-  on conflict (key) do update
+  on conflict ("key") do update
   set value = excluded.value,
       category = excluded.category,
       description = excluded.description,
@@ -133,7 +133,7 @@ end;
 $$ language plpgsql security definer;
 
 /* Insert default settings */
-insert into public.settings (key, value, category, description, is_public) values
+insert into public.settings ("key", value, category, description, is_public) values
   ('site_name', '"Gayrimenkul CRM"', 'general', 'Site name', true),
   ('site_logo', '""', 'general', 'Site logo URL', true),
   ('currency', '"TRY"', 'general', 'Default currency', true),
@@ -151,7 +151,7 @@ insert into public.settings (key, value, category, description, is_public) value
   ('sms_enabled', 'false', 'sms', 'Enable SMS integration', false),
   ('theme_primary_color', '"#1f2937"', 'appearance', 'Primary theme color', true),
   ('theme_secondary_color', '"#3b82f6"', 'appearance', 'Secondary theme color', true)
-on conflict (key) do nothing;
+on conflict ("key") do nothing;
 
 /* Insert default email templates */
 insert into public.email_templates (name, subject, body, variables, category) values
