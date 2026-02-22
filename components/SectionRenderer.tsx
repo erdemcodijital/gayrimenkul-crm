@@ -22,8 +22,9 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIndex(index);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', index.toString());
+    setDraggedIndex(index);
   };
 
   const handleDragOver = (e: React.DragEvent, index: number) => {
