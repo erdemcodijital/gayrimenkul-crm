@@ -49,13 +49,14 @@ function BuilderContent({ domain, router }: any) {
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
 
   // Memoize currentPage to ensure React sees state changes
+  // Use JSON.stringify to detect deep changes in sections
   const currentPage = useMemo(() => {
     const page = pages.find(p => p.id === currentPageId);
     if (page) {
       console.log('📄 Builder: Current page memoized', page.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`));
     }
     return page;
-  }, [pages, currentPageId]);
+  }, [JSON.stringify(pages.find(p => p.id === currentPageId)?.content?.sections), currentPageId]);
 
   useEffect(() => {
     loadAgent();
