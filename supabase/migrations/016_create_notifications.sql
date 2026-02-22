@@ -1,21 +1,21 @@
--- Create notifications table
+/* Create notifications table */
 create table if not exists public.notifications (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade,
   agent_id uuid references public.agents(id) on delete cascade,
-  type text not null, -- system, license_expiry, payment_due, new_lead, invoice_created
+  type text not null, /* system, license_expiry, payment_due, new_lead, invoice_created */
   title text not null,
   message text not null,
   action_url text,
   action_label text,
-  priority text default 'normal', -- low, normal, high, urgent
+  priority text default 'normal', /* low, normal, high, urgent */
   is_read boolean default false,
   read_at timestamptz,
   metadata jsonb,
   created_at timestamptz default now()
 );
 
--- Create notification_settings table
+/* Create notification_settings table */
 create table if not exists public.notification_settings (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) on delete cascade unique,
@@ -34,18 +34,18 @@ create table if not exists public.notification_settings (
   updated_at timestamptz default now()
 );
 
--- Create indexes
+/* Create indexes */
 create index if not exists notifications_user_id_idx on public.notifications(user_id);
 create index if not exists notifications_agent_id_idx on public.notifications(agent_id);
 create index if not exists notifications_is_read_idx on public.notifications(is_read);
 create index if not exists notifications_created_at_idx on public.notifications(created_at desc);
 create index if not exists notifications_type_idx on public.notifications(type);
 
--- Enable RLS
+/* Enable RLS */
 alter table public.notifications enable row level security;
 alter table public.notification_settings enable row level security;
 
--- RLS Policies for notifications
+/* RLS Policies for notifications */
 create policy "Users can view their own notifications" on public.notifications
   for select using (auth.uid() = user_id or auth.uid() in (select user_id from public.agents where id = agent_id));
 
@@ -58,7 +58,7 @@ create policy "Users can update their own notifications" on public.notifications
 create policy "Users can delete their own notifications" on public.notifications
   for delete using (auth.uid() = user_id or auth.uid() in (select user_id from public.agents where id = agent_id));
 
--- RLS Policies for notification_settings
+/* RLS Policies for notification_settings */
 create policy "Users can view their own settings" on public.notification_settings
   for select using (auth.uid() = user_id or auth.uid() in (select user_id from public.agents where id = agent_id));
 
@@ -68,13 +68,13 @@ create policy "Users can update their own settings" on public.notification_setti
 create policy "Enable insert for authenticated users only" on public.notification_settings
   for insert with check (true);
 
--- Trigger for updated_at
+/* Trigger for updated_at */
 create trigger handle_notification_settings_updated_at
   before update on public.notification_settings
   for each row
   execute function public.handle_updated_at();
 
--- Function to create notification
+/* Function to create notification */
 create or replace function create_notification(
   p_user_id uuid default null,
   p_agent_id uuid default null,
@@ -129,7 +129,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Function to mark notification as read
+/* Function to mark notification as read */
 create or replace function mark_notification_read(p_notification_id uuid)
 returns void as $$
 begin
@@ -139,7 +139,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Function to mark all notifications as read
+/* Function to mark all notifications as read */
 create or replace function mark_all_notifications_read(p_user_id uuid default null, p_agent_id uuid default null)
 returns void as $$
 begin
@@ -155,7 +155,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Function to delete old notifications
+/* Function to delete old notifications */
 create or replace function cleanup_old_notifications()
 returns void as $$
 begin
@@ -165,7 +165,7 @@ begin
 end;
 $$ language plpgsql;
 
--- Function to get unread notification count
+/* Function to get unread notification count */
 create or replace function get_unread_notification_count(p_user_id uuid default null, p_agent_id uuid default null)
 returns integer as $$
 declare
@@ -185,13 +185,13 @@ begin
 end;
 $$ language plpgsql;
 
--- Trigger function to send license expiry notifications
+/* Trigger function to send license expiry notifications */
 create or replace function check_license_expiry()
 returns void as $$
 declare
   v_license record;
 begin
-  -- Check for licenses expiring in 7 days
+  /* Check for licenses expiring in 7 days */
   for v_license in
     select l.*, a.name as agent_name, a.user_id
     from public.licenses l
