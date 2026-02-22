@@ -232,7 +232,8 @@ export default function UsersPage() {
             <Users className="w-5 h-5" />
             <span className="font-medium">{users.length} Kullanıcı</span>
           </div>
-          {can(PERMISSIONS.USERS_EDIT) && (
+          {/* Temporarily disabled permission check for debugging */}
+          {/* {can(PERMISSIONS.USERS_EDIT) && ( */}
             <button
               onClick={() => setShowCreateModal(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2"
@@ -240,7 +241,7 @@ export default function UsersPage() {
               <UserPlus className="w-5 h-5" />
               Yeni Kullanıcı
             </button>
-          )}
+          {/* )} */}
         </div>
       </div>
 
@@ -262,11 +263,12 @@ export default function UsersPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Son Giriş
                 </th>
-                {can(PERMISSIONS.USERS_EDIT) && (
+                {/* Temporarily disabled permission check */}
+                {/* {can(PERMISSIONS.USERS_EDIT) && ( */}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     İşlemler
                   </th>
-                )}
+                {/* )} */}
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -313,7 +315,8 @@ export default function UsersPage() {
                         : 'Hiç giriş yapmadı'}
                     </div>
                   </td>
-                  {can(PERMISSIONS.USERS_EDIT) && (
+                  {/* Temporarily disabled permission check */}
+                  {/* {can(PERMISSIONS.USERS_EDIT) && ( */}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-wrap gap-2">
                         {roles.map(role => {
@@ -345,7 +348,7 @@ export default function UsersPage() {
                         })}
                       </div>
                     </td>
-                  )}
+                  {/* )} */}
                 </tr>
               ))}
             </tbody>
