@@ -96,12 +96,10 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
       {sortedSections.map((section, index) => (
         <div 
           key={section.id} 
-          draggable={editMode && !!onReorderSections}
-          onDragStart={(e) => handleDragStart(e, index)}
+          draggable={false}
           onDragOver={(e) => handleDragOver(e, index)}
           onDragLeave={handleDragLeave}
           onDrop={(e) => handleDrop(e, index)}
-          onDragEnd={handleDragEnd}
           className={`relative group transition-all ${
             editMode && onSectionClick ? 'cursor-pointer hover:ring-2 hover:ring-blue-400' : ''
           } ${
@@ -117,9 +115,15 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
               {/* Drag Handle */}
               {onReorderSections && (
                 <div 
+                  draggable={true}
+                  onDragStart={(e) => {
+                    e.stopPropagation();
+                    handleDragStart(e, index);
+                  }}
+                  onDragEnd={handleDragEnd}
                   className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded shadow-lg cursor-grab active:cursor-grabbing"
                   title="Sürükle & Taşı"
-                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <GripVertical className="w-4 h-4" />
                 </div>
