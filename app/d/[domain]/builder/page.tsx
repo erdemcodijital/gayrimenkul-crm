@@ -154,8 +154,8 @@ function BuilderContent({ domain, router }: any) {
           sections: p.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`)
         })));
         
-        // Add default sections to home page if missing
-        const pagesWithDefaults = data.map((p: any) => {
+        // Add default sections to home page if missing (ONLY save to database, don't modify state)
+        const pagesWithDefaults = await Promise.all(data.map(async (p: any) => {
           if (p.is_home) {
             const existingSections = p.content?.sections || [];
             
@@ -173,18 +173,24 @@ function BuilderContent({ domain, router }: any) {
             if (!hasCTA) defaultSections.push({ id: `section-cta-${Date.now() + 3}`, type: 'cta', order: existingSections.length + defaultSections.length, data: {} });
             
             if (defaultSections.length > 0) {
-              console.log('🏠 Adding missing default sections to home page:', defaultSections.map(s => s.type));
+              console.log('🏠 Adding missing default sections to database:', defaultSections.map(s => s.type));
+              const updatedSections = [...existingSections, ...defaultSections];
+              const updatedContent = { ...p.content, sections: updatedSections };
+              
+              // Save to database and return updated page
+              await supabase
+                .from('pages')
+                .update({ content: updatedContent })
+                .eq('id', p.id);
+              
               return {
                 ...p,
-                content: {
-                  ...p.content,
-                  sections: [...existingSections, ...defaultSections]
-                }
+                content: updatedContent
               };
             }
           }
           return p;
-        });
+        }));
         
         setPages(pagesWithDefaults as Page[]);
         
