@@ -154,39 +154,8 @@ function BuilderContent({ domain, router }: any) {
           sections: p.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`)
         })));
         
-        // Add default sections ONLY if home page is completely empty (no sections at all)
-        const pagesWithDefaults = await Promise.all(data.map(async (p: any) => {
-          if (p.is_home) {
-            const existingSections = p.content?.sections || [];
-            
-            // ONLY add default sections if page is COMPLETELY EMPTY
-            if (existingSections.length === 0) {
-              console.log('🏠 Home page is empty - adding default sections to database');
-              const defaultSections = [
-                { id: `section-hero-${Date.now()}`, type: 'hero', order: 0, data: {} },
-                { id: `section-features-${Date.now() + 1}`, type: 'features', order: 1, data: {} },
-                { id: `section-properties-${Date.now() + 2}`, type: 'properties', order: 2, data: {} },
-                { id: `section-cta-${Date.now() + 3}`, type: 'cta', order: 3, data: {} }
-              ];
-              
-              const updatedContent = { ...p.content, sections: defaultSections };
-              
-              // Save to database and return updated page
-              await supabase
-                .from('pages')
-                .update({ content: updatedContent })
-                .eq('id', p.id);
-              
-              return {
-                ...p,
-                content: updatedContent
-              };
-            }
-          }
-          return p;
-        }));
-        
-        setPages(pagesWithDefaults as Page[]);
+        // NO AUTO-ADDING! Just use what's in the database!
+        setPages(data as Page[]);
         
         // Check if there's a page in URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -216,34 +185,7 @@ function BuilderContent({ domain, router }: any) {
   const createDefaultHomePage = async () => {
     if (!agent) return;
 
-    // Create default sections for home page
-    const defaultSections = [
-      {
-        id: `section-hero-${Date.now()}`,
-        type: 'hero' as const,
-        order: 0,
-        data: {}
-      },
-      {
-        id: `section-features-${Date.now() + 1}`,
-        type: 'features' as const,
-        order: 1,
-        data: {}
-      },
-      {
-        id: `section-properties-${Date.now() + 2}`,
-        type: 'properties' as const,
-        order: 2,
-        data: {}
-      },
-      {
-        id: `section-cta-${Date.now() + 3}`,
-        type: 'cta' as const,
-        order: 3,
-        data: {}
-      }
-    ];
-
+    // Create EMPTY home page - user will add sections manually!
     const { data } = await supabase
       .from('pages')
       .insert({
@@ -253,7 +195,7 @@ function BuilderContent({ domain, router }: any) {
         is_home: true,
         visible: true,
         order_index: 0,
-        content: { sections: defaultSections }
+        content: { sections: [] }
       })
       .select()
       .single();
