@@ -1,16 +1,14 @@
 'use client';
 
 import { TextSection as TextSectionType } from '@/types/sections';
-import { useEditor } from '@/contexts/EditorContext';
 
 interface Props {
   section: TextSectionType;
   onUpdate: (data: TextSectionType['data']) => void;
+  editMode?: boolean;
 }
 
-export default function TextSection({ section, onUpdate }: Props) {
-  const editorContext = useEditor();
-  const editMode = editorContext?.editMode || false;
+export default function TextSection({ section, onUpdate, editMode = false }: Props) {
 
   return (
     <section className="py-16 bg-white">

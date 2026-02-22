@@ -1,16 +1,14 @@
 'use client';
 
 import { HeroSection as HeroSectionType } from '@/types/sections';
-import { useEditor } from '@/contexts/EditorContext';
 
 interface Props {
   section: HeroSectionType;
   onUpdate: (data: HeroSectionType['data']) => void;
+  editMode?: boolean;
 }
 
-export default function HeroSection({ section, onUpdate }: Props) {
-  const editorContext = useEditor();
-  const editMode = editorContext?.editMode || false;
+export default function HeroSection({ section, onUpdate, editMode = false }: Props) {
 
   return (
     <section className="min-h-[600px] flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 text-white relative overflow-hidden">

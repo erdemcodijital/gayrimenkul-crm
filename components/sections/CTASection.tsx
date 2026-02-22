@@ -1,16 +1,14 @@
 'use client';
 
 import { CTASection as CTASectionType } from '@/types/sections';
-import { useEditor } from '@/contexts/EditorContext';
 
 interface Props {
   section: CTASectionType;
   onUpdate: (data: CTASectionType['data']) => void;
+  editMode?: boolean;
 }
 
-export default function CTASection({ section, onUpdate }: Props) {
-  const editorContext = useEditor();
-  const editMode = editorContext?.editMode || false;
+export default function CTASection({ section, onUpdate, editMode = false }: Props) {
 
   return (
     <section className="py-24 bg-gray-900 text-white">

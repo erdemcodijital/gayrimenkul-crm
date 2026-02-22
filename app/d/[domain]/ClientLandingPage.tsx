@@ -206,6 +206,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
           onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
           onSectionClick={onSectionClick}
           onReorderSections={onReorderSections}
+          editMode={editMode}
         />
       </div>
     );
@@ -663,6 +664,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
             onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
             onSectionClick={onSectionClick}
             onReorderSections={onReorderSections}
+            editMode={editMode}
           />
         </div>
       )}

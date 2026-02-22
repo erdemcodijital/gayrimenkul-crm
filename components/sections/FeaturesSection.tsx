@@ -1,16 +1,14 @@
 'use client';
 
 import { FeaturesSection as FeaturesSectionType } from '@/types/sections';
-import { useEditor } from '@/contexts/EditorContext';
 
 interface Props {
   section: FeaturesSectionType;
   onUpdate: (data: FeaturesSectionType['data']) => void;
+  editMode?: boolean;
 }
 
-export default function FeaturesSection({ section, onUpdate }: Props) {
-  const editorContext = useEditor();
-  const editMode = editorContext?.editMode || false;
+export default function FeaturesSection({ section, onUpdate, editMode = false }: Props) {
 
   return (
     <section className="py-20 bg-gray-50">

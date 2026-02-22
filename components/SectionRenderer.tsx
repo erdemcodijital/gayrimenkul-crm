@@ -6,7 +6,6 @@ import TextSection from './sections/TextSection';
 import FeaturesSection from './sections/FeaturesSection';
 import CTASection from './sections/CTASection';
 import { Trash2, GripVertical } from 'lucide-react';
-import { useEditor } from '@/contexts/EditorContext';
 import { useState } from 'react';
 
 interface Props {
@@ -15,11 +14,10 @@ interface Props {
   onDeleteSection?: (id: string) => void;
   onSectionClick?: (section: Section) => void;
   onReorderSections?: (sections: Section[]) => void;
+  editMode?: boolean;
 }
 
-export default function SectionRenderer({ sections, onUpdateSection, onDeleteSection, onSectionClick, onReorderSections }: Props) {
-  const editorContext = useEditor();
-  const editMode = editorContext?.editMode || false;
+export default function SectionRenderer({ sections, onUpdateSection, onDeleteSection, onSectionClick, onReorderSections, editMode = false }: Props) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
@@ -73,13 +71,13 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
 
     switch (section.type) {
       case 'hero':
-        return <HeroSection section={section} onUpdate={onUpdate} />;
+        return <HeroSection section={section} onUpdate={onUpdate} editMode={editMode} />;
       case 'text':
-        return <TextSection section={section} onUpdate={onUpdate} />;
+        return <TextSection section={section} onUpdate={onUpdate} editMode={editMode} />;
       case 'features':
-        return <FeaturesSection section={section} onUpdate={onUpdate} />;
+        return <FeaturesSection section={section} onUpdate={onUpdate} editMode={editMode} />;
       case 'cta':
-        return <CTASection section={section} onUpdate={onUpdate} />;
+        return <CTASection section={section} onUpdate={onUpdate} editMode={editMode} />;
       case 'properties':
         return <div className="py-16 bg-white"><div className="max-w-6xl mx-auto px-4"><h2 className="text-3xl font-bold">İlanlar (Gelecek)</h2></div></div>;
       case 'gallery':
