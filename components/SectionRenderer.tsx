@@ -26,20 +26,18 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
       return;
     }
 
-    const sortedSections = [...sections].sort((a, b) => a.order - b.order);
-    console.log('📋 Sorted sections:', sortedSections.map(s => s.id));
-    
-    const newSections = [...sortedSections];
+    // Work with UNSORTED sections - React uses ARRAY ORDER, not 'order' field!
+    const newSections = [...sections];
     const [removed] = newSections.splice(fromIndex, 1);
     newSections.splice(toIndex, 0, removed);
 
-    // Update order values
+    // Update order values to match array index
     const reorderedSections = newSections.map((section, idx) => ({
       ...section,
       order: idx
     }));
 
-    console.log('✅ NEW ORDER:', reorderedSections.map(s => s.id));
+    console.log('✅ NEW ORDER:', reorderedSections.map(s => `${s.id} (order: ${s.order})`));
     onReorderSections(reorderedSections);
   };
 
@@ -66,14 +64,15 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
     }
   };
 
-  const sortedSections = useMemo(() => {
-    console.log('🔄 SectionRenderer: Recalculating sorted sections', sections.map(s => s.id));
-    return [...(sections || [])].sort((a, b) => a.order - b.order);
+  // Don't sort! Use array order directly - order field is just for database
+  const displaySections = useMemo(() => {
+    console.log('🔄 SectionRenderer: Display sections', sections.map(s => `${s.id} (order: ${s.order})`));
+    return sections || [];
   }, [sections]);
 
   return (
     <>
-      {sortedSections.map((section, index) => (
+      {displaySections.map((section, index) => (
         <div 
           key={section.id}
           className="relative group hover:ring-2 hover:ring-blue-400 transition-all"
@@ -97,7 +96,7 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
               )}
               
               {/* Move Down Button */}
-              {onReorderSections && index < sortedSections.length - 1 && (
+              {onReorderSections && index < displaySections.length - 1 && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
