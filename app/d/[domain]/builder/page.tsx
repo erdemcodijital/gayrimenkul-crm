@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
@@ -47,6 +47,15 @@ function BuilderContent({ domain, router }: any) {
   const [saving, setSaving] = useState(false);
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
   const [selectedSection, setSelectedSection] = useState<Section | null>(null);
+
+  // Memoize currentPage to ensure React sees state changes
+  const currentPage = useMemo(() => {
+    const page = pages.find(p => p.id === currentPageId);
+    if (page) {
+      console.log('📄 Builder: Current page memoized', page.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`));
+    }
+    return page;
+  }, [pages, currentPageId]);
 
   useEffect(() => {
     loadAgent();
@@ -329,7 +338,6 @@ function BuilderContent({ domain, router }: any) {
   };
 
   const handleReorderSections = (reorderedSections: Section[]) => {
-    const currentPage = pages.find(p => p.id === currentPageId);
     if (!currentPage) return;
 
     console.log('🔄 Reordering sections BEFORE:', currentPage.content.sections.map((s: any) => `${s.id} (order: ${s.order})`));
