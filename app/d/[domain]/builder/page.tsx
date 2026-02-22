@@ -461,8 +461,8 @@ function BuilderContent({ domain, router }: any) {
 
   return (
     <div className="h-screen flex bg-gray-900">
-      {/* Left Sidebar - Only show if pages system is working */}
-      {pages.length > 0 && (
+      {/* Left Sidebar - DISABLED IN MAINTENANCE MODE */}
+      {pages.length > 0 && false && (
         <BuilderSidebar
           pages={pages}
           currentPageId={currentPageId}
