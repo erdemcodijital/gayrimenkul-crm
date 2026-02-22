@@ -78,8 +78,8 @@ export default function SectionRenderer({ sections, onUpdateSection, onDeleteSec
           className="relative group hover:ring-2 hover:ring-blue-400 transition-all"
           onDoubleClick={() => editMode && onSectionClick && onSectionClick(section)}
         >
-          {/* Control Buttons */}
-          {editMode && (
+          {/* Control Buttons - UNDER MAINTENANCE */}
+          {editMode && false && (
             <div className="absolute top-2 right-2 z-50 flex gap-2">
               {/* Move Up Button */}
               {onReorderSections && index > 0 && (

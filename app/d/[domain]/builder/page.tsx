@@ -597,20 +597,7 @@ function BuilderContent({ domain, router }: any) {
               );
             }
             
-            if (isEmptyPage && mode === 'edit') {
-              return (
-                <div className="flex items-center justify-center min-h-screen p-8">
-                  <div className="max-w-2xl w-full">
-                    <div className="text-center mb-8">
-                      <h2 className="text-3xl font-bold text-gray-900 mb-3">Boş Sayfa</h2>
-                      <p className="text-gray-600">Bu sayfa henüz boş. Aşağıdan bölüm ekleyerek içerik oluşturmaya başlayın.</p>
-                    </div>
-                    <SectionAdder onAddSection={handleAddSection} />
-                  </div>
-                </div>
-              );
-            }
-            
+            // SECTIONS SYSTEM - UNDER MAINTENANCE
             return (
               <>
                 <ClientLandingPage 
@@ -622,9 +609,23 @@ function BuilderContent({ domain, router }: any) {
                   onReorderSections={handleReorderSections}
                   editMode={mode === 'edit'}
                 />
-                {mode === 'edit' && currentPage?.content?.sections && (
-                  <div className="p-8 bg-gray-100">
-                    <SectionAdder onAddSection={handleAddSection} />
+                {mode === 'edit' && (
+                  <div className="p-8 bg-gradient-to-r from-orange-50 to-orange-100 border-t-4 border-orange-500">
+                    <div className="max-w-4xl mx-auto text-center">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-500 rounded-full mb-4">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">Bölümler Sistemi Geçici Olarak Bakımda</h3>
+                      <p className="text-gray-700 mb-4">Sayfa bölümlerini ekleme, silme ve sıralama özellikleri şu anda bakımdadır. En kısa sürede aktif hale getirilecektir.</p>
+                      <div className="inline-flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
+                        <svg className="w-5 h-5 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                        </svg>
+                        <span className="text-sm font-medium text-gray-700">Lütfen daha sonra tekrar kontrol ediniz</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </>
