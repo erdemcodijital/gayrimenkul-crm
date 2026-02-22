@@ -43,6 +43,13 @@ export default function InvoicesPage() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    agent_id: '',
+    amount: '',
+    description: '',
+    due_days: '30',
+    notes: ''
+  });
   const [stats, setStats] = useState<InvoiceStats>({
     total: 0,
     pending: 0,
@@ -123,6 +130,64 @@ export default function InvoicesPage() {
     const due = new Date(dueDate);
     const diff = due.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const createInvoice = async () => {
+    if (!createForm.agent_id || !createForm.amount) {
+      toast.error('Lütfen zorunlu alanları doldurun');
+      return;
+    }
+
+    try {
+      // Get invoice number
+      const { data: invoiceNumber } = await supabase.rpc('generate_invoice_number');
+
+      if (!invoiceNumber) {
+        throw new Error('Fatura numarası oluşturulamadı');
+      }
+
+      const amount = parseFloat(createForm.amount);
+      const taxRate = 20; // %20 KDV
+      const taxAmount = amount * (taxRate / 100);
+      const totalAmount = amount + taxAmount;
+
+      const issueDate = new Date();
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + parseInt(createForm.due_days));
+
+      const { error } = await supabase
+        .from('invoices')
+        .insert({
+          invoice_number: invoiceNumber,
+          agent_id: createForm.agent_id,
+          issue_date: issueDate.toISOString(),
+          due_date: dueDate.toISOString(),
+          amount: amount,
+          tax_rate: taxRate,
+          tax_amount: taxAmount,
+          total_amount: totalAmount,
+          currency: 'TRY',
+          status: 'pending',
+          description: createForm.description || null,
+          notes: createForm.notes || null
+        });
+
+      if (error) throw error;
+
+      toast.success('Fatura başarıyla oluşturuldu');
+      setShowCreateModal(false);
+      setCreateForm({
+        agent_id: '',
+        amount: '',
+        description: '',
+        due_days: '30',
+        notes: ''
+      });
+      await loadInvoices();
+    } catch (error: any) {
+      console.error('Create invoice error:', error);
+      toast.error('Fatura oluşturulamadı: ' + (error.message || ''));
+    }
   };
 
   const filteredInvoices = invoices.filter(invoice => {
@@ -337,6 +402,148 @@ export default function InvoicesPage() {
           </table>
         </div>
       </div>
+
+      {/* Create Invoice Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Yeni Fatura Oluştur</h3>
+              <p className="text-sm text-gray-600 mt-1">Fatura bilgilerini girin</p>
+            </div>
+
+            <div className="px-6 py-6 space-y-5">
+              {/* Agent Selection */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Danışman <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={createForm.agent_id}
+                  onChange={(e) => setCreateForm({ ...createForm, agent_id: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  required
+                >
+                  <option value="">Danışman seçin</option>
+                  {agents.map(agent => (
+                    <option key={agent.id} value={agent.id}>
+                      {agent.name} - {agent.domain}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Amount */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Tutar (KDV Hariç) <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">₺</span>
+                  <input
+                    type="number"
+                    value={createForm.amount}
+                    onChange={(e) => setCreateForm({ ...createForm, amount: e.target.value })}
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                    placeholder="5000"
+                    required
+                  />
+                </div>
+                {createForm.amount && (
+                  <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">Tutar (KDV Hariç):</span>
+                      <span className="font-medium">₺{parseFloat(createForm.amount).toLocaleString('tr-TR')}</span>
+                    </div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-gray-600">KDV (%20):</span>
+                      <span className="font-medium">₺{(parseFloat(createForm.amount) * 0.2).toLocaleString('tr-TR')}</span>
+                    </div>
+                    <div className="border-t border-gray-200 pt-2 mt-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-semibold text-gray-900">Toplam (KDV Dahil):</span>
+                        <span className="text-lg font-bold text-blue-600">
+                          ₺{(parseFloat(createForm.amount) * 1.2).toLocaleString('tr-TR')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Due Days */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Vade Süresi (Gün)
+                </label>
+                <select
+                  value={createForm.due_days}
+                  onChange={(e) => setCreateForm({ ...createForm, due_days: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="7">7 gün</option>
+                  <option value="15">15 gün</option>
+                  <option value="30">30 gün</option>
+                  <option value="60">60 gün</option>
+                  <option value="90">90 gün</option>
+                </select>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Açıklama
+                </label>
+                <input
+                  type="text"
+                  value={createForm.description}
+                  onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  placeholder="Örn: Aylık lisans ücreti"
+                />
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Notlar
+                </label>
+                <textarea
+                  value={createForm.notes}
+                  onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent resize-none"
+                  placeholder="Ek notlar..."
+                />
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setCreateForm({
+                    agent_id: '',
+                    amount: '',
+                    description: '',
+                    due_days: '30',
+                    notes: ''
+                  });
+                }}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                İptal
+              </button>
+              <button
+                onClick={createInvoice}
+                className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg"
+              >
+                Fatura Oluştur
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast Container */}
       <Toaster
