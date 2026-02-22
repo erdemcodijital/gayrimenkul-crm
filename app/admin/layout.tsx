@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
-import { LayoutDashboard, Users, FileText, LogOut, Building2, Globe, Settings } from 'lucide-react';
+import { LayoutDashboard, Users, FileText, LogOut, Building2, Globe, Settings, Key } from 'lucide-react';
 
 export default function AdminLayout({
   children,
@@ -83,6 +83,7 @@ export default function AdminLayout({
   const menuItems = [
     { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/admin/agents', icon: Users, label: 'Danışmanlar' },
+    { href: '/admin/licenses', icon: Key, label: 'Lisans Yönetimi' },
     { href: '/admin/domains', icon: Globe, label: 'Domain Yönetimi' },
     { href: '/admin/leads', icon: FileText, label: 'Leadler' },
     { href: '/admin/settings', icon: Settings, label: 'Sistem Ayarları' },
