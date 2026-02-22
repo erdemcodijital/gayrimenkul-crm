@@ -192,10 +192,12 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const themeColor = agent.theme_color || '#111827';
 
   // Memoize sections to ensure React sees changes
+  // Use JSON.stringify to detect deep changes in sections array
   const sections = useMemo(() => {
-    console.log('📦 ClientLandingPage: Memoizing sections', currentPage?.content?.sections?.map((s: any) => s.id));
-    return currentPage?.content?.sections ? [...currentPage.content.sections] : [];
-  }, [currentPage?.content?.sections]);
+    const sectionData = currentPage?.content?.sections;
+    console.log('📦 ClientLandingPage: Memoizing sections', sectionData?.map((s: any) => `${s.id} (order: ${s.order})`));
+    return sectionData ? [...sectionData] : [];
+  }, [JSON.stringify(currentPage?.content?.sections)]);
 
   // Check if page uses new sections system
   const useSectionsSystem = sections && Array.isArray(sections);
