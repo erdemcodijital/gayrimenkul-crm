@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Database } from '@/lib/database.types';
 import { supabase } from '@/lib/supabase';
 import EditableSectionWrapper from '@/components/EditableSectionWrapper';
@@ -191,9 +191,15 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Merhaba ${agent.name}, gayrimenkul danışmanlığı hakkında bilgi almak istiyorum.`)}`;
   const themeColor = agent.theme_color || '#111827';
 
+  // Memoize sections to ensure React sees changes
+  const sections = useMemo(() => {
+    console.log('📦 ClientLandingPage: Memoizing sections', currentPage?.content?.sections?.map((s: any) => s.id));
+    return currentPage?.content?.sections ? [...currentPage.content.sections] : [];
+  }, [currentPage?.content?.sections]);
+
   // Check if page uses new sections system
-  const useSectionsSystem = currentPage?.content?.sections && Array.isArray(currentPage.content.sections);
-  const hasCustomSections = useSectionsSystem && currentPage.content.sections.length > 0;
+  const useSectionsSystem = sections && Array.isArray(sections);
+  const hasCustomSections = useSectionsSystem && sections.length > 0;
   const isHomePage = currentPage?.is_home;
 
   // CUSTOM PAGE (NON-HOME) - Only sections system
@@ -201,7 +207,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
     return (
       <div className="min-h-screen bg-white">
         <SectionRenderer 
-          sections={currentPage.content.sections as Section[]}
+          sections={sections as Section[]}
           onUpdateSection={onUpdateSection || (() => {})}
           onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
           onSectionClick={onSectionClick}
@@ -659,7 +665,7 @@ export default function ClientLandingPage({ agent, currentPage, onUpdateSection,
       {hasCustomSections && (
         <div className="bg-white">
           <SectionRenderer 
-            sections={currentPage!.content.sections as Section[]}
+            sections={sections as Section[]}
             onUpdateSection={onUpdateSection || (() => {})}
             onDeleteSection={editMode && onDeleteSection ? onDeleteSection : undefined}
             onSectionClick={onSectionClick}
