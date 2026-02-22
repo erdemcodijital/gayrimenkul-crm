@@ -51,6 +51,14 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
     notFound();
   }
 
+  // Load home page content for custom sections
+  const { data: homePage } = await supabase
+    .from('pages')
+    .select('*')
+    .eq('agent_id', agent.id)
+    .eq('is_home', true)
+    .single();
+
   // Aktif mi kontrolü
   if (!agent.is_active) {
     return (
@@ -78,6 +86,7 @@ export default async function AgentPage({ params, searchParams }: PageProps) {
   return (
     <ClientLandingPage 
       agent={agent} 
+      currentPage={homePage || undefined}
       searchParams={searchParams}
     />
   );
