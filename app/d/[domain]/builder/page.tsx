@@ -153,7 +153,28 @@ function BuilderContent({ domain, router }: any) {
           title: p.title,
           sections: p.content?.sections?.map((s: any) => `${s.id} (order: ${s.order})`)
         })));
-        setPages(data as Page[]);
+        
+        // Add default sections to home page if missing
+        const pagesWithDefaults = data.map((p: any) => {
+          if (p.is_home && (!p.content?.sections || p.content.sections.length === 0)) {
+            console.log('🏠 Adding default sections to home page');
+            return {
+              ...p,
+              content: {
+                ...p.content,
+                sections: [
+                  { id: `section-hero-${Date.now()}`, type: 'hero', order: 0, data: {} },
+                  { id: `section-features-${Date.now() + 1}`, type: 'features', order: 1, data: {} },
+                  { id: `section-properties-${Date.now() + 2}`, type: 'properties', order: 2, data: {} },
+                  { id: `section-cta-${Date.now() + 3}`, type: 'cta', order: 3, data: {} }
+                ]
+              }
+            };
+          }
+          return p;
+        });
+        
+        setPages(pagesWithDefaults as Page[]);
         
         // Check if there's a page in URL
         const urlParams = new URLSearchParams(window.location.search);
@@ -183,6 +204,34 @@ function BuilderContent({ domain, router }: any) {
   const createDefaultHomePage = async () => {
     if (!agent) return;
 
+    // Create default sections for home page
+    const defaultSections = [
+      {
+        id: `section-hero-${Date.now()}`,
+        type: 'hero' as const,
+        order: 0,
+        data: {}
+      },
+      {
+        id: `section-features-${Date.now() + 1}`,
+        type: 'features' as const,
+        order: 1,
+        data: {}
+      },
+      {
+        id: `section-properties-${Date.now() + 2}`,
+        type: 'properties' as const,
+        order: 2,
+        data: {}
+      },
+      {
+        id: `section-cta-${Date.now() + 3}`,
+        type: 'cta' as const,
+        order: 3,
+        data: {}
+      }
+    ];
+
     const { data } = await supabase
       .from('pages')
       .insert({
@@ -192,7 +241,7 @@ function BuilderContent({ domain, router }: any) {
         is_home: true,
         visible: true,
         order_index: 0,
-        content: {}
+        content: { sections: defaultSections }
       })
       .select()
       .single();
