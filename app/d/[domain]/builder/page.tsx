@@ -350,15 +350,21 @@ function BuilderContent({ domain, router }: any) {
     const existingSections = currentPage.content?.sections || [];
     const updatedSections = [...existingSections, newSection];
 
-    // Update page content immediately
+    // Update local state immediately
+    setPages(prevPages => prevPages.map(p =>
+      p.id === currentPageId
+        ? { ...p, content: { ...p.content, sections: updatedSections } }
+        : p
+    ));
+
+    // Save to database
     const updatedContent = { ...currentPage.content, sections: updatedSections };
     supabase
       .from('pages')
       .update({ content: updatedContent })
       .eq('id', currentPageId)
       .then(() => {
-        // Reload pages to reflect changes
-        loadPages();
+        console.log('✅ Section added and saved to database');
       });
   };
 
