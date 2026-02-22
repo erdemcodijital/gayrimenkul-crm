@@ -384,23 +384,26 @@ function BuilderContent({ domain, router }: any) {
   };
 
   const handleDeleteSection = (id: string) => {
-    const currentPage = pages.find(p => p.id === currentPageId);
     if (!currentPage || !currentPage.content?.sections) return;
 
     const updatedSections = currentPage.content.sections.filter((section: Section) => section.id !== id);
 
-    // Update local state immediately
-    setPages(pages.map(p => 
+    // Update local state immediately with prevPages pattern
+    setPages(prevPages => prevPages.map(p => 
       p.id === currentPageId 
-        ? { ...p, content: { sections: updatedSections } }
+        ? { ...p, content: { ...p.content, sections: updatedSections } }
         : p
     ));
 
     // Save to database
+    const updatedContent = { ...currentPage.content, sections: updatedSections };
     supabase
       .from('pages')
-      .update({ content: { sections: updatedSections } })
-      .eq('id', currentPageId);
+      .update({ content: updatedContent })
+      .eq('id', currentPageId)
+      .then(() => {
+        console.log('✅ Section deleted and saved to database');
+      });
   };
 
   const handleReorderSections = useCallback((reorderedSections: Section[]) => {
