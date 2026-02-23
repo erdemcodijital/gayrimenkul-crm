@@ -54,10 +54,30 @@ export default function UsersPage() {
 
   const loadData = async () => {
     try {
-      // Load users from auth.users
-      const { data: { users: authUsers }, error: usersError } = await supabase.auth.admin.listUsers();
+      // Load users - Try admin API first, fallback to regular query
+      let authUsers: any[] = [];
       
-      if (usersError) throw usersError;
+      try {
+        const { data: { users }, error } = await supabase.auth.admin.listUsers();
+        if (!error && users) {
+          authUsers = users;
+        }
+      } catch (adminError) {
+        console.warn('Admin API not available, using fallback method');
+        // Fallback: Get users from admin_users table
+        const { data: adminUsersData } = await supabase
+          .from('admin_users')
+          .select('user_id, name, email, created_at');
+        
+        if (adminUsersData) {
+          authUsers = adminUsersData.map(au => ({
+            id: au.user_id,
+            email: au.email || '',
+            created_at: au.created_at,
+            last_sign_in_at: ''
+          }));
+        }
+      }
 
       // Load roles
       const { data: rolesData, error: rolesError } = await supabase
