@@ -33,7 +33,10 @@ export default function AgentsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [editingAgent, setEditingAgent] = useState<Agent | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [agentStats, setAgentStats] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'agents' | 'leads'>('agents');
   const [filterAgent, setFilterAgent] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -184,6 +187,50 @@ export default function AgentsPage() {
       console.error('Silme hatası:', error);
       alert('Danışman silinemedi');
     }
+  };
+
+  const viewAgentDetail = async (agent: Agent) => {
+    setSelectedAgent(agent);
+    
+    // Load agent's leads
+    const { data: agentLeads } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('agent_id', agent.id);
+
+    // Load agent's properties
+    const { data: agentProperties } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('agent_id', agent.id);
+
+    // Load agent's license
+    const { data: agentLicense } = await supabase
+      .from('licenses')
+      .select('*')
+      .eq('agent_id', agent.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    // Calculate stats
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const thisMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    const stats = {
+      totalLeads: agentLeads?.length || 0,
+      leadsToday: agentLeads?.filter(l => new Date(l.created_at) >= today).length || 0,
+      leadsThisMonth: agentLeads?.filter(l => new Date(l.created_at) >= thisMonth).length || 0,
+      totalProperties: agentProperties?.length || 0,
+      closedLeads: agentLeads?.filter(l => l.status === 'closed_success').length || 0,
+      conversionRate: agentLeads?.length ? Math.round((agentLeads.filter(l => l.status === 'closed_success').length / agentLeads.length) * 100) : 0,
+      license: agentLicense,
+      recentLeads: agentLeads?.slice(0, 5) || []
+    };
+
+    setAgentStats(stats);
+    setShowDetailModal(true);
   };
 
   if (loading) {
@@ -507,6 +554,13 @@ export default function AgentsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end space-x-1">
+                      <button
+                        onClick={() => viewAgentDetail(agent)}
+                        className="p-1.5 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
+                        title="Detayları Gör"
+                      >
+                        <Activity className="w-4 h-4" />
+                      </button>
                       <button
                         onClick={() => {
                           setEditingAgent(agent);
