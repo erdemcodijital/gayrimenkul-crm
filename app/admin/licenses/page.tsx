@@ -52,6 +52,7 @@ export default function LicensesPage() {
   const [renewingLicense, setRenewingLicense] = useState<License | null>(null);
   const [renewMonths, setRenewMonths] = useState(1);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [editForm, setEditForm] = useState({
     license_type: 'basic',
     end_date: '',
@@ -59,6 +60,13 @@ export default function LicensesPage() {
     billing_cycle: 'monthly',
     status: 'active',
     notes: ''
+  });
+  const [createForm, setCreateForm] = useState({
+    agent_id: '',
+    license_type: 'basic',
+    duration_months: 1,
+    price: '5000',
+    billing_cycle: 'monthly'
   });
 
   useEffect(() => {
@@ -234,12 +242,66 @@ export default function LicensesPage() {
     }
   };
 
+  const createLicense = async () => {
+    if (!createForm.agent_id) {
+      toast.error('Lütfen bir danışman seçin');
+      return;
+    }
+
+    try {
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setMonth(endDate.getMonth() + createForm.duration_months);
+
+      const { error } = await supabase
+        .from('licenses')
+        .insert({
+          agent_id: createForm.agent_id,
+          license_type: createForm.license_type,
+          start_date: startDate.toISOString(),
+          end_date: endDate.toISOString(),
+          status: 'active',
+          price: parseFloat(createForm.price),
+          billing_cycle: createForm.billing_cycle,
+          auto_renew: false
+        });
+
+      if (error) throw error;
+
+      setShowCreateModal(false);
+      setCreateForm({
+        agent_id: '',
+        license_type: 'basic',
+        duration_months: 1,
+        price: '5000',
+        billing_cycle: 'monthly'
+      });
+      await loadLicenses();
+      toast.success('Lisans başarıyla oluşturuldu!');
+    } catch (error) {
+      console.error('Create license error:', error);
+      toast.error('Lisans oluşturulamadı');
+    }
+  };
+
   const filteredLicenses = licenses.filter(license => {
-    if (filterStatus === 'all') return true;
-    if (filterStatus === 'active') return license.status === 'active' && getDaysRemaining(license.end_date) > 0;
-    if (filterStatus === 'expiring') return getDaysRemaining(license.end_date) <= 7 && getDaysRemaining(license.end_date) > 0;
-    if (filterStatus === 'expired') return license.status === 'expired' || getDaysRemaining(license.end_date) < 0;
-    return true;
+    // Status filter
+    let statusMatch = true;
+    if (filterStatus === 'active') statusMatch = license.status === 'active' && getDaysRemaining(license.end_date) > 0;
+    else if (filterStatus === 'expiring') statusMatch = getDaysRemaining(license.end_date) <= 7 && getDaysRemaining(license.end_date) > 0;
+    else if (filterStatus === 'expired') statusMatch = license.status === 'expired' || getDaysRemaining(license.end_date) < 0;
+
+    // Search filter
+    let searchMatch = true;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      searchMatch = 
+        license.agents?.name?.toLowerCase().includes(query) ||
+        license.agents?.domain?.toLowerCase().includes(query) ||
+        license.license_type.toLowerCase().includes(query);
+    }
+
+    return statusMatch && searchMatch;
   });
 
   if (loading) {
@@ -329,6 +391,17 @@ export default function LicensesPage() {
             <div className="text-xs text-gray-500 mt-1">Tekrarlayan</div>
           </div>
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Danışman adı, domain veya lisans tipi ara..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        />
       </div>
 
       {/* Filters */}
@@ -679,6 +752,129 @@ export default function LicensesPage() {
                 className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg"
               >
                 Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create License Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl max-w-lg w-full shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200">
+              <h3 className="text-xl font-bold text-gray-900">Yeni Lisans Oluştur</h3>
+              <p className="text-sm text-gray-600 mt-1">Danışmana yeni lisans atayın</p>
+            </div>
+
+            <div className="px-6 py-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Danışman Seç
+                </label>
+                <select
+                  value={createForm.agent_id}
+                  onChange={(e) => setCreateForm({ ...createForm, agent_id: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="">Danışman seçin...</option>
+                  {agents.map(agent => (
+                    <option key={agent.id} value={agent.id}>
+                      {agent.name} - {agent.domain}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Lisans Tipi
+                </label>
+                <select
+                  value={createForm.license_type}
+                  onChange={(e) => setCreateForm({ ...createForm, license_type: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                >
+                  <option value="basic">Basic</option>
+                  <option value="pro">Pro</option>
+                  <option value="enterprise">Enterprise</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">
+                  Süre
+                </label>
+                <div className="grid grid-cols-4 gap-2">
+                  {[1, 3, 6, 12].map(months => (
+                    <button
+                      key={months}
+                      onClick={() => setCreateForm({ ...createForm, duration_months: months })}
+                      className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
+                        createForm.duration_months === months
+                          ? 'bg-gray-900 text-white'
+                          : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {months} Ay
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Fiyat (₺)
+                  </label>
+                  <input
+                    type="number"
+                    value={createForm.price}
+                    onChange={(e) => setCreateForm({ ...createForm, price: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Döngü
+                  </label>
+                  <select
+                    value={createForm.billing_cycle}
+                    onChange={(e) => setCreateForm({ ...createForm, billing_cycle: e.target.value })}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                  >
+                    <option value="monthly">Aylık</option>
+                    <option value="yearly">Yıllık</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="text-sm text-blue-900">
+                  <div className="flex justify-between mb-1">
+                    <span>Toplam Tutar:</span>
+                    <span className="font-bold">₺{(parseFloat(createForm.price) * createForm.duration_months).toLocaleString('tr-TR')}</span>
+                  </div>
+                  <div className="text-xs text-blue-700">
+                    Bitiş: {new Date(Date.now() + createForm.duration_months * 30 * 24 * 60 * 60 * 1000).toLocaleDateString('tr-TR')}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                İptal
+              </button>
+              <button
+                onClick={createLicense}
+                disabled={!createForm.agent_id}
+                className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Oluştur
               </button>
             </div>
           </div>
