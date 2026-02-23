@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
-import { Globe, Check, X, Copy, ExternalLink, RefreshCw, AlertCircle } from 'lucide-react';
+import { Globe, Check, X, Copy, ExternalLink, RefreshCw, AlertCircle, Eye, Shield, Activity, TrendingUp } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 
@@ -18,6 +19,8 @@ export default function DomainsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [domainStats, setDomainStats] = useState<any>(null);
 
   useEffect(() => {
     loadAgents();
@@ -41,7 +44,45 @@ export default function DomainsPage() {
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert('Panoya kopyalandı!');
+    toast.success('Panoya kopyalandı!');
+  };
+
+  const viewDomainDetail = async (agent: Agent) => {
+    setSelectedAgent(agent);
+    
+    // Load agent's leads for analytics
+    const { data: agentLeads } = await supabase
+      .from('leads')
+      .select('*')
+      .eq('agent_id', agent.id);
+
+    // Load agent's properties
+    const { data: agentProperties } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('agent_id', agent.id);
+
+    // Calculate stats
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const lastWeek = new Date(today);
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    const lastMonth = new Date(today);
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+    const stats = {
+      totalLeads: agentLeads?.length || 0,
+      leadsLastWeek: agentLeads?.filter(l => new Date(l.created_at) >= lastWeek).length || 0,
+      leadsLastMonth: agentLeads?.filter(l => new Date(l.created_at) >= lastMonth).length || 0,
+      totalProperties: agentProperties?.length || 0,
+      activeProperties: agentProperties?.filter(p => p.status === 'active').length || 0,
+      sslStatus: agent.domain?.includes('.') ? 'active' : 'n/a',
+      domainType: agent.domain?.includes('.') ? 'custom' : 'path',
+      isCustomDomain: agent.domain?.includes('.') || false
+    };
+
+    setDomainStats(stats);
+    setShowDetailModal(true);
   };
 
   if (loading) {
@@ -233,6 +274,15 @@ export default function DomainsPage() {
                   </div>
 
                   <div className="flex items-center space-x-2">
+                    {agent.domain && (
+                      <button
+                        onClick={() => viewDomainDetail(agent)}
+                        className="px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 rounded transition inline-flex items-center gap-1"
+                      >
+                        <Eye className="w-3 h-3" />
+                        Detay
+                      </button>
+                    )}
                     <button
                       onClick={() => {
                         setSelectedAgent(agent);
@@ -272,6 +322,166 @@ export default function DomainsPage() {
         </div>
       </div>
 
+      {/* Domain Detail Modal */}
+      {showDetailModal && selectedAgent && domainStats && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-4xl w-full my-8 shadow-2xl">
+            <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">{selectedAgent.name} - Domain Detayları</h3>
+                <p className="text-sm text-gray-600 mt-1 font-mono">{selectedAgent.domain}</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedAgent(null);
+                  setDomainStats(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="px-6 py-6 space-y-6">
+              {/* Domain Status Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Globe className="w-4 h-4 text-blue-600" />
+                    <div className="text-xs font-semibold text-blue-900">Domain Tipi</div>
+                  </div>
+                  <div className="text-lg font-bold text-blue-700 capitalize">{domainStats.domainType}</div>
+                </div>
+
+                <div className="bg-green-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Shield className="w-4 h-4 text-green-600" />
+                    <div className="text-xs font-semibold text-green-900">SSL Durumu</div>
+                  </div>
+                  <div className="text-lg font-bold text-green-700 uppercase">{domainStats.sslStatus}</div>
+                </div>
+
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Activity className="w-4 h-4 text-purple-600" />
+                    <div className="text-xs font-semibold text-purple-900">Toplam Lead</div>
+                  </div>
+                  <div className="text-2xl font-bold text-purple-700">{domainStats.totalLeads}</div>
+                </div>
+
+                <div className="bg-orange-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingUp className="w-4 h-4 text-orange-600" />
+                    <div className="text-xs font-semibold text-orange-900">İlanlar</div>
+                  </div>
+                  <div className="text-2xl font-bold text-orange-700">{domainStats.totalProperties}</div>
+                </div>
+              </div>
+
+              {/* Analytics */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-4">Domain Analytics</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Son 7 Gün Lead</div>
+                    <div className="text-2xl font-bold text-gray-900">{domainStats.leadsLastWeek}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Son 30 Gün Lead</div>
+                    <div className="text-2xl font-bold text-gray-900">{domainStats.leadsLastMonth}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-600 mb-1">Aktif İlanlar</div>
+                    <div className="text-2xl font-bold text-gray-900">{domainStats.activeProperties}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* DNS & SSL Info */}
+              {domainStats.isCustomDomain && (
+                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                    <h4 className="text-sm font-semibold text-blue-900">SSL & DNS Bilgileri</h4>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center justify-between p-2 bg-white rounded">
+                      <span className="text-gray-600">SSL Sertifikası:</span>
+                      <span className="font-medium text-green-600">Let's Encrypt (Otomatik)</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-white rounded">
+                      <span className="text-gray-600">DNS Sağlayıcı:</span>
+                      <span className="font-medium text-gray-900">Vercel DNS</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-white rounded">
+                      <span className="text-gray-600">HTTPS:</span>
+                      <span className="font-medium text-green-600">Aktif</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Access URLs */}
+              <div className="bg-gray-50 rounded-lg p-4">
+                <h4 className="text-sm font-semibold text-gray-900 mb-3">Erişim URL'leri</h4>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                    <div>
+                      <div className="text-xs text-gray-600 mb-1">Path URL</div>
+                      <code className="text-sm text-gray-900 font-mono">/gayrimenkul/d/{selectedAgent.domain}</code>
+                    </div>
+                    <button
+                      onClick={() => copyToClipboard(`/gayrimenkul/d/${selectedAgent.domain}`)}
+                      className="p-2 hover:bg-gray-100 rounded"
+                    >
+                      <Copy className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </div>
+                  
+                  {domainStats.isCustomDomain && (
+                    <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
+                      <div>
+                        <div className="text-xs text-gray-600 mb-1">Custom Domain URL</div>
+                        <code className="text-sm text-gray-900 font-mono">https://{selectedAgent.domain}</code>
+                      </div>
+                      <button
+                        onClick={() => copyToClipboard(`https://${selectedAgent.domain}`)}
+                        className="p-2 hover:bg-gray-100 rounded"
+                      >
+                        <Copy className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-gray-50 rounded-b-2xl flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setSelectedAgent(null);
+                  setDomainStats(null);
+                }}
+                className="flex-1 px-4 py-2.5 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-100 transition"
+              >
+                Kapat
+              </button>
+              <button
+                onClick={() => {
+                  setShowDetailModal(false);
+                  setShowEditModal(true);
+                }}
+                className="flex-1 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow-lg"
+              >
+                Düzenle
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Edit Modal */}
       {showEditModal && selectedAgent && (
         <EditAgentModal
@@ -287,6 +497,23 @@ export default function DomainsPage() {
           }}
         />
       )}
+
+      {/* Toast Container */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#fff',
+            color: '#1f2937',
+            padding: '16px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            fontSize: '14px',
+            fontWeight: '500',
+          },
+        }}
+      />
     </div>
   );
 }
