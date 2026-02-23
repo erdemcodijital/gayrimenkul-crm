@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Database } from '@/lib/database.types';
 import { FileText, DollarSign, Calendar, Filter, Download, Plus, Check, Clock, AlertCircle, XCircle, Eye, CreditCard } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import { generateInvoicePDF } from '@/lib/pdfGenerator';
 
 type Agent = Database['public']['Tables']['agents']['Row'];
 
@@ -147,8 +148,13 @@ export default function InvoicesPage() {
   };
 
   const downloadPDF = (invoice: Invoice) => {
-    // PDF generation will be implemented later
-    toast.success(`${invoice.invoice_number} PDF indirme hazırlanıyor...`);
+    try {
+      generateInvoicePDF(invoice);
+      toast.success('PDF başarıyla oluşturuldu!');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('PDF oluşturulamadı');
+    }
   };
 
   const openPaymentModal = (invoice: Invoice) => {
