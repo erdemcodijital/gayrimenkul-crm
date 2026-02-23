@@ -76,6 +76,9 @@ export default function UsersPage() {
 
       setRoles(rolesData || []);
       setUserRoles(userRolesData || []);
+      
+      // Debug log
+      console.log('Loaded roles:', rolesData);
 
       // Combine users with their roles
       const usersWithRoles: UserWithRoles[] = (authUsers || []).map(user => {
@@ -424,13 +427,21 @@ export default function UsersPage() {
                   value={createForm.role}
                   onChange={(e) => setCreateForm({ ...createForm, role: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  disabled={roles.length === 0}
                 >
-                  {roles.map(role => (
-                    <option key={role.id} value={role.name}>
-                      {role.display_name}
-                    </option>
-                  ))}
+                  {roles.length === 0 ? (
+                    <option value="">Roller yükleniyor...</option>
+                  ) : (
+                    roles.map(role => (
+                      <option key={role.id} value={role.name}>
+                        {role.display_name}
+                      </option>
+                    ))
+                  )}
                 </select>
+                {roles.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">{roles.length} rol mevcut</p>
+                )}
               </div>
             </div>
 
