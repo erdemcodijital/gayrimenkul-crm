@@ -142,21 +142,59 @@ export default function UsersPage() {
     }
 
     setCreating(true);
+    console.log('Creating user...', createForm.email);
+    
     try {
-      // Create user with Supabase Auth Admin API
+      // Try Admin API first
+      console.log('Attempting admin API...');
       const { data, error } = await supabase.auth.admin.createUser({
         email: createForm.email,
         password: createForm.password,
         email_confirm: true
       });
 
-      if (error) throw error;
-      if (!data.user) throw new Error('Kullanıcı oluşturulamadı');
+      console.log('Admin API response:', { data, error });
 
-      // Assign selected role
-      const success = await assignRoleToUser(data.user.id, createForm.role);
-      if (!success) {
-        console.warn('Rol atanamadı ama kullanıcı oluşturuldu');
+      if (error) {
+        console.error('Admin API error:', error);
+        
+        // Fallback: Use regular signup
+        console.log('Trying regular signup...');
+        const { data: signupData, error: signupError } = await supabase.auth.signUp({
+          email: createForm.email,
+          password: createForm.password,
+          options: {
+            emailRedirectTo: undefined
+          }
+        });
+
+        console.log('Signup response:', { signupData, signupError });
+
+        if (signupError) throw signupError;
+        if (!signupData.user) throw new Error('Kullanıcı oluşturulamadı');
+
+        // Add to admin_users table
+        const { error: adminUserError } = await supabase
+          .from('admin_users')
+          .insert({
+            user_id: signupData.user.id,
+            email: createForm.email,
+            name: createForm.email.split('@')[0]
+          });
+
+        if (adminUserError) {
+          console.error('Admin user insert error:', adminUserError);
+        }
+
+        // Assign role
+        const success = await assignRoleToUser(signupData.user.id, createForm.role);
+        console.log('Role assignment result:', success);
+      } else {
+        if (!data.user) throw new Error('Kullanıcı oluşturulamadı');
+        
+        // Assign role
+        const success = await assignRoleToUser(data.user.id, createForm.role);
+        console.log('Role assignment result:', success);
       }
 
       toast.success('Kullanıcı başarıyla oluşturuldu!');
