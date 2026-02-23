@@ -187,7 +187,7 @@ export default function AdminLayout({
         <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
-              {menuItems.find(item => item.href === pathname)?.label || 'Admin Panel'}
+              {menuCategories.flatMap(cat => cat.items).find(item => item.href === pathname)?.label || 'Admin Panel'}
             </h2>
           </div>
           <div className="flex items-center gap-4">
