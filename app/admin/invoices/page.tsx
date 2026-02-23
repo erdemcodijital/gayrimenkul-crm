@@ -42,6 +42,7 @@ export default function InvoicesPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({
     agent_id: '',
@@ -259,8 +260,24 @@ export default function InvoicesPage() {
   };
 
   const filteredInvoices = invoices.filter(invoice => {
-    if (filterStatus === 'all') return true;
-    return invoice.status === filterStatus;
+    // Status filter
+    let statusMatch = true;
+    if (filterStatus !== 'all') {
+      statusMatch = invoice.status === filterStatus;
+    }
+
+    // Search filter
+    let searchMatch = true;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      searchMatch = 
+        invoice.invoice_number.toLowerCase().includes(query) ||
+        invoice.agents?.name?.toLowerCase().includes(query) ||
+        invoice.agents?.domain?.toLowerCase().includes(query) ||
+        invoice.description?.toLowerCase().includes(query);
+    }
+
+    return statusMatch && searchMatch;
   });
 
   if (loading) {
@@ -338,6 +355,17 @@ export default function InvoicesPage() {
             <div className="text-xs text-gray-500 mt-1">Ödeme bekleniyor</div>
           </div>
         </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Fatura no, danışman adı veya açıklama ara..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        />
       </div>
 
       {/* Filters */}
