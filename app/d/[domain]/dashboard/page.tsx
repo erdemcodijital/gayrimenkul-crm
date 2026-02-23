@@ -39,6 +39,18 @@ export default function AgentDashboard() {
     },
     conversionRate: 0,
     weeklyData: [] as { day: string; count: number }[],
+    revenue: {
+      potential: 0,
+      realized: 0,
+      pipeline: 0,
+      target: 0,
+    },
+    performance: {
+      avgResponseTime: 0,
+      closeRate: 0,
+      avgDealValue: 0,
+      hotLeads: 0,
+    },
   });
   const [properties, setProperties] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'leads' | 'portfolio' | 'appointments' | 'qr' | 'settings'>('leads');
@@ -593,6 +605,33 @@ export default function AgentDashboard() {
           weeklyData.push({ day: dayName, count });
         }
 
+        // Revenue calculations
+        const potentialRevenue = leadsData
+          .filter(l => l.status !== 'closed_cancelled')
+          .reduce((sum, l) => sum + (parseFloat(l.budget) || 0), 0);
+        
+        const realizedRevenue = leadsData
+          .filter(l => l.status === 'closed_success')
+          .reduce((sum, l) => sum + (parseFloat(l.budget) || 0), 0);
+        
+        const pipelineRevenue = leadsData
+          .filter(l => ['contacted', 'meeting'].includes(l.status))
+          .reduce((sum, l) => sum + (parseFloat(l.budget) || 0), 0);
+
+        // Performance metrics
+        const closeRate = leadsData.length > 0 
+          ? Math.round((byStatus.closed_success / leadsData.length) * 100)
+          : 0;
+        
+        const avgDealValue = byStatus.closed_success > 0
+          ? Math.round(realizedRevenue / byStatus.closed_success)
+          : 0;
+        
+        // Hot leads (new leads from last 24h)
+        const hotLeads = leadsData.filter(l => 
+          l.status === 'new' && new Date(l.created_at) >= today
+        ).length;
+
         setStats({
           total: leadsData.length,
           today: leadsData.filter(l => new Date(l.created_at) >= today).length,
@@ -601,6 +640,18 @@ export default function AgentDashboard() {
           byStatus,
           conversionRate,
           weeklyData,
+          revenue: {
+            potential: potentialRevenue,
+            realized: realizedRevenue,
+            pipeline: pipelineRevenue,
+            target: 1000000, // Default target, can be made configurable
+          },
+          performance: {
+            avgResponseTime: 0, // Can be calculated from lead notes timestamps
+            closeRate,
+            avgDealValue,
+            hotLeads,
+          },
         });
       }
     } catch (error) {
