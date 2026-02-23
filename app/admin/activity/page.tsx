@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Activity, Filter, Calendar, User, FileText, Search, RefreshCw, Clock, Database } from 'lucide-react';
+import { Activity, Filter, Calendar, User, FileText, Search, RefreshCw, Clock, Database, Download } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 interface ActivityLog {
@@ -148,6 +148,29 @@ export default function ActivityPage() {
     return true;
   });
 
+  const exportToCSV = () => {
+    const headers = ['Tarih', 'Kullanıcı', 'Eylem', 'Varlık', 'Açıklama'];
+    const rows = filteredActivities.map(activity => [
+      new Date(activity.created_at).toLocaleString('tr-TR'),
+      activity.user_name || activity.user_email || '-',
+      getActionLabel(activity.action),
+      getEntityLabel(activity.entity_type),
+      activity.description || '-'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `activity_logs_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    toast.success('CSV dosyası indiriliyor...');
+  };
+
   const uniqueUsers = Array.from(new Set(activities.map(a => a.user_email).filter(Boolean)));
   const uniqueActions = Array.from(new Set(activities.map(a => a.action)));
   const uniqueEntities = Array.from(new Set(activities.map(a => a.entity_type)));
@@ -176,13 +199,22 @@ export default function ActivityPage() {
             <h1 className="text-2xl font-bold text-gray-900">Sistem Aktiviteleri</h1>
             <p className="text-sm text-gray-600 mt-1">Tüm sistem aktivitelerini ve değişikliklerini izleyin</p>
           </div>
-          <button
-            onClick={() => loadActivities()}
-            className="inline-flex items-center px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition shadow-sm"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Yenile
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={exportToCSV}
+              className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition shadow-sm"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              CSV İndir
+            </button>
+            <button
+              onClick={() => loadActivities()}
+              className="inline-flex items-center px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition shadow-sm"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Yenile
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}
