@@ -81,20 +81,45 @@ export default function AdminLayout({
     return null;
   }
 
-  const menuItems = [
-    { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/admin/agents', icon: Users, label: 'Danışmanlar' },
-    { href: '/admin/licenses', icon: Key, label: 'Lisans Yönetimi' },
-    { href: '/admin/invoices', icon: Receipt, label: 'Faturalar' },
-    { href: '/admin/activity', icon: Activity, label: 'Aktivite Logları' },
-    { href: '/admin/domains', icon: Globe, label: 'Domain Yönetimi' },
-    { href: '/admin/leads', icon: FileText, label: 'Leadler' },
-    { href: '/admin/notifications', icon: Bell, label: 'Bildirimler' },
-    { href: '/admin/users', icon: UserCog, label: 'Kullanıcı Yönetimi' },
-    { href: '/admin/roles', icon: Shield, label: 'Rol & Yetki Yönetimi' },
-    { href: '/admin/email-templates', icon: Mail, label: 'Email Template' },
-    { href: '/admin/whatsapp-templates', icon: MessageSquare, label: 'WhatsApp Template' },
-    { href: '/admin/settings', icon: Settings, label: 'Sistem Ayarları' },
+  const menuCategories = [
+    {
+      title: 'GENEL',
+      items: [
+        { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        { href: '/admin/notifications', icon: Bell, label: 'Bildirimler' },
+      ]
+    },
+    {
+      title: 'YÖNETİM',
+      items: [
+        { href: '/admin/agents', icon: Users, label: 'Danışmanlar' },
+        { href: '/admin/leads', icon: FileText, label: 'Leadler' },
+        { href: '/admin/domains', icon: Globe, label: 'Domain Yönetimi' },
+      ]
+    },
+    {
+      title: 'FİNANS',
+      items: [
+        { href: '/admin/licenses', icon: Key, label: 'Lisans Yönetimi' },
+        { href: '/admin/invoices', icon: Receipt, label: 'Faturalar' },
+      ]
+    },
+    {
+      title: 'SİSTEM',
+      items: [
+        { href: '/admin/users', icon: UserCog, label: 'Kullanıcılar' },
+        { href: '/admin/roles', icon: Shield, label: 'Roller & Yetkiler' },
+        { href: '/admin/activity', icon: Activity, label: 'Aktivite Logları' },
+      ]
+    },
+    {
+      title: 'AYARLAR',
+      items: [
+        { href: '/admin/email-templates', icon: Mail, label: 'Email Template' },
+        { href: '/admin/whatsapp-templates', icon: MessageSquare, label: 'WhatsApp Template' },
+        { href: '/admin/settings', icon: Settings, label: 'Sistem Ayarları' },
+      ]
+    }
   ];
 
   return (
@@ -113,25 +138,36 @@ export default function AdminLayout({
           </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-primary-50 text-primary-600 font-semibold'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 p-4 space-y-6 overflow-y-auto">
+          {menuCategories.map((category, categoryIndex) => (
+            <div key={categoryIndex}>
+              <div className="px-3 mb-2">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  {category.title}
+                </h3>
+              </div>
+              <div className="space-y-1">
+                {category.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.href;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-primary-50 text-primary-600 font-semibold'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-sm">{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         <div className="p-4 border-t border-gray-200">
